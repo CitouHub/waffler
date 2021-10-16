@@ -26,7 +26,8 @@ namespace WaffleBot.Data
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Amount { get; set; }
-        public int ActionMinIntervalMinutes { get; set; }
+        public int TradeMinIntervalMinutes { get; set; }
+        public DateTime LastTrigger { get; set; }
         public bool? IsActive { get; set; }
 
         public virtual TradeAction TradeAction { get; set; }

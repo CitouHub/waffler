@@ -15,7 +15,6 @@ namespace WaffleBot.Data
         public DateTime? UpdateDate { get; set; }
         public int? UpdateByUser { get; set; }
         public int TradeRuleId { get; set; }
-        public short TradeStausId { get; set; }
         public short TradeOrderStatusId { get; set; }
         public Guid OrderId { get; set; }
         public string InstrumentCode { get; set; }

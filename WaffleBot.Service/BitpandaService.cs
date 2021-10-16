@@ -45,9 +45,9 @@ namespace WaffleBot.Service
             }
         }
 
-        public BitpandaService(HttpClient httpClient, IProfileService profileService)
+        public BitpandaService(IHttpClientFactory httpClientFactory, IProfileService profileService)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient("Bitpanda");
             _apiKey = profileService.GetApiKey().Result;
         }
 

@@ -32,7 +32,11 @@ namespace WaffleBot.Function
             builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddScoped<ITradeOrderService, TradeOrderService>();
 
-            builder.Services.AddHttpClient();
+            builder.Services.AddHttpClient("Bitpanda", _ =>
+            {
+                _.BaseAddress = new Uri(config["Bitpanda:BaseUri"]);
+                _.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            });
 
             var mapperConfig = new MapperConfiguration(mc =>
             {

@@ -21,13 +21,14 @@ namespace WaffleBot.Data
 
         public virtual DbSet<CandleStick> CandleStick { get; set; }
         public virtual DbSet<CandleStickValueType> CandleStickValueType { get; set; }
-        public virtual DbSet<ConditionComparator> ConditionComparator { get; set; }
         public virtual DbSet<TradeAction> TradeAction { get; set; }
         public virtual DbSet<TradeConditionOperator> TradeConditionOperator { get; set; }
         public virtual DbSet<TradeOrder> TradeOrder { get; set; }
         public virtual DbSet<TradeOrderStatus> TradeOrderStatus { get; set; }
         public virtual DbSet<TradeRule> TradeRule { get; set; }
         public virtual DbSet<TradeRuleCondition> TradeRuleCondition { get; set; }
+        public virtual DbSet<TradeRuleConditionComparator> TradeRuleConditionComparator { get; set; }
+        public virtual DbSet<TradeRuleConditionSampleDirection> TradeRuleConditionSampleDirection { get; set; }
         public virtual DbSet<TradeType> TradeType { get; set; }
         public virtual DbSet<WafflerProfile> WafflerProfile { get; set; }
 
@@ -49,10 +50,6 @@ namespace WaffleBot.Data
                 entity.Property(e => e.AvgOpenClosePrice).HasColumnType("decimal(10, 2)");
 
                 entity.Property(e => e.ClosePrice).HasColumnType("decimal(10, 2)");
-
-                entity.Property(e => e.GranularityUnit)
-                    .IsRequired()
-                    .HasMaxLength(50);
 
                 entity.Property(e => e.HighPrice).HasColumnType("decimal(10, 2)");
 
@@ -78,19 +75,6 @@ namespace WaffleBot.Data
             });
 
             modelBuilder.Entity<CandleStickValueType>(entity =>
-            {
-                entity.Property(e => e.Description).HasMaxLength(200);
-
-                entity.Property(e => e.InsertByUser).HasDefaultValueSql("((1))");
-
-                entity.Property(e => e.InsertDate).HasDefaultValueSql("(getutcdate())");
-
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(50);
-            });
-
-            modelBuilder.Entity<ConditionComparator>(entity =>
             {
                 entity.Property(e => e.Description).HasMaxLength(200);
 
@@ -187,6 +171,10 @@ namespace WaffleBot.Data
                     .IsRequired()
                     .HasDefaultValueSql("((1))");
 
+                entity.Property(e => e.LastTrigger)
+                    .HasColumnType("datetime2(0)")
+                    .HasDefaultValueSql("('1900-01-01')");
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
@@ -212,7 +200,7 @@ namespace WaffleBot.Data
 
             modelBuilder.Entity<TradeRuleCondition>(entity =>
             {
-                entity.Property(e => e.DeltaPercent).HasColumnType("decimal(4, 2)");
+                entity.Property(e => e.DeltaPercent).HasColumnType("decimal(6, 4)");
 
                 entity.Property(e => e.Description).HasMaxLength(200);
 
@@ -230,17 +218,49 @@ namespace WaffleBot.Data
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("TradeRuleCondition_CandleStickValueTypeFK");
 
-                entity.HasOne(d => d.ConditionComparator)
+                entity.HasOne(d => d.TradeRuleConditionComparator)
                     .WithMany(p => p.TradeRuleCondition)
-                    .HasForeignKey(d => d.ConditionComparatorId)
+                    .HasForeignKey(d => d.TradeRuleConditionComparatorId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("TradeRuleCondition_ConditionComparatorFK");
+                    .HasConstraintName("TradeRuleCondition_TradeRuleConditionComparatorFK");
+
+                entity.HasOne(d => d.TradeRuleConditionSampleDirection)
+                    .WithMany(p => p.TradeRuleCondition)
+                    .HasForeignKey(d => d.TradeRuleConditionSampleDirectionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("TradeRuleCondition_TradeRuleConditionSampleDirectionFK");
 
                 entity.HasOne(d => d.TradeRule)
                     .WithMany(p => p.TradeRuleCondition)
                     .HasForeignKey(d => d.TradeRuleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("TradeRuleCondition_TradeRuleFK");
+            });
+
+            modelBuilder.Entity<TradeRuleConditionComparator>(entity =>
+            {
+                entity.Property(e => e.Description).HasMaxLength(200);
+
+                entity.Property(e => e.InsertByUser).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.InsertDate).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<TradeRuleConditionSampleDirection>(entity =>
+            {
+                entity.Property(e => e.Description).HasMaxLength(200);
+
+                entity.Property(e => e.InsertByUser).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.InsertDate).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
             });
 
             modelBuilder.Entity<TradeType>(entity =>

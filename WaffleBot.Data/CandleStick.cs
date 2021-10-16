@@ -15,9 +15,6 @@ namespace WaffleBot.Data
         public DateTime? UpdateDate { get; set; }
         public int? UpdateByUser { get; set; }
         public short TradeTypeId { get; set; }
-        public long LastSequence { get; set; }
-        public string GranularityUnit { get; set; }
-        public short GranularityPeriod { get; set; }
         public decimal HighPrice { get; set; }
         public decimal LowPrice { get; set; }
         public decimal OpenPrice { get; set; }

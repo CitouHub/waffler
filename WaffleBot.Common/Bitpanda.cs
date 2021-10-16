@@ -1,4 +1,5 @@
-﻿using static WaffleBot.Common.Variable;
+﻿using System.Collections.Generic;
+using static WaffleBot.Common.Variable;
 
 namespace WaffleBot.Common
 {
@@ -16,13 +17,20 @@ namespace WaffleBot.Common
 
         public static string GetInstrumentCode(TradeType tradeType)
         {
-            switch(tradeType)
+            return tradeType switch
             {
-                case TradeType.BTC_EUR:
-                    return InstrumentCode.BTC_EUR;
-                default:
-                    return null;
-            }
+                TradeType.BTC_EUR => InstrumentCode.BTC_EUR,
+                _ => null,
+            };
+        }
+
+        public static TradeType GetTradeType(string instrumentCode)
+        {
+            return instrumentCode switch
+            {
+                InstrumentCode.BTC_EUR => TradeType.BTC_EUR,
+                _ => default,
+            };
         }
     }
 }

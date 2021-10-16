@@ -1,9 +1,14 @@
-﻿DELETE TradeRuleCondition
+﻿DELETE CandleStick
+DELETE TradeOrder
+DELETE TradeRuleCondition
 DELETE TradeRule
+DELETE TradeType
 DELETE TradeConditionOperator
 DELETE TradeAction
 DELETE CandleStickValueType
-DELETE ConditionComparator
+DELETE TradeRuleConditionComparator
+DELETE TradeRuleConditionSampleDirection
+DELETE TradeOrderStatus
 
 SET IDENTITY_INSERT TradeConditionOperator ON
 GO
@@ -31,18 +36,30 @@ INSERT INTO CandleStickValueType (ID, Name) VALUES (1, 'High price')
 INSERT INTO CandleStickValueType (ID, Name) VALUES (2, 'Low price')
 INSERT INTO CandleStickValueType (ID, Name) VALUES (3, 'Open price')
 INSERT INTO CandleStickValueType (ID, Name) VALUES (4, 'Close price')
-INSERT INTO CandleStickValueType (ID, Name) VALUES (5, 'AvgHighLow price')
-INSERT INTO CandleStickValueType (ID, Name) VALUES (6, 'AvgOpenClose price')
+INSERT INTO CandleStickValueType (ID, Name) VALUES (5, 'HighLow price')
+INSERT INTO CandleStickValueType (ID, Name) VALUES (6, 'OpenClose price')
+INSERT INTO CandleStickValueType (ID, Name) VALUES (7, 'AvgHighLow price')
+INSERT INTO CandleStickValueType (ID, Name) VALUES (8, 'AvgOpenClose price')
 SET IDENTITY_INSERT CandleStickValueType OFF
 GO
 
-SET IDENTITY_INSERT ConditionComparator ON
+SET IDENTITY_INSERT TradeRuleConditionComparator ON
 GO
-INSERT INTO ConditionComparator (ID, Name) VALUES (1, 'Less then')
-INSERT INTO ConditionComparator (ID, Name) VALUES (2, 'More then')
-INSERT INTO ConditionComparator (ID, Name) VALUES (3, 'Abs less then')
-INSERT INTO ConditionComparator (ID, Name) VALUES (4, 'Abs more then')
-SET IDENTITY_INSERT ConditionComparator OFF
+INSERT INTO TradeRuleConditionComparator (ID, Name) VALUES (1, 'Less then')
+INSERT INTO TradeRuleConditionComparator (ID, Name) VALUES (2, 'More then')
+INSERT INTO TradeRuleConditionComparator (ID, Name) VALUES (3, 'Abs less then')
+INSERT INTO TradeRuleConditionComparator (ID, Name) VALUES (4, 'Abs more then')
+SET IDENTITY_INSERT TradeRuleConditionComparator OFF
+GO
+
+SET IDENTITY_INSERT TradeRuleConditionSampleDirection ON
+GO
+INSERT INTO TradeRuleConditionSampleDirection (ID, Name) VALUES (1, 'Inward')
+INSERT INTO TradeRuleConditionSampleDirection (ID, Name) VALUES (2, 'Outward')
+INSERT INTO TradeRuleConditionSampleDirection (ID, Name) VALUES (3, 'Left shift')
+INSERT INTO TradeRuleConditionSampleDirection (ID, Name) VALUES (4, 'Right shift')
+INSERT INTO TradeRuleConditionSampleDirection (ID, Name) VALUES (5, 'Centered')
+SET IDENTITY_INSERT TradeRuleConditionSampleDirection OFF
 GO
 
 SET IDENTITY_INSERT TradeOrderStatus ON
@@ -61,13 +78,13 @@ GO
 
 SET IDENTITY_INSERT TradeRule ON
 GO
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeConditionOperatorId], [Name], [Amount], [ActionMinIntervalMinutes]) VALUES (1, 1, 1, 'TestRule', 0.0005, 60*12)
+INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (1, 1, 1, 1, 'TestRule', 0.0005, 60*4)
 SET IDENTITY_INSERT TradeRule OFF
 GO
 
-INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [ConditionComparatorId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
-VALUES (1, 1, 1, -90, -60, 15, 15, -3.0, 'A drop of over 3% over 30 minuts 90 minutes ago')
-INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [ConditionComparatorId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
-VALUES (1, 1, 3, -60, 0, 15, 15, 0.5, 'No more then 0.5% change over the last 60 minutes')
-INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [ConditionComparatorId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
-VALUES (1, 1, 2, -5760, 0, 15, 15, 1.0, 'The general trend over 4 days are positive')
+INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
+VALUES (1, 5, 1, 2, -5*60, -4*60, 30, 30, -1.2, 'A drop of over 1.2% over 1 hour 4 hours ago')
+INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
+VALUES (1, 5, 3, 1, -4*60, -30, 60, 60, 0.5, 'No more then 0.5% change over the last 4 hours')
+INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
+VALUES (1, 5, 2, 5, -10*24*60, -12*60, 24*60, 24*60, 1.0, 'The general trend over 10 days is positive')

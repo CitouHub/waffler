@@ -4,10 +4,7 @@ namespace WaffleBot.Domain
 {
     public class CandleStickDTO
     {
-        public long LastSequence { get; set; }
-        public string InstrumentCode { get; set; }
-        public string GranularityUnit { get; set; }
-        public short GranularityPeriod { get; set; }
+        public short TradeTypeId { get; set; }
         public decimal HighPrice { get; set; }
         public decimal LowPrice { get; set; }
         public decimal OpenPrice { get; set; }

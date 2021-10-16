@@ -10,19 +10,19 @@ namespace WaffleBot.Data.Extensions
 {
     public static class StoredProcedure
     {
-        public static async Task<List<sp_getPriceTrends_Result>> sp_getPriceTrends(this WafflerDbContext context, 
-            DateTime startTime,
-            int fromMinutesOffset, 
-            int toMinutesOffset, 
-            int fromMinutesSample, 
-            int toMinutesSample)
+        public static async Task<List<sp_getPriceTrends_Result>> sp_getPriceTrends(this WafflerDbContext context,
+            DateTime fromFromDateTime,
+	        DateTime fromToDateTime,
+	        DateTime toFromDateTime,
+	        DateTime toToDateTime)
         {
-            return await context.Set<sp_getPriceTrends_Result>().FromSqlRaw($"exec sp_getPriceTrends " +
-                $"'{startTime.ToString("yyyy-MM-dd hh:mm:ss")}'" + 
-                $"{fromMinutesOffset}, " +
-                $"{toMinutesOffset}, " +
-                $"{fromMinutesSample}, " +
-                $"{toMinutesSample}").ToListAsync();
+            var expr = $"exec sp_getPriceTrends " +
+                $"'{fromFromDateTime:yyyy-MM-dd HH:mm:ss}', " +
+                $"'{fromToDateTime:yyyy-MM-dd HH:mm:ss}', " +
+                $"'{toFromDateTime:yyyy-MM-dd HH:mm:ss}', " +
+                $"'{toToDateTime:yyyy-MM-dd HH:mm:ss}'";
+
+            return await context.Set<sp_getPriceTrends_Result>().FromSqlRaw(expr).ToListAsync();
         }
     }
 }

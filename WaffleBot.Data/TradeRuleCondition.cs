@@ -16,7 +16,8 @@ namespace WaffleBot.Data
         public int? UpdateByUser { get; set; }
         public int TradeRuleId { get; set; }
         public short CandleStickValueTypeId { get; set; }
-        public short ConditionComparatorId { get; set; }
+        public short TradeRuleConditionComparatorId { get; set; }
+        public short TradeRuleConditionSampleDirectionId { get; set; }
         public int FromMinutesOffset { get; set; }
         public int ToMinutesOffset { get; set; }
         public int FromMinutesSample { get; set; }
@@ -26,7 +27,8 @@ namespace WaffleBot.Data
         public bool? IsActive { get; set; }
 
         public virtual CandleStickValueType CandleStickValueType { get; set; }
-        public virtual ConditionComparator ConditionComparator { get; set; }
         public virtual TradeRule TradeRule { get; set; }
+        public virtual TradeRuleConditionComparator TradeRuleConditionComparator { get; set; }
+        public virtual TradeRuleConditionSampleDirection TradeRuleConditionSampleDirection { get; set; }
     }
 }

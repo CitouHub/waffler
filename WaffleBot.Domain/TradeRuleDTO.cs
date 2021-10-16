@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace WaffleBot.Domain
 {
@@ -12,6 +13,7 @@ namespace WaffleBot.Domain
         public string Description { get; set; }
         public decimal Amount { get; set; }
         public int TradeMinIntervalMinutes { get; set; }
+        public DateTime LastTrigger { get; set; }
         public bool? IsActive { get; set; }
 
         public List<TradeRuleConditionDTO> TradeRuleConditions { get; set; }

@@ -8,16 +8,27 @@
             LowPrice = 2,
             OpenPrice = 3,
             ClosePrice = 4,
-            AvgHighLowPrice = 5,
-            AvgOpenClosePrice = 6
+            HighLowPrice = 5,
+            OpenClosePrice = 6,
+            AvgHighLowPrice = 7,
+            AvgOpenClosePrice = 8
         }
 
-        public enum ConditionComparator
+        public enum TradeRuleConditionComparator
         {
             LessThen = 1,
             MoreThen = 2,
             AbsLessThen = 3,
             AbsMoreThen = 4
+        }
+
+        public enum TradeRuleConditionSampleDirection
+        {
+            Inward = 1,
+            Outward = 2,
+            LeftShift = 3,
+            RightShift = 4,
+            Centered = 5
         }
 
         public enum TradeConditionOperator
