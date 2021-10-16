@@ -24,5 +24,20 @@ namespace WaffleBot.Data.Extensions
 
             return await context.Set<sp_getPriceTrends_Result>().FromSqlRaw(expr).ToListAsync();
         }
+
+        public static async Task<List<sp_getPriceStatistics_Result>> sp_getPriceStatistics(this WafflerDbContext context,
+            short candleStickValueTypeId,
+            short periodDateTimeGroup,
+            DateTime fromPeriodDateTime,
+	        DateTime toPeriodDateTime)
+        {
+            var expr = $"exec sp_getPriceStatistics " +
+                $"{candleStickValueTypeId}, " +
+                $"{periodDateTimeGroup}, " +
+                $"'{fromPeriodDateTime:yyyy-MM-dd HH:mm:ss}', " +
+                $"'{toPeriodDateTime:yyyy-MM-dd HH:mm:ss}'";
+
+            return await context.Set<sp_getPriceStatistics_Result>().FromSqlRaw(expr).ToListAsync();
+        }
     }
 }
