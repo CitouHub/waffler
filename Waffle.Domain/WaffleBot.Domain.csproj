@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Bitpanda\Private\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WaffleBot.Data\WaffleBot.Data.csproj" />
+  </ItemGroup>
+
+</Project>
