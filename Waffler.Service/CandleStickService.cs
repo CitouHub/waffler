@@ -18,7 +18,7 @@ namespace Waffler.Service
     {
         Task AddCandleSticksAsync(List<CandleStickDTO> candleSticks);
         Task<CandleStickDTO> GetLastCandleStickAsync(DateTime toPeriodDateTime);
-        Task<PriceTrendsDTO> GetPriceTrendsAsync(DateTime startDateTime, Variable.TradeType tradeType, Variable.TradeRuleConditionSampleDirection sampleDirection, int fromMinutesOffset, int toMinutesOffset, int fromMinutesSample, int toMinutesSample);
+        Task<PriceTrendsDTO> GetPriceTrendsAsync(DateTime currentPeriodDateTime, Variable.TradeType tradeType, Variable.TradeRuleConditionSampleDirection sampleDirection, int fromMinutesOffset, int toMinutesOffset, int fromMinutesSample, int toMinutesSample);
     }
 
     public class CandleStickService : ICandleStickService
@@ -54,7 +54,7 @@ namespace Waffler.Service
             return _mapper.Map<CandleStickDTO>(candleStick);
         }
 
-        public async Task<PriceTrendsDTO> GetPriceTrendsAsync(DateTime startDateTime, 
+        public async Task<PriceTrendsDTO> GetPriceTrendsAsync(DateTime currentPeriodDateTime, 
             Variable.TradeType tradeType,
             Variable.TradeRuleConditionSampleDirection sampleDirection, 
             int fromMinutesOffset, 
@@ -62,10 +62,10 @@ namespace Waffler.Service
             int fromMinutesSample, 
             int toMinutesSample)
         {
-            var fromFromDateTime = startDateTime.AddMinutes(fromMinutesOffset);
-            var fromToDateTime = startDateTime.AddMinutes(fromMinutesOffset);
-            var toFromDateTime = startDateTime.AddMinutes(toMinutesOffset);
-            var toToDateTime = startDateTime.AddMinutes(toMinutesOffset);
+            var fromFromDateTime = currentPeriodDateTime.AddMinutes(fromMinutesOffset);
+            var fromToDateTime = currentPeriodDateTime.AddMinutes(fromMinutesOffset);
+            var toFromDateTime = currentPeriodDateTime.AddMinutes(toMinutesOffset);
+            var toToDateTime = currentPeriodDateTime.AddMinutes(toMinutesOffset);
 
             switch (sampleDirection)
             {
