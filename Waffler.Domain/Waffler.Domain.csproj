@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Waffler.Common\Waffler.Common.csproj" />
+    <ProjectReference Include="..\Waffler.Data\Waffler.Data.csproj" />
+  </ItemGroup>
+
+</Project>
