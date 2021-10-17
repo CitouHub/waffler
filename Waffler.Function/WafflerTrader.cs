@@ -39,7 +39,7 @@ namespace Waffler.Function
         }
 
         [FunctionName("WafflerTraderReplay")]
-        [DebugDisable]
+        //[DebugDisable]
         public async Task RunWafflerTraderReplayAsync([TimerTrigger("0 */5 * * * *", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
         {
             var currentPeriodDateTime = new DateTime(2021, 10, 6, 0, 0, 0, DateTimeKind.Utc);

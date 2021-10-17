@@ -129,14 +129,14 @@ namespace Waffler.Service
             {
                 return new PriceTrendsDTO()
                 {
-                    HighPriceTrend = (1 - fromCandleSticks.AvgHighPrice / toCandleSticks.AvgHighPrice) * 100,
-                    LowPriceTrend = (1 - fromCandleSticks.AvgLowPrice / toCandleSticks.AvgLowPrice) * 100,
-                    OpenPriceTrend = (1 - fromCandleSticks.AvgOpenPrice / toCandleSticks.AvgOpenPrice) * 100,
-                    ClosePriceTrend = (1 - fromCandleSticks.AvgClosePrice / toCandleSticks.AvgClosePrice) * 100,
-                    HighLowPriceTrend = (1 - fromCandleSticks.AvgHighPrice / toCandleSticks.AvgLowPrice) * 100,
-                    OpenClosePriceTrend = (1 - fromCandleSticks.AvgOpenPrice / toCandleSticks.AvgClosePrice) * 100,
-                    AvgHighLowPriceTrend = (1 - fromCandleSticks.AvgAvgHighLowPrice / toCandleSticks.AvgAvgHighLowPrice) * 100,
-                    AvgOpenClosePriceTrend = (1 - fromCandleSticks.AvgAvgOpenClosePrice / toCandleSticks.AvgAvgOpenClosePrice) * 100,
+                    HighPriceTrend = Math.Round((1 - fromCandleSticks.AvgHighPrice / toCandleSticks.AvgHighPrice) * 100, 4),
+                    LowPriceTrend = Math.Round((1 - fromCandleSticks.AvgLowPrice / toCandleSticks.AvgLowPrice) * 100, 4),
+                    OpenPriceTrend = Math.Round((1 - fromCandleSticks.AvgOpenPrice / toCandleSticks.AvgOpenPrice) * 100, 4),
+                    ClosePriceTrend = Math.Round((1 - fromCandleSticks.AvgClosePrice / toCandleSticks.AvgClosePrice) * 100, 4),
+                    HighLowPriceTrend = Math.Round((1 - fromCandleSticks.AvgHighPrice / toCandleSticks.AvgLowPrice) * 100, 4),
+                    OpenClosePriceTrend = Math.Round((1 - fromCandleSticks.AvgOpenPrice / toCandleSticks.AvgClosePrice) * 100, 4),
+                    AvgHighLowPriceTrend = Math.Round((1 - fromCandleSticks.AvgAvgHighLowPrice / toCandleSticks.AvgAvgHighLowPrice) * 100, 4),
+                    AvgOpenClosePriceTrend = Math.Round((1 - fromCandleSticks.AvgAvgOpenClosePrice / toCandleSticks.AvgAvgOpenClosePrice) * 100, 4),
                 };
             }
 
