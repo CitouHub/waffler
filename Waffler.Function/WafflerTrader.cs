@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-
+using Newtonsoft.Json;
 using Waffler.Common;
 using Waffler.Domain;
 using Waffler.Function.Util;
@@ -42,6 +42,8 @@ namespace Waffler.Function
         //[DebugDisable]
         public async Task RunWafflerTraderReplayAsync([TimerTrigger("0 */5 * * * *", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
         {
+            var va = await _candleStickService.GetCandleSticksAsync(new DateTime(2021, 10, 1, 0, 0, 0, DateTimeKind.Utc), new DateTime(2021, 10, 31, 0, 0, 0, DateTimeKind.Utc), 15);
+            var json = JsonConvert.SerializeObject(va);
             var currentPeriodDateTime = new DateTime(2021, 10, 6, 0, 0, 0, DateTimeKind.Utc);
             //var currentPeriodDateTime = new DateTime(2021, 10, 13, 11, 45, 0, DateTimeKind.Utc);
             var results = new List<TradeRuleEvaluationDTO>();

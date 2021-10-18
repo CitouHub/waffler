@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 
 using Waffler.Data;
+using Waffler.Data.ComplexModel;
 
 namespace Waffler.Domain
 {
@@ -15,6 +16,8 @@ namespace Waffler.Domain
             CreateMap<TradeOrder, TradeOrderDTO>().ReverseMap();
             CreateMap<TradeRule, TradeRuleDTO>()
                 .ForMember(dest => dest.TradeRuleConditions, opt => opt.MapFrom(src => src.TradeRuleCondition));
+
+            CreateMap<sp_getCandleSticks_Result, CandleStickDTO>();
         }
 
         private void SetupBitpandaMaps()

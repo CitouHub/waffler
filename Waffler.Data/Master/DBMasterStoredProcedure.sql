@@ -39,3 +39,46 @@ BEGIN
 	SELECT * FROM @PriceStatistics
 END
 GO
+
+IF OBJECTPROPERTY(object_id('dbo.sp_getCandleSticks'), N'IsProcedure') = 1 DROP PROCEDURE [dbo].[sp_getCandleSticks]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[sp_getCandleSticks]
+-- =====================================================================
+-- Author:			Rikard Gustafsson
+-- Create date:		2021-10-16
+-- Description:		
+-- =====================================================================
+	@PeriodDateTimeGroup SMALLINT,
+	@FromPeriodDateTime DATETIME2(0),
+	@ToPeriodDateTime DATETIME2(0)
+AS
+BEGIN
+	SET NOCOUNT ON
+
+	DECLARE @CandleSticks TABLE(
+		HighPrice DECIMAL(10,2) NOT NULL,
+		LowPrice DECIMAL(10,2) NOT NULL,
+		OpenPrice DECIMAL(10,2) NOT NULL,
+		ClosePrice DECIMAL(10,2) NOT NULL,
+		Volume DECIMAL(10,2) NOT NULL,
+		PeriodDateTime DATETIME2(0) NOT NULL)
+
+	INSERT INTO @CandleSticks
+	SELECT MAX(HighPrice),
+		MIN(LowPrice),
+		(SELECT AVG(OpenPrice) FROM CandleStick AS C WHERE C.PeriodDateTime = MIN(CS.PeriodDateTime)),
+		(SELECT AVG(ClosePrice) FROM CandleStick AS C WHERE C.PeriodDateTime = MAX(CS.PeriodDateTime)),
+		SUM(Volume),
+		DATEADD(MINUTE, DATEDIFF(MINUTE, 0, PeriodDateTime) / @PeriodDateTimeGroup * @PeriodDateTimeGroup, 0) AS PeriodDateTime
+	FROM CandleStick AS CS
+	WHERE PeriodDateTime >= @FromPeriodDateTime AND PeriodDateTime <= @ToPeriodDateTime
+	GROUP BY DATEADD(MINUTE, DATEDIFF(MINUTE, 0, PeriodDateTime) / @PeriodDateTimeGroup * @PeriodDateTimeGroup, 0)
+	ORDER BY DATEADD(MINUTE, DATEDIFF(MINUTE, 0, PeriodDateTime) / @PeriodDateTimeGroup * @PeriodDateTimeGroup, 0) ASC
+
+	SELECT * FROM @CandleSticks ORDER BY PeriodDateTime
+END
+GO

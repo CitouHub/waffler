@@ -4,6 +4,7 @@ import { Container } from "reactstrap";
 import { Switch, Route } from "react-router-dom";
 
 import TradeChart from "./chart/TradeChart";
+import { data } from "./chart/SampleData";
 
 const Content = ({ sidebarIsOpen, toggleSidebar }) => (
     <Container
@@ -12,7 +13,7 @@ const Content = ({ sidebarIsOpen, toggleSidebar }) => (
     >
         <Switch>
             <Route exact path="/" component={() => "Hello"} />
-            <Route exact path="/about" component={() => "About"} />
+            <Route exact path="/about" component={() => <TradeChart type="svg" initialData={data} />} />
             <Route exact path="/Pages" component={() => "Pages"} />
             <Route exact path="/faq" component={() => "FAQ"} />
             <Route exact path="/contact" component={() => "Contact"} />

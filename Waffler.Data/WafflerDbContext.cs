@@ -17,6 +17,8 @@ namespace Waffler.Data
 
         public virtual DbSet<sp_getPriceStatistics_Result> SP_getPriceStatistics_Result { get; set; }
 
+        public virtual DbSet<sp_getCandleSticks_Result> SP_getCandleSticks_Result { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
@@ -27,6 +29,11 @@ namespace Waffler.Data
             modelBuilder.HasAnnotation("Relational:Collation", "Latin1_General_CI_AS");
 
             modelBuilder.Entity<sp_getPriceStatistics_Result>(entity =>
+            {
+                entity.HasNoKey();
+            });
+
+            modelBuilder.Entity<sp_getCandleSticks_Result>(entity =>
             {
                 entity.HasNoKey();
             });

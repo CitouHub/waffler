@@ -11,12 +11,14 @@ using Waffler.Domain;
 using Waffler.Data;
 using Waffler.Common;
 using Waffler.Common.Util;
+using Waffler.Data.Extensions;
 
 namespace Waffler.Service
 {
     public interface ICandleStickService
     {
         Task AddCandleSticksAsync(List<CandleStickDTO> candleSticks);
+        Task<List<CandleStickDTO>> GetCandleSticksAsync(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, short periodMinutes);
         Task<CandleStickDTO> GetLastCandleStickAsync(DateTime toPeriodDateTime);
         Task<PriceTrendsDTO> GetPriceTrendsAsync(DateTime currentPeriodDateTime, Variable.TradeType tradeType, Variable.TradeRuleConditionSampleDirection sampleDirection, int fromMinutesOffset, int toMinutesOffset, int fromMinutesSample, int toMinutesSample);
     }
@@ -45,6 +47,12 @@ namespace Waffler.Service
 
             await _context.CandleStick.AddRangeAsync(newCandleSticks);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<CandleStickDTO>> GetCandleSticksAsync(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, short periodMinutes)
+        {
+            var candleSticks = await _context.sp_getCandleSticks(periodMinutes, fromPeriodDateTime, toPeriodDateTime);
+            return _mapper.Map<List<CandleStickDTO>>(candleSticks);
         }
 
         public async Task<CandleStickDTO> GetLastCandleStickAsync(DateTime toPeriodDateTime)
