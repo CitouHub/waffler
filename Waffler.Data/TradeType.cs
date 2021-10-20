@@ -12,6 +12,7 @@ namespace Waffler.Data
         public TradeType()
         {
             CandleStick = new HashSet<CandleStick>();
+            TradeOrder = new HashSet<TradeOrder>();
             TradeRule = new HashSet<TradeRule>();
         }
 
@@ -24,6 +25,7 @@ namespace Waffler.Data
         public string Description { get; set; }
 
         public virtual ICollection<CandleStick> CandleStick { get; set; }
+        public virtual ICollection<TradeOrder> TradeOrder { get; set; }
         public virtual ICollection<TradeRule> TradeRule { get; set; }
     }
 }

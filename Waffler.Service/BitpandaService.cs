@@ -67,9 +67,16 @@ namespace Waffler.Service
                 $"period={period}&" +
                 $"from={fromString}&" +
                 $"to={toString}");
-            var content = await result.Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject<List<CandleStickDTO>>(content);
+            if(result.IsSuccessStatusCode)
+            {
+                var content = await result.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<CandleStickDTO>>(content);
+            } 
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<OrderSubmittedDTO> CreateOrderAsync(CreateOrderDTO createOrder)

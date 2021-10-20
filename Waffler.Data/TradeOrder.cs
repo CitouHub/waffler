@@ -14,10 +14,10 @@ namespace Waffler.Data
         public int InsertByUser { get; set; }
         public DateTime? UpdateDate { get; set; }
         public int? UpdateByUser { get; set; }
+        public short TradeTypeId { get; set; }
         public int TradeRuleId { get; set; }
         public short TradeOrderStatusId { get; set; }
         public Guid OrderId { get; set; }
-        public string InstrumentCode { get; set; }
         public DateTime OrderDateTime { get; set; }
         public decimal Price { get; set; }
         public decimal Amount { get; set; }
@@ -25,5 +25,6 @@ namespace Waffler.Data
 
         public virtual TradeOrderStatus TradeOrderStatus { get; set; }
         public virtual TradeRule TradeRule { get; set; }
+        public virtual TradeType TradeType { get; set; }
     }
 }

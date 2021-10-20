@@ -1,4 +1,4 @@
-﻿-- Scaffold-DbContext "Server=localhost\SQLEXPRESS02;Initial Catalog=db_waffle;persist security info=True;Integrated Security=SSPI;MultipleActiveResultSets=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir . -Context BaseDbContext -Force
+﻿-- Scaffold-DbContext "Server=localhost\SQLEXPRESS02;Initial Catalog=db_waffler;persist security info=True;Integrated Security=SSPI;MultipleActiveResultSets=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir . -Context BaseDbContext -Force
 -- =====================================================================
 IF OBJECTPROPERTY(object_id('dbo.CandleStick'), N'IsTable') = 1 DROP TABLE [dbo].[CandleStick]
 GO
@@ -237,10 +237,10 @@ CREATE TABLE [dbo].[TradeOrder](
 	[InsertByUser] [int] NOT NULL DEFAULT(1),
 	[UpdateDate] [datetime2](7) NULL,
 	[UpdateByUser] [int] NULL,
+	[TradeTypeId] [smallint] NOT NULL,
 	[TradeRuleId] [int] NOT NULL,
 	[TradeOrderStatusId] [smallint] NOT NULL DEFAULT(1),
 	[OrderId] [UNIQUEIDENTIFIER] NOT NULL,
-	[InstrumentCode] [nvarchar](50) NOT NULL,
 	[OrderDateTime] [datetime2](7) NOT NULL,
 	[Price] [decimal](10,2) NOT NULL,
 	[Amount] [decimal](10,8) NOT NULL,
@@ -251,6 +251,8 @@ CREATE TABLE [dbo].[TradeOrder](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 )
 
+ALTER TABLE [dbo].[TradeOrder] WITH CHECK ADD CONSTRAINT [TradeOrder_TradeTypeFK] FOREIGN KEY([TradeTypeId]) REFERENCES [dbo].[TradeType] ([ID])
+GO
 ALTER TABLE [dbo].[TradeOrder] WITH CHECK ADD CONSTRAINT [TradeOrder_TradeRuleFK] FOREIGN KEY([TradeRuleId]) REFERENCES [dbo].[TradeRule] ([ID])
 GO
 ALTER TABLE [dbo].[TradeOrder] WITH CHECK ADD CONSTRAINT [TradeOrder_TradeOrderStatusFK] FOREIGN KEY([TradeOrderStatusId]) REFERENCES [dbo].[TradeOrderStatus] ([ID])

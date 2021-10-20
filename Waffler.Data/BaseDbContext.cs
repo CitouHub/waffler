@@ -37,7 +37,7 @@ namespace Waffler.Data
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS02;Initial Catalog=db_waffle;persist security info=True;Integrated Security=SSPI;MultipleActiveResultSets=True");
+                optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS02;Initial Catalog=db_waffler;persist security info=True;Integrated Security=SSPI;MultipleActiveResultSets=True");
             }
         }
 
@@ -45,6 +45,10 @@ namespace Waffler.Data
         {
             modelBuilder.Entity<CandleStick>(entity =>
             {
+                entity.HasIndex(e => new { e.Id, e.PeriodDateTime })
+                    .HasName("IdxCandleStick_PeriodDateTime")
+                    .IsUnique();
+
                 entity.Property(e => e.AvgHighLowPrice).HasColumnType("decimal(10, 2)");
 
                 entity.Property(e => e.AvgOpenClosePrice).HasColumnType("decimal(10, 2)");
@@ -123,10 +127,6 @@ namespace Waffler.Data
 
                 entity.Property(e => e.InsertDate).HasDefaultValueSql("(getutcdate())");
 
-                entity.Property(e => e.InstrumentCode)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
                 entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
 
                 entity.Property(e => e.TradeOrderStatusId).HasDefaultValueSql("((1))");
@@ -142,6 +142,12 @@ namespace Waffler.Data
                     .HasForeignKey(d => d.TradeRuleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("TradeOrder_TradeRuleFK");
+
+                entity.HasOne(d => d.TradeType)
+                    .WithMany(p => p.TradeOrder)
+                    .HasForeignKey(d => d.TradeTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("TradeOrder_TradeTypeFK");
             });
 
             modelBuilder.Entity<TradeOrderStatus>(entity =>

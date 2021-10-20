@@ -42,10 +42,8 @@ namespace Waffler.Function
         //[DebugDisable]
         public async Task RunWafflerTraderReplayAsync([TimerTrigger("0 */5 * * * *", RunOnStartup = true)] TimerInfo myTimer, ILogger log)
         {
-            var va = await _candleStickService.GetCandleSticksAsync(new DateTime(2021, 10, 1, 0, 0, 0, DateTimeKind.Utc), new DateTime(2021, 10, 31, 0, 0, 0, DateTimeKind.Utc), 15);
-            var json = JsonConvert.SerializeObject(va);
-            var currentPeriodDateTime = new DateTime(2021, 10, 6, 0, 0, 0, DateTimeKind.Utc);
-            //var currentPeriodDateTime = new DateTime(2021, 10, 13, 11, 45, 0, DateTimeKind.Utc);
+            var currentPeriodDateTime = new DateTime(2021, 8, 1, 0, 0, 0, DateTimeKind.Utc);
+            //var currentPeriodDateTime = new DateTime(2021, 10, 07, 18, 45, 0, DateTimeKind.Utc);
             var results = new List<TradeRuleEvaluationDTO>();
             while(currentPeriodDateTime < DateTime.UtcNow)
             {
@@ -132,7 +130,7 @@ namespace Waffler.Function
                             await _tradeOrderService.CreateTradeOrder(new TradeOrderDTO()
                             {
                                 Amount = tradeRule.Amount,
-                                InstrumentCode = Bitpanda.GetInstrumentCode((TradeType)tradeRule.TradeTypeId),
+                                TradeTypeId = tradeRule.TradeTypeId,
                                 OrderDateTime = currentPeriodDateTime,
                                 Price = candleStick.HighPrice,
                                 TradeRuleId = tradeRule.Id,

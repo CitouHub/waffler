@@ -26,14 +26,16 @@ namespace Waffler.Data.Extensions
         }
 
         public static async Task<List<sp_getCandleSticks_Result>> sp_getCandleSticks(this WafflerDbContext context,
-            short periodDateTimeGroup,
-            DateTime fromPeriodDateTime,
-	        DateTime toPeriodDateTime)
+            DateTime fromPeriodDateTime, 
+            DateTime toPeriodDateTime, 
+            short tradeTypeId, 
+            short periodDateTimeGroup)
         {
             var expr = $"exec sp_getCandleSticks " +
-                $"{periodDateTimeGroup}, " +
                 $"'{fromPeriodDateTime:yyyy-MM-dd HH:mm:ss}', " +
-                $"'{toPeriodDateTime:yyyy-MM-dd HH:mm:ss}'";
+                $"'{toPeriodDateTime:yyyy-MM-dd HH:mm:ss}', " +
+                $"{ tradeTypeId}, " +
+                $"{ periodDateTimeGroup}";
 
             return await context.Set<sp_getCandleSticks_Result>().FromSqlRaw(expr).ToListAsync();
         }

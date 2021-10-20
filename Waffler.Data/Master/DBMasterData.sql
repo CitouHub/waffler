@@ -78,13 +78,17 @@ GO
 
 SET IDENTITY_INSERT TradeRule ON
 GO
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (1, 1, 1, 1, 'Local dip buy', 0.0005, 60*4)
+INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (1, 1, 1, 1, 'Fast drop, small buy', 0.0001, 60*2)
+INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (2, 1, 1, 1, 'Slow drop, big buy', 0.0004, 60*6)
+INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (3, 1, 1, 2, 'Buy mindless', 0.0002, 24*60)
 SET IDENTITY_INSERT TradeRule OFF
 GO
 
 INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
-VALUES (1, 5, 1, 2, -5*60, -4*60, 30, 30, -1.2, 'A drop of over 1.2% over 1 hour 4 hours ago')
+VALUES (1, 6, 1, 2, -2*60, -1*60, 60, 60, -3, 'A drop of over 3% now')
+
 INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
-VALUES (1, 5, 3, 1, -4*60, -30, 60, 60, 0.5, 'No more then 0.5% change over the last 4 hours')
+VALUES (2, 6, 1, 5, -4*24*60, -1*24*60, 6*60, 6*60, -6, 'A drop of over 6% over 3 days 1 day ago')
+
 INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
-VALUES (1, 5, 2, 5, -10*24*60, -12*60, 24*60, 24*60, 1.0, 'The general trend over 10 days is positive')
+VALUES (3, 6, 2, 5, -60, -60, 30, 30, 0.0, 'Any change')

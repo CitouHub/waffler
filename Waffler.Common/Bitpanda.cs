@@ -13,6 +13,7 @@ namespace Waffler.Common
         public static class Period
         {
             public const string MINUTES = "MINUTES";
+            public const string HOURS = "HOURS";
         }
 
         public static string GetInstrumentCode(TradeType tradeType)

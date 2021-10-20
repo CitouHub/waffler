@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
@@ -10,8 +11,8 @@ using AutoMapper;
 
 using Waffler.Common;
 using Waffler.Domain;
-using Waffler.Function.Util;
 using Waffler.Service;
+using Waffler.Function.Util;
 using static Waffler.Common.Variable;
 
 namespace Waffler.Function
@@ -38,8 +39,11 @@ namespace Waffler.Function
         {
             log.LogInformation($"Syncing waffle candle stick data");
             var syncingData = true;
-            var requestMinutes = 120;
-            var defaultStart = -60 * 24 * 30; //If no data exists then start 30 days back
+            var requestMinutes = 840;
+            var defaultStart = -60 * 24 * 90; //If no data exists then start 30 days back
+            var requestCount = 0;
+            var requestMinuteLimit = 180;
+            var startTime = DateTime.UtcNow;
 
             while (syncingData)
             {
@@ -50,18 +54,36 @@ namespace Waffler.Function
                 var bp_cancleSticksDTO = await _bitpandaService.GetCandleSticks(
                     Bitpanda.GetInstrumentCode(TradeType.BTC_EUR),
                     Bitpanda.Period.MINUTES, 1, period, period.AddMinutes(requestMinutes));
+                requestCount++;
 
-                if (bp_cancleSticksDTO.Any())
+                if(bp_cancleSticksDTO != null)
                 {
-                    log.LogInformation($"- Fetch successfull, {bp_cancleSticksDTO.Count()} new candlesticks found");
-                    var cancleSticksDTO = _mapper.Map<List<CandleStickDTO>>(bp_cancleSticksDTO);
-                    await _candleStickService.AddCandleSticksAsync(cancleSticksDTO);
-                    log.LogInformation($"- Data save successfull");
+                    if (bp_cancleSticksDTO.Any())
+                    {
+                        log.LogInformation($"- Fetch successfull, {bp_cancleSticksDTO.Count()} new candlesticks found");
+                        var cancleSticksDTO = _mapper.Map<List<CandleStickDTO>>(bp_cancleSticksDTO);
+                        await _candleStickService.AddCandleSticksAsync(cancleSticksDTO);
+                        log.LogInformation($"- Data save successfull");
+                    }
+                    else
+                    {
+                        log.LogInformation($"- Fetch successfull, no new data found, stop sync");
+                        syncingData = false;
+                    }
                 }
                 else
                 {
-                    log.LogInformation($"- Fetch successfull, no new data found, stop sync");
+                    log.LogInformation($"- Fetch failed, API unavailable");
                     syncingData = false;
+                }
+
+                if(requestCount >= requestMinuteLimit)
+                {
+                    var sleepTime = 60 * 1000 - (int)(DateTime.UtcNow - startTime).TotalMilliseconds;
+                    log.LogInformation($"- Reached request limit, sleep {sleepTime} ms");
+                    Thread.Sleep(sleepTime <= 0 ? 0 : sleepTime);
+                    startTime = DateTime.UtcNow;
+                    requestCount = 0;
                 }
             }
 
