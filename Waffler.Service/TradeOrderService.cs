@@ -1,8 +1,12 @@
-﻿using AutoMapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
+
+using Microsoft.EntityFrameworkCore;
+
+using AutoMapper;
+
 using Waffler.Data;
 using Waffler.Domain;
 
@@ -10,7 +14,8 @@ namespace Waffler.Service
 {
     public interface ITradeOrderService
     {
-        public Task CreateTradeOrder(TradeOrderDTO tradeOrderDto);
+        Task CreateTradeOrder(TradeOrderDTO tradeOrderDto);
+        Task<List<TradeOrderDTO>> GetTradeOrders(DateTime from, DateTime to);
     }
 
     public class TradeOrderService : ITradeOrderService
@@ -22,6 +27,12 @@ namespace Waffler.Service
         {
             _context = context;
             _mapper = mapper;
+        }
+
+        public async Task<List<TradeOrderDTO>> GetTradeOrders(DateTime from, DateTime to)
+        {
+            var tradeOrders = await _context.TradeOrder.Where(_ => _.OrderDateTime >= from && _.OrderDateTime <= to).ToListAsync();
+            return _mapper.Map<List<TradeOrderDTO>>(tradeOrders);
         }
 
         public async Task CreateTradeOrder(TradeOrderDTO tradeOrderDto)

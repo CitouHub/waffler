@@ -48,7 +48,7 @@ namespace Waffler.Service
         public BitpandaService(IHttpClientFactory httpClientFactory, IProfileService profileService)
         {
             _httpClient = httpClientFactory.CreateClient("Bitpanda");
-            _apiKey = profileService.GetApiKey().Result;
+            _apiKey = profileService.GetBitpandaApiKey().Result;
         }
 
         public async Task<string> GetBalanceAsync()

@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waffler.Domain", "Waffler.D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waffler.Common", "Waffler.Common\Waffler.Common.csproj", "{750EF19A-E8F3-4432-AD5A-567F4F0C40CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waffler.Web", "Waffler.Web\Waffler.Web.csproj", "{163883AA-D189-4D22-AFC4-493CA5AD4605}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waffler.Web", "Waffler.Web\Waffler.Web.csproj", "{163883AA-D189-4D22-AFC4-493CA5AD4605}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waffler.API", "Waffler.API\Waffler.API.csproj", "{6AB40EE5-8B46-4084-8991-99A1CA4F60A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{163883AA-D189-4D22-AFC4-493CA5AD4605}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{163883AA-D189-4D22-AFC4-493CA5AD4605}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{163883AA-D189-4D22-AFC4-493CA5AD4605}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AB40EE5-8B46-4084-8991-99A1CA4F60A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AB40EE5-8B46-4084-8991-99A1CA4F60A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AB40EE5-8B46-4084-8991-99A1CA4F60A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AB40EE5-8B46-4084-8991-99A1CA4F60A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

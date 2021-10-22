@@ -3,8 +3,8 @@ import classNames from "classnames";
 import { Container } from "reactstrap";
 import { Switch, Route } from "react-router-dom";
 
-import TradeChart from "./chart/TradeChart";
-import { data } from "./chart/SampleData";
+import TradeChart from "../chart/TradeChart";
+import { data } from "../chart/SampleData";
 
 const Content = ({ sidebarIsOpen, toggleSidebar }) => (
     <Container
