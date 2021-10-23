@@ -48,6 +48,12 @@
             BTC_EUR = 1
         }
 
+        public enum CurrencyCode
+        {
+            BTC = 1,
+            EUR = 2
+        }
+
         public enum TradeOrderStatus
         {
             Open = 1,

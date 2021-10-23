@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Waffler.Common;
 using Waffler.Domain;
 using Waffler.Function.Util;
 using Waffler.Service;

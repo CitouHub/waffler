@@ -12,7 +12,7 @@ const NewProfile = (props) => {
     let history = useHistory();
 
     const onSubmit = (values) => {
-        ProfileService.createProfile(values.password).then(() => {
+        ProfileService.createProfile(values.password).then((success) => {
             history.push("/login");
         });
     };
@@ -27,6 +27,8 @@ const NewProfile = (props) => {
                     const errors = {};
                     if (!values.password) {
                         errors.password = "required";
+                    } else if (values.password.length <= 8) {
+                        errors.password = "too short";
                     }
                     if (!values.confirmPassword) {
                         errors.confirmPassword = "required";

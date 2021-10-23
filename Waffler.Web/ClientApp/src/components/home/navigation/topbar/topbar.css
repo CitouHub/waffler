@@ -1,0 +1,25 @@
+﻿.topbar {
+    display: flex;
+    justify-content: space-between;
+    background-color: #FFFFFF;
+    border: solid #fafafa 1px;
+    max-height: 84px;
+}
+
+.title {
+    min-height: 90%;
+    text-align: right;
+    display: table; 
+    margin-right: 2rem;
+}
+
+h4 {
+    vertical-align: middle;
+    display: table-cell;
+    color: rgba(20,24,33,.5);
+}
+
+.waffle {
+    width: 50px;
+    margin: 1rem;
+}

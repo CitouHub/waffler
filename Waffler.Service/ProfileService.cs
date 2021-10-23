@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 using Waffler.Data;
@@ -19,16 +20,21 @@ namespace Waffler.Service
         Task<bool> SetBitpandaApiKey(string apiKey);
 
         Task<string> GetBitpandaApiKey();
-        
+
+        Task<List<BalanceDTO>> GetBalanceAsync();
     }
 
     public class ProfileService : IProfileService
     {
         private readonly WafflerDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly IBitpandaService _bitpandaService;
 
-        public ProfileService(WafflerDbContext context)
+        public ProfileService(WafflerDbContext context, IMapper mapper, IBitpandaService bitpandaService)
         {
             _context = context;
+            _mapper = mapper;
+            _bitpandaService = bitpandaService;
         }
 
         public async Task<bool> HasProfile()
@@ -84,6 +90,12 @@ namespace Waffler.Service
         public async Task<string> GetBitpandaApiKey()
         {
             return (await _context.WafflerProfile.FirstOrDefaultAsync())?.ApiKey;
+        }
+
+        public async Task<List<BalanceDTO>> GetBalanceAsync()
+        {
+            var pb_account = await _bitpandaService.GetAccountAsync();
+            return _mapper.Map<List<BalanceDTO>>(pb_account.balances);
         }
     }
 }

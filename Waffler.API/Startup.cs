@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Waffler.Common.Util;
@@ -40,6 +41,13 @@ namespace Waffler.API
                 options.UseSqlServer(Configuration["Database:ConnectionString"]));
             services.AddRouting(options => options.LowercaseUrls = true);
 
+            services.AddHttpClient("Bitpanda", _ =>
+            {
+                _.BaseAddress = new Uri(Configuration["Bitpanda:BaseUri"]);
+                _.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            });
+
+            services.AddScoped<IBitpandaService, BitpandaService>();
             services.AddScoped<ITradeOrderService, TradeOrderService>();
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<ICandleStickService, CandleStickService>();

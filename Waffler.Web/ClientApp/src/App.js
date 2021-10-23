@@ -26,7 +26,7 @@ const App = () => {
     }, []);
 
     useEffect(() => {
-        if (hasProfile != undefined) {
+        if (hasProfile !== undefined) {
             setLoading(false);
         }
     }, [hasProfile]);

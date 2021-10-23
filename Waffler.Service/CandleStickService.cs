@@ -145,8 +145,8 @@ namespace Waffler.Service
                     ClosePriceTrend = Math.Round((1 - fromCandleSticks.ClosePrice / toCandleSticks.ClosePrice) * 100, 4),
                     HighLowPriceTrend = Math.Round((1 - fromCandleSticks.HighPrice / toCandleSticks.LowPrice) * 100, 4),
                     OpenClosePriceTrend = Math.Round((1 - fromCandleSticks.OpenPrice / toCandleSticks.ClosePrice) * 100, 4),
-                    AvgHighLowPriceTrend = Math.Round((1 - fromCandleSticks.AvgHighLowPrice / toCandleSticks.AvgHighLowPrice) * 100, 4),
-                    AvgOpenClosePriceTrend = Math.Round((1 - fromCandleSticks.AvgOpenClosePrice / toCandleSticks.AvgOpenClosePrice) * 100, 4),
+                    AvgHighLowPriceTrend = Math.Round((1 - fromCandleSticks.AvgHighLowPrice.Value / toCandleSticks.AvgHighLowPrice.Value) * 100, 4),
+                    AvgOpenClosePriceTrend = Math.Round((1 - fromCandleSticks.AvgOpenClosePrice.Value / toCandleSticks.AvgOpenClosePrice.Value) * 100, 4),
                 };
             }
 

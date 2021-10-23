@@ -1,15 +1,31 @@
-﻿import React from 'react';
+﻿import React, { useState } from 'react';
+import { useHistory } from "react-router-dom";
 import { Button, FormGroup, Input } from "reactstrap";
 import { Form, Field } from "react-final-form";
+
+import ProfileService from '../../services/profile.service'
 
 import waffle from '../../assets/images/waffle.png';
 import './login.css';
 
-const onSubmit = values => {
-    console.log(values);
-};
-
 const Login = (props) => {
+    const [passwordChecked, setPasswordChecked] = useState(false);
+    const [validPassword, setPasswordValid] = useState(false);
+    let history = useHistory();
+
+    const onSubmit = values => {
+        ProfileService.verifyPassword(values.password).then((success) => {
+            setPasswordChecked(true);
+            if (success === true) {
+                setPasswordValid(true);
+                localStorage.setItem("isAuthenticated", true);
+                history.push("/");
+            } else {
+                setPasswordValid(false);
+            }
+        });
+    };
+
     return (
         <div className="profile">
             <img src={waffle} alt="Logo" className="waffle" />
@@ -36,6 +52,7 @@ const Login = (props) => {
                                             invalid={meta.error && meta.touched}
                                         />
                                         {meta.error && meta.touched && <span>{meta.error}</span>}
+                                        {!validPassword && passwordChecked && <span>invalid password</span>}
                                     </div>
                                 )}
                             </Field>

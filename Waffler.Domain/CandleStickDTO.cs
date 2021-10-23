@@ -1,29 +1,29 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Waffler.Domain
 {
     public class CandleStickDTO
     {
         [JsonIgnore]
-        public short TradeTypeId { get; set; }
-        [JsonProperty("high")]
+        public short? TradeTypeId { get; set; }
+        [JsonPropertyName("high")]
         public decimal HighPrice { get; set; }
-        [JsonProperty("low")]
+        [JsonPropertyName("low")]
         public decimal LowPrice { get; set; }
-        [JsonProperty("open")]
+        [JsonPropertyName("open")]
         public decimal OpenPrice { get; set; }
-        [JsonProperty("close")]
+        [JsonPropertyName("close")]
         public decimal ClosePrice { get; set; }
         [JsonIgnore]
-        public decimal AvgHighLowPrice { get; set; }
+        public decimal? AvgHighLowPrice { get; set; }
         [JsonIgnore]
-        public decimal AvgOpenClosePrice { get; set; }
+        public decimal? AvgOpenClosePrice { get; set; }
         [JsonIgnore]
-        public decimal TotalAmount { get; set; }
-        [JsonProperty("volume")]
+        public decimal? TotalAmount { get; set; }
+        [JsonPropertyName("volume")]
         public decimal Volume { get; set; }
-        [JsonProperty("date")]
+        [JsonPropertyName("date")]
         public DateTime PeriodDateTime { get; set; }
     }
 }

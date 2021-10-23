@@ -1,8 +1,11 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useLayoutEffect, useRef } from 'react';
 import { BrowserRouter, Redirect } from "react-router-dom";
 
-import SideBar from './sidebar/sidebar';
+import TopBar from './navigation/topbar/topbar';
+import SideBar from './navigation/sidebar/sidebar';
 import Content from './content';
+
+import './home.css';
 
 const Home = (props) => {
     const [sidebarIsOpen, setSidebarOpen] = useState(true);
@@ -14,8 +17,11 @@ const Home = (props) => {
         return (
             <BrowserRouter>
                 <div className="home wrapper">
-                    <SideBar toggle={toggleSidebar} isOpen={sidebarIsOpen} />
-                    <Content toggleSidebar={toggleSidebar} sidebarIsOpen={sidebarIsOpen} />
+                    <TopBar />
+                    <div className="page">
+                        <SideBar toggle={toggleSidebar} isOpen={sidebarIsOpen} />
+                        <Content toggleSidebar={toggleSidebar} sidebarIsOpen={sidebarIsOpen} />
+                    </div>
                 </div>
             </BrowserRouter>
         );

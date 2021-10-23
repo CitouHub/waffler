@@ -1,123 +1,113 @@
-﻿import React, { useRef, useLayoutEffect, useState } from "react";
-import PropTypes from "prop-types";
-
-import { format } from "d3-format";
-import { timeFormat } from "d3-time-format";
-
-import { ChartCanvas, Chart } from "react-stockcharts";
-import { BarSeries, CandlestickSeries } from "react-stockcharts/lib/series";
-import { XAxis, YAxis } from "react-stockcharts/lib/axes";
+﻿import React, { useRef, useLayoutEffect, useState, useEffect } from "react";
 import {
-    CrossHairCursor,
-    MouseCoordinateX,
-    MouseCoordinateY
-} from "react-stockcharts/lib/coordinates";
+    Annotate,
+    ema,
+    discontinuousTimeScaleProviderBuilder,
+    CandlestickSeries,
+    Chart,
+    ChartCanvas,
+    LabelAnnotation,
+    SvgPathAnnotation,
+    XAxis,
+    YAxis,
+    withDeviceRatio,
+    withSize,
+} from "react-financial-charts";
 
-import { discontinuousTimeScaleProvider } from "react-stockcharts/lib/scale";
-import { OHLCTooltip } from "react-stockcharts/lib/tooltip";
-import { fitWidth } from "react-stockcharts/lib/helper";
-import { last } from "react-stockcharts/lib/utils";
+import LoadingBar from '../utils/loadingbar'
+import CandleStickService from '../../services/candlestick.service'
+
+import './chart.css';
 
 const TradeChart = (props) => {
-    const targetRef = useRef();
+    const canvasRef = useRef();
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+    const [loading, setLoading] = useState(true);
+    const [initialData, setInitialData] = useState([]);
 
     useLayoutEffect(() => {
-        if (targetRef.current) {
+        if (canvasRef.current) {
             setDimensions({
-                width: targetRef.current.offsetWidth,
-                height: targetRef.current.offsetHeight
+                width: canvasRef.current.offsetWidth,
+                height: canvasRef.current.offsetHeight
             });
-            console.log(dimensions);
         }
+        CandleStickService.getCandleStickss(new Date('2021-10-01'), new Date('2021-10-30'), 1, 15).then((result) => {
+            result.forEach((e) => {
+                e.date = new Date(e.date);
+            })
+            setInitialData(result);
+            setLoading(false);
+        })
     }, []);
 
-    const type = props.type;
-    const initialData = props.initialData;
-    const width = props.width;
-    const ratio = props.ratio;
-
-    initialData.forEach((e) => {
-        e.date = new Date(e.date);
-    })
-
-    const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(
-        d => d.date
-    );
-
-    const { data, xScale, xAccessor, displayXAccessor } = xScaleProvider(
-        initialData
-    );
-
-    const start = xAccessor(last(data));
-    const end = xAccessor(data[Math.max(0, data.length - 150)]);
-    const xExtents = [start, end];
-
-    if (dimensions.width == 0) {
+    if (loading) {
         return (
-            <div ref={targetRef}>
-                <p>Loading...</p>
-                <p></p>
+            <div ref={canvasRef}>
+                <LoadingBar active={loading} />
             </div>
         )
-    } else {
+    } else if (dimensions.width != 0 && initialData.length > 0) {
+        const labelAnnotation = {
+            fill: "#2196f3",
+            text: "Monday",
+            pageYOffset: 50,
+            offsetHeight: 50,
+            y: ({ yScale, datum }) => yScale(datum.high),
+        };
+        
+        const margin = { left: 0, right: 48, top: 100, bottom: 24 };
+        const xScaleProvider = discontinuousTimeScaleProviderBuilder().inputDateAccessor(
+            d => d.date,
+        );
+
+        const ema12 = ema()
+            .id(1)
+            .options({ windowSize: 12 })
+            .merge((d, c) => {
+                d.ema12 = c;
+            })
+            .accessor((d) => d.ema12);
+
+        const calculatedData = ema12(initialData);
+
+        const { data, xScale, xAccessor, displayXAccessor } = xScaleProvider(calculatedData);
+
+        const max = xAccessor(data[data.length - 1]);
+        const min = xAccessor(data[Math.max(0, data.length - 100)]);
+        const xExtents = [min, max];
+
+        const when = (data) => {
+            return data.date.getDay() === 1;
+        };
+
+        const yExtents = (data) => {
+            return [data.high, data.low];
+        };
+
         return (
-            <ChartCanvas ref={targetRef}
+            <ChartCanvas
                 height={600}
                 ratio={1}
                 width={dimensions.width}
-                margin={{ left: 100, right: 100, top: 100, bottom: 30 }}
-                type={type}
-                seriesName="BTC_EUR"
+                margin={margin}
                 data={data}
+                displayXAccessor={displayXAccessor}
+                seriesName="Data"
                 xScale={xScale}
                 xAccessor={xAccessor}
-                displayXAccessor={displayXAccessor}
                 xExtents={xExtents}
             >
-                <Chart id={1} yExtents={[d => [d.high, d.low]]}>
-                    <XAxis axisAt="bottom" orient="bottom" />
-                    <YAxis axisAt="right" orient="right" ticks={5} />
-                    <MouseCoordinateY
-                        at="right"
-                        orient="right"
-                        displayFormat={format(".2f")}
-                    />
+                <Chart id={1} yExtents={yExtents}>
+                    <XAxis showGridLines />
+                    <YAxis showGridLines />
                     <CandlestickSeries />
-                    <OHLCTooltip forChart={1} origin={[-40, 0]} />
+                    <Annotate with={LabelAnnotation} usingProps={labelAnnotation} when={when} />
                 </Chart>
-                <Chart
-                    id={2}
-                    height={150}
-                    yExtents={d => d.volume}
-                    origin={(w, h) => [0, h - 150]}
-                >
-                    <YAxis
-                        axisAt="left"
-                        orient="left"
-                        ticks={5}
-                        tickFormat={format(".2s")}
-                    />
-
-                    <MouseCoordinateX
-                        at="bottom"
-                        orient="bottom"
-                        displayFormat={timeFormat("%Y-%m-%d %H:%M")}
-                    />
-                    <MouseCoordinateY
-                        at="left"
-                        orient="left"
-                        displayFormat={format(".4s")}
-                    />
-
-                    <BarSeries
-                        yAccessor={d => d.volume}
-                        fill={d => (d.close > d.open ? "#6BA583" : "#FF0000")}
-                    />
-                </Chart>
-                <CrossHairCursor />
             </ChartCanvas>
         );
+    } else {
+        return null;
     }
 };
 

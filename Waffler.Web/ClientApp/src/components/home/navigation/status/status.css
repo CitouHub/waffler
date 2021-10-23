@@ -1,0 +1,8 @@
+﻿.balance {
+    border: solid #fafafa 1px
+}
+
+.balance ul {
+    list-style: none;
+    padding: 1rem;
+}

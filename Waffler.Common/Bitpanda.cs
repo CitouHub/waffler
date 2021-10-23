@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using static Waffler.Common.Variable;
+﻿using static Waffler.Common.Variable;
 
 namespace Waffler.Common
 {
@@ -16,6 +15,12 @@ namespace Waffler.Common
             public const string HOURS = "HOURS";
         }
 
+        public static class CurrencyCode
+        {
+            public const string BTC = "BTC";
+            public const string EUR = "EUR";
+        }
+
         public static string GetInstrumentCode(TradeType tradeType)
         {
             return tradeType switch
@@ -30,6 +35,16 @@ namespace Waffler.Common
             return instrumentCode switch
             {
                 InstrumentCode.BTC_EUR => TradeType.BTC_EUR,
+                _ => default,
+            };
+        }
+
+        public static Variable.CurrencyCode GetCurrentCode(string currencyCode)
+        {
+            return currencyCode switch
+            {
+                CurrencyCode.BTC => Variable.CurrencyCode.BTC,
+                CurrencyCode.EUR => Variable.CurrencyCode.EUR,
                 _ => default,
             };
         }

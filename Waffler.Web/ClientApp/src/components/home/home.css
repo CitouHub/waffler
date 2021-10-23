@@ -1,11 +1,23 @@
-﻿.home {
+﻿body {
+    background-color: #f7f9fb;
+    max-width: 1920px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.home {
     display: flex;
+    flex-direction: column;
     width: 100%;
     align-items: stretch;
 }
 
+.page {
+    display: flex;
+}
+
 .content {
-    padding: 20px;
+    padding: 0 1rem 1rem 1rem;
     margin-left: 0;
-    height: 100vh;
+    height: calc(100vh - 84px);
 }

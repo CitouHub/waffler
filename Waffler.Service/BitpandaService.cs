@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Waffler.Data;
 using Waffler.Domain.Bitpanda.Private;
+using Waffler.Domain.Bitpanda.Private.Balance;
 using Waffler.Domain.Bitpanda.Private.Order;
 using Waffler.Domain.Bitpanda.Public;
 
@@ -17,7 +19,7 @@ namespace Waffler.Service
 {
     public interface IBitpandaService
     {
-        Task<string> GetBalanceAsync();
+        Task<AccountDTO> GetAccountAsync();
         Task<List<CandleStickDTO>> GetCandleSticks(string instrumentCode, string unit, short period, DateTime from, DateTime to);
         Task<OrderSubmittedDTO> CreateOrderAsync(CreateOrderDTO createOrder);
         Task GetOrderAsync();
@@ -28,11 +30,15 @@ namespace Waffler.Service
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
 
-        private HttpClient PrivateHttpClient 
+        private HttpClient? PrivateHttpClient 
         { 
             get {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
-                return _httpClient;
+                if(string.IsNullOrEmpty(_apiKey) == false)
+                {
+                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+                    return _httpClient;
+                }
+                return null;
             } 
         }
 
@@ -45,16 +51,22 @@ namespace Waffler.Service
             }
         }
 
-        public BitpandaService(IHttpClientFactory httpClientFactory, IProfileService profileService)
+        public BitpandaService(WafflerDbContext context, IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient("Bitpanda");
-            _apiKey = profileService.GetBitpandaApiKey().Result;
+            _apiKey = context.WafflerProfile.FirstOrDefault()?.ApiKey;
         }
 
-        public async Task<string> GetBalanceAsync()
+        public async Task<AccountDTO> GetAccountAsync()
         {
-            var result = await PrivateHttpClient.GetAsync("account/balances");
-            return await result.Content.ReadAsStringAsync();
+            if(PrivateHttpClient != null)
+            {
+                var result = await PrivateHttpClient.GetAsync("account/balances");
+                var content = await result.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<AccountDTO>(content);
+            }
+
+            return null;
         }
 
         public async Task<List<CandleStickDTO>> GetCandleSticks(string instrumentCode, string unit, short period, DateTime from, DateTime to)

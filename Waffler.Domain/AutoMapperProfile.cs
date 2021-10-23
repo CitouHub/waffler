@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-
+using System;
 using Waffler.Data;
 using Waffler.Data.ComplexModel;
 
@@ -22,6 +22,11 @@ namespace Waffler.Domain
 
         private void SetupBitpandaMaps()
         {
+            CreateMap<Bitpanda.Private.Balance.BalanceDTO, BalanceDTO>()
+                .ForMember(dest => dest.CurrencyCode, opt => opt.MapFrom(src => Common.Bitpanda.GetCurrentCode(src.currency_code)))
+                .ForMember(dest => dest.Available, opt => opt.MapFrom(src => Math.Round(src.available, 4)))
+                .ForMember(dest => dest.TradeLocked, opt => opt.MapFrom(src => Math.Round(src.locked, 4)));
+
             CreateMap<Bitpanda.Public.CandleStickDTO, CandleStickDTO>()
                 .ForMember(dest => dest.TradeTypeId, opt => opt.MapFrom(src => (short)Common.Bitpanda.GetTradeType(src.Instrument_Code)))
                 .ForMember(dest => dest.HighPrice, opt => opt.MapFrom(src => src.High))
@@ -32,7 +37,6 @@ namespace Waffler.Domain
                 .ForMember(dest => dest.AvgOpenClosePrice, opt => opt.MapFrom(src => (src.Open + src.Close) / 2))
                 .ForMember(dest => dest.PeriodDateTime, opt => opt.MapFrom(src => src.Time))
                 .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.Total_Amount));
-
         }
     }
 }
