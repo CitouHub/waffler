@@ -1,21 +1,25 @@
-﻿import React, { useRef, useLayoutEffect, useState, useEffect } from "react";
+﻿import React, { useRef, useState, useEffect } from "react";
 import {
-    Annotate,
     ema,
     discontinuousTimeScaleProviderBuilder,
     CandlestickSeries,
     Chart,
     ChartCanvas,
-    LabelAnnotation,
-    SvgPathAnnotation,
+    HoverTooltip,
     XAxis,
     YAxis,
-    withDeviceRatio,
-    withSize,
 } from "react-financial-charts";
 
 import LoadingBar from '../utils/loadingbar'
+import BuyNewAnnotate from './annotate/buy.new.annotate'
+import BuyPartialAnnotate from './annotate/buy.partial.annotate'
+import BuyCompleteAnnotate from './annotate/buy.complete.annotate'
+import SellNewAnnotate from './annotate/sell.new.annotate'
+import SellPartialAnnotate from './annotate/sell.partial.annotate'
+import SellCompleteAnnotate from './annotate/sell.complete.annotate'
 import CandleStickService from '../../services/candlestick.service'
+import TradeOrderService from '../../services/tradeorder.service'
+import ToolTipHelper from './tooltip/hover.tooltip'
 
 import './chart.css';
 
@@ -23,21 +27,37 @@ const TradeChart = (props) => {
     const canvasRef = useRef();
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [loading, setLoading] = useState(true);
-    const [initialData, setInitialData] = useState([]);
+    const [candleSticks, setCandleSticks] = useState([]);
+    const [tradeOrders, setTradeOrder] = useState([]);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (canvasRef.current) {
             setDimensions({
                 width: canvasRef.current.offsetWidth,
                 height: canvasRef.current.offsetHeight
             });
         }
-        CandleStickService.getCandleStickss(new Date('2021-10-01'), new Date('2021-10-30'), 1, 15).then((result) => {
-            result.forEach((e) => {
+        CandleStickService.getCandleStickss(new Date('2021-10-01'), new Date('2021-10-30'), 1, 15).then((candleSticksResult) => {
+            candleSticksResult.forEach((e) => {
                 e.date = new Date(e.date);
-            })
-            setInitialData(result);
-            setLoading(false);
+            });
+
+            TradeOrderService.getTradeOrders(new Date('2021-10-01'), new Date('2021-10-30')).then((tradeOrdersResult) => {
+                console.log(tradeOrdersResult);
+                tradeOrdersResult.forEach((tradeOrder) => {
+                    tradeOrder.orderDateTime = new Date(tradeOrder.orderDateTime);
+                    let candleStick = candleSticksResult.find((candleStick) => {
+                        if (candleStick.date >= tradeOrder.orderDateTime) {
+                            return candleStick;
+                        }
+                    });
+
+                    candleStick.tradeOrder = tradeOrder;
+                });
+                console.log(candleSticksResult);
+                setCandleSticks(candleSticksResult);
+                setLoading(false);
+            });
         })
     }, []);
 
@@ -47,15 +67,7 @@ const TradeChart = (props) => {
                 <LoadingBar active={loading} />
             </div>
         )
-    } else if (dimensions.width != 0 && initialData.length > 0) {
-        const labelAnnotation = {
-            fill: "#2196f3",
-            text: "Monday",
-            pageYOffset: 50,
-            offsetHeight: 50,
-            y: ({ yScale, datum }) => yScale(datum.high),
-        };
-        
+    } else if (dimensions.width != 0 && candleSticks.length > 0) {
         const margin = { left: 0, right: 48, top: 100, bottom: 24 };
         const xScaleProvider = discontinuousTimeScaleProviderBuilder().inputDateAccessor(
             d => d.date,
@@ -69,18 +81,13 @@ const TradeChart = (props) => {
             })
             .accessor((d) => d.ema12);
 
-        const calculatedData = ema12(initialData);
+        const calculatedData = ema12(candleSticks);
 
         const { data, xScale, xAccessor, displayXAccessor } = xScaleProvider(calculatedData);
 
         const max = xAccessor(data[data.length - 1]);
         const min = xAccessor(data[Math.max(0, data.length - 100)]);
         const xExtents = [min, max];
-
-        const when = (data) => {
-            return data.date.getDay() === 1;
-        };
-
         const yExtents = (data) => {
             return [data.high, data.low];
         };
@@ -93,7 +100,7 @@ const TradeChart = (props) => {
                 margin={margin}
                 data={data}
                 displayXAccessor={displayXAccessor}
-                seriesName="Data"
+                seriesName="BTC_EUR"
                 xScale={xScale}
                 xAccessor={xAccessor}
                 xExtents={xExtents}
@@ -102,7 +109,16 @@ const TradeChart = (props) => {
                     <XAxis showGridLines />
                     <YAxis showGridLines />
                     <CandlestickSeries />
-                    <Annotate with={LabelAnnotation} usingProps={labelAnnotation} when={when} />
+                    <BuyNewAnnotate />
+                    <BuyPartialAnnotate />
+                    <BuyCompleteAnnotate />
+                    <SellNewAnnotate />
+                    <SellPartialAnnotate />
+                    <SellCompleteAnnotate />
+                    <HoverTooltip
+                        yAccessor={ema12.accessor()}
+                        tooltip={{content: ({ currentItem, xAccessor }) => ToolTipHelper.getToolTip(currentItem, xAccessor)}}
+                    />
                 </Chart>
             </ChartCanvas>
         );
