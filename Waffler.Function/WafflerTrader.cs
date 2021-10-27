@@ -128,7 +128,6 @@ namespace Waffler.Function
                             await _tradeOrderService.CreateTradeOrder(new TradeOrderDTO()
                             {
                                 Amount = tradeRule.Amount,
-                                TradeTypeId = tradeRule.TradeTypeId,
                                 OrderDateTime = currentPeriodDateTime,
                                 Price = candleStick.HighPrice,
                                 TradeRuleId = tradeRule.Id,

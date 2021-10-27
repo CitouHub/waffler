@@ -3,7 +3,7 @@ import { timeFormat } from "d3-time-format";
 
 export default {
     getToolTip: (currentItem, xAccessor) => {
-        const dateFormat = timeFormat("%Y-%m-%d");
+        const dateFormat = timeFormat("%Y-%m-%d %H:%M");
         const numberFormat = format(".2f");
 
         let toolTip = {
@@ -35,16 +35,16 @@ export default {
                     value: ""
                 },
                 {
-                    label: "type",
-                    value: currentItem.tradeOrder.tradeTypeId
+                    label: "--------------------",
+                    value: "--------------------"
                 },
                 {
-                    label: "rule",
-                    value: currentItem.tradeOrder.tradeRuleId
+                    label: currentItem.tradeOrder.tradeActionName,
+                    value: currentItem.tradeOrder.tradeRuleName
                 },
                 {
                     label: "date",
-                    value: currentItem.tradeOrder.orderDateTime.toISOString().substring(0, 16)
+                    value: dateFormat(currentItem.tradeOrder.orderDateTime)
                 },
                 {
                     label: "price",

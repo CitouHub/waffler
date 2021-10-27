@@ -1,8 +1,10 @@
-﻿import React, { useLayoutEffect, useRef, useState} from "react";
+﻿import React from "react";
 import classNames from "classnames";
 import { Container } from "reactstrap";
-import { Switch, Route } from "react-router-dom";
+import { Switch } from "react-router-dom";
 
+import Cache from '../../util/cache'
+import ProtectedRount from '../home/protectedroute'
 import TradeChart from "../chart/tradechart";
 
 const Content = ({ sidebarIsOpen, toggleSidebar }) => {
@@ -12,8 +14,13 @@ const Content = ({ sidebarIsOpen, toggleSidebar }) => {
             className={classNames("content", { "is-open": sidebarIsOpen })}
         >
             <Switch>
-                <Route exact path="/" component={() => <TradeChart type="svg" />} />
-                <Route exact path="/traderules" component={() => "Trade rules"} />
+                <ProtectedRount exact path="/" component={() => <TradeChart />} />
+                <ProtectedRount exact path="/traderules" component={() => "Trade rules"} />
+                <ProtectedRount exact path="/settings" component={() => "Settings"} />
+                <ProtectedRount exact path="/logout" component={() => {
+                    Cache.set("isAuthenticated", false);
+                    window.location.replace("/login");
+                }} />
             </Switch>
         </Container>
     );

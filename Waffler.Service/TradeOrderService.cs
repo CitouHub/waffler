@@ -9,6 +9,7 @@ using AutoMapper;
 
 using Waffler.Data;
 using Waffler.Domain;
+using Waffler.Data.Extensions;
 
 namespace Waffler.Service
 {
@@ -31,7 +32,7 @@ namespace Waffler.Service
 
         public async Task<List<TradeOrderDTO>> GetTradeOrders(DateTime from, DateTime to)
         {
-            var tradeOrders = await _context.TradeOrder.Where(_ => _.OrderDateTime >= from && _.OrderDateTime <= to).ToListAsync();
+            var tradeOrders = await _context.sp_getTradeOrders(from, to);
             return _mapper.Map<List<TradeOrderDTO>>(tradeOrders);
         }
 

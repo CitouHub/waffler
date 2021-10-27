@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 import { Button, FormGroup, Input } from "reactstrap";
 import { Form, Field } from "react-final-form";
 
+import Cache from '../../util/cache'
 import ProfileService from '../../services/profile.service'
 
 import waffle from '../../assets/images/waffle.png';
@@ -18,7 +19,7 @@ const Login = (props) => {
             setPasswordChecked(true);
             if (success === true) {
                 setPasswordValid(true);
-                localStorage.setItem("isAuthenticated", true);
+                Cache.set("isAuthenticated", true);
                 history.push("/");
             } else {
                 setPasswordValid(false);

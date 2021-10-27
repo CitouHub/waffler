@@ -5,7 +5,7 @@ import btcIcon from '../../../assets/paths/btc';
 const BuyCompleteAnnotate = () => {
     const whenBuy = (data) => {
         return data.tradeOrder !== undefined &&
-            data.tradeOrder.tradeTypeId === 1 &&
+            data.tradeOrder.tradeActionId === 1 &&
             data.tradeOrder.amount === data.tradeOrder.filledAmount;
     }
 

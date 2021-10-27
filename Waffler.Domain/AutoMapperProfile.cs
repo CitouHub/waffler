@@ -18,6 +18,7 @@ namespace Waffler.Domain
                 .ForMember(dest => dest.TradeRuleConditions, opt => opt.MapFrom(src => src.TradeRuleCondition));
 
             CreateMap<sp_getCandleSticks_Result, CandleStickDTO>();
+            CreateMap<sp_getTradeOrders_Result, TradeOrderDTO>();
         }
 
         private void SetupBitpandaMaps()

@@ -1,6 +1,7 @@
-﻿import React, { useState, useLayoutEffect, useRef } from 'react';
+﻿import React, { useState } from 'react';
 import { BrowserRouter, Redirect } from "react-router-dom";
 
+import Cache from '../../util/cache'
 import TopBar from './navigation/topbar/topbar';
 import SideBar from './navigation/sidebar/sidebar';
 import Content from './content';
@@ -11,7 +12,7 @@ const Home = (props) => {
     const [sidebarIsOpen, setSidebarOpen] = useState(true);
     const toggleSidebar = () => setSidebarOpen(!sidebarIsOpen);
 
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
+    const isAuthenticated = Cache.get("isAuthenticated");
 
     if (props.hasProfile && isAuthenticated) {
         return (

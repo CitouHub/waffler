@@ -76,6 +76,11 @@ li a.dropdown-toggle::after {
             background: #3a4c99;
         }
 
+.logout {
+    position: absolute;
+    bottom: 1rem;
+}
+
 /* ---------------------------------------------------
     CONTENT STYLE
 ----------------------------------------------------- */

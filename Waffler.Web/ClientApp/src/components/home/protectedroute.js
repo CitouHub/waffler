@@ -1,8 +1,12 @@
 ﻿import React from "react";
 import { Redirect, Route } from "react-router-dom";
 
+import Cache from '../../util/cache'
+
 function ProtectedRoute({ component: Component, ...restOfProps }) {
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
+    const isAuthenticated = Cache.get("isAuthenticated");
+
+    console.log(isAuthenticated);
 
     return (
         <Route

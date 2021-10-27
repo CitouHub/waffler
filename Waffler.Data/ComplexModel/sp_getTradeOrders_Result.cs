@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Waffler.Domain
+namespace Waffler.Data.ComplexModel
 {
-    public class TradeOrderDTO
-    {
+    public class sp_getTradeOrders_Result
+	{
 		public int Id { get; set; }
 		public int TradeRuleId { get; set; }
 		public string TradeRuleName { get; set; }

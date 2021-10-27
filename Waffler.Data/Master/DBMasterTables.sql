@@ -237,11 +237,10 @@ CREATE TABLE [dbo].[TradeOrder](
 	[InsertByUser] [int] NOT NULL DEFAULT(1),
 	[UpdateDate] [datetime2](7) NULL,
 	[UpdateByUser] [int] NULL,
-	[TradeTypeId] [smallint] NOT NULL,
 	[TradeRuleId] [int] NOT NULL,
 	[TradeOrderStatusId] [smallint] NOT NULL DEFAULT(1),
 	[OrderId] [UNIQUEIDENTIFIER] NOT NULL,
-	[OrderDateTime] [datetime2](7) NOT NULL,
+	[OrderDateTime] [datetime2](0) NOT NULL,
 	[Price] [decimal](10,2) NOT NULL,
 	[Amount] [decimal](10,8) NOT NULL,
 	[FilledAmount] [decimal](10,8) NOT NULL DEFAULT(0.0)
@@ -251,8 +250,6 @@ CREATE TABLE [dbo].[TradeOrder](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 )
 
-ALTER TABLE [dbo].[TradeOrder] WITH CHECK ADD CONSTRAINT [TradeOrder_TradeTypeFK] FOREIGN KEY([TradeTypeId]) REFERENCES [dbo].[TradeType] ([ID])
-GO
 ALTER TABLE [dbo].[TradeOrder] WITH CHECK ADD CONSTRAINT [TradeOrder_TradeRuleFK] FOREIGN KEY([TradeRuleId]) REFERENCES [dbo].[TradeRule] ([ID])
 GO
 ALTER TABLE [dbo].[TradeOrder] WITH CHECK ADD CONSTRAINT [TradeOrder_TradeOrderStatusFK] FOREIGN KEY([TradeOrderStatusId]) REFERENCES [dbo].[TradeOrderStatus] ([ID])

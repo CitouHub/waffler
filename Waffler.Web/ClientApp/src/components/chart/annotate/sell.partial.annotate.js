@@ -5,7 +5,7 @@ import brokenHeartIcon from '../../../assets/paths/broken-heart';
 const SellCompleteAnnotate = () => {
     const whenSell = (data) => {
         return data.tradeOrder !== undefined &&
-            data.tradeOrder.tradeTypeId === 2 &&
+            data.tradeOrder.tradeActionId === 2 &&
             data.tradeOrder.amount === data.tradeOrder.filledAmount;;
     }
 

@@ -28,7 +28,7 @@ const TradeChart = (props) => {
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [loading, setLoading] = useState(true);
     const [candleSticks, setCandleSticks] = useState([]);
-    const [tradeOrders, setTradeOrder] = useState([]);
+    const [tradeOrders, setTradeOrders] = useState([]);
 
     useEffect(() => {
         if (canvasRef.current) {
@@ -43,7 +43,6 @@ const TradeChart = (props) => {
             });
 
             TradeOrderService.getTradeOrders(new Date('2021-10-01'), new Date('2021-10-30')).then((tradeOrdersResult) => {
-                console.log(tradeOrdersResult);
                 tradeOrdersResult.forEach((tradeOrder) => {
                     tradeOrder.orderDateTime = new Date(tradeOrder.orderDateTime);
                     let candleStick = candleSticksResult.find((candleStick) => {
@@ -54,7 +53,7 @@ const TradeChart = (props) => {
 
                     candleStick.tradeOrder = tradeOrder;
                 });
-                console.log(candleSticksResult);
+                setTradeOrders(tradeOrdersResult);
                 setCandleSticks(candleSticksResult);
                 setLoading(false);
             });
