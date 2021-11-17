@@ -49,65 +49,74 @@ namespace Waffler.Service.Background
             }
 
             InProgress = true;
-            using (IServiceScope scope = _serviceProvider.CreateScope())
+            try
             {
-                var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
-                var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
-                var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
-
                 _logger.LogInformation($"Syncing candlestick data");
-                var syncingData = true;
-                var requestCount = 0;
-                var requestMinuteLimit = 180; //This limit is related to the throtteling limit at Bitpanda
-                var saveLimit = 10; //This limit is due to the fact that Bitpanda sometimes return the same candlestick entity when reaching the current time
-                var startTime = DateTime.UtcNow;
-
-                while (syncingData && cancellationToken.IsCancellationRequested == false)
+                using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
-                    var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow))?.PeriodDateTime ?? 
-                        DateTime.UtcNow.AddMinutes(DefaultStartDate.TotalMinutes);
-                    period = period.AddMilliseconds(1);
-                    _logger.LogInformation($"- Fetch data from {period} onward");
+                    _logger.LogInformation($"- Setting up scoped services");
+                    var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
+                    var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
+                    var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
+                    
+                    var syncingData = true;
+                    var requestCount = 0;
+                    var requestMinuteLimit = 180; //This limit is related to the throtteling limit at Bitpanda
+                    var saveLimit = 10; //This limit is due to the fact that Bitpanda sometimes return the same candlestick entity when reaching the current time
+                    var startTime = DateTime.UtcNow;
 
-                    var bp_cancleSticksDTO = await _bitpandaService.GetCandleSticks(
-                        Bitpanda.GetInstrumentCode(TradeType.BTC_EUR),
-                        Bitpanda.Period.MINUTES, 1, period, period.AddMinutes(RequestMinutes.TotalMinutes));
-                    requestCount++;
-
-                    if (bp_cancleSticksDTO != null)
+                    while (syncingData && cancellationToken.IsCancellationRequested == false)
                     {
-                        if (bp_cancleSticksDTO.Count() >= saveLimit)
+                        _logger.LogInformation($"- Getting last candlestick");
+                        var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow))?.PeriodDateTime ??
+                            DateTime.UtcNow.AddMinutes(DefaultStartDate.TotalMinutes);
+                        period = period.AddMilliseconds(1);
+
+                        _logger.LogInformation($"- Fetch data from {period} onward");
+                        var bp_cancleSticksDTO = await _bitpandaService.GetCandleSticks(
+                            Bitpanda.GetInstrumentCode(TradeType.BTC_EUR),
+                            Bitpanda.Period.MINUTES, 1, period, period.AddMinutes(RequestMinutes.TotalMinutes));
+                        requestCount++;
+
+                        if (bp_cancleSticksDTO != null)
                         {
-                            _logger.LogInformation($"- Fetch successfull, {bp_cancleSticksDTO.Count()} new candlesticks found");
-                            var cancleSticksDTO = _mapper.Map<List<CandleStickDTO>>(bp_cancleSticksDTO);
-                            await _candleStickService.AddCandleSticksAsync(cancleSticksDTO);
-                            _logger.LogInformation($"- Data save successfull");
+                            if (bp_cancleSticksDTO.Count() >= saveLimit)
+                            {
+                                _logger.LogInformation($"- Fetch successfull, {bp_cancleSticksDTO.Count()} new candlesticks found");
+                                var cancleSticksDTO = _mapper.Map<List<CandleStickDTO>>(bp_cancleSticksDTO);
+                                await _candleStickService.AddCandleSticksAsync(cancleSticksDTO);
+                                _logger.LogInformation($"- Data save successfull");
+                            }
+                            else
+                            {
+                                _logger.LogInformation($"- Fetch successfull, no new data found, stop sync");
+                                syncingData = false;
+                            }
                         }
                         else
                         {
-                            _logger.LogInformation($"- Fetch successfull, no new data found, stop sync");
+                            _logger.LogInformation($"- Fetch failed, API unavailable");
                             syncingData = false;
                         }
-                    }
-                    else
-                    {
-                        _logger.LogInformation($"- Fetch failed, API unavailable");
-                        syncingData = false;
-                    }
 
-                    if (requestCount >= requestMinuteLimit)
-                    {
-                        var sleepTime = 60 * 1000 - (int)(DateTime.UtcNow - startTime).TotalMilliseconds;
-                        _logger.LogInformation($"- Reached request limit, sleep {sleepTime} ms");
-                        Thread.Sleep(sleepTime <= 0 ? 0 : sleepTime);
-                        startTime = DateTime.UtcNow;
-                        requestCount = 0;
-                    }
+                        if (requestCount >= requestMinuteLimit)
+                        {
+                            var sleepTime = 60 * 1000 - (int)(DateTime.UtcNow - startTime).TotalMilliseconds;
+                            _logger.LogInformation($"- Reached request limit, sleep {sleepTime} ms");
+                            Thread.Sleep(sleepTime <= 0 ? 0 : sleepTime);
+                            startTime = DateTime.UtcNow;
+                            requestCount = 0;
+                        }
 
-                    _timer.Change(RequestPeriod, RequestPeriod);
+                        _timer.Change(RequestPeriod, RequestPeriod);
+                    }
                 }
+                _logger.LogInformation($"Syncing candlestick data finished");
             }
-            _logger.LogInformation($"Syncing candlestick data finished");
+            catch (Exception e)
+            {
+                _logger.LogError($"Unexpected exception", e);
+            }
             InProgress = false;
         }
     }

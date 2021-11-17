@@ -1,12 +1,13 @@
 ﻿import React from 'react';
 import TextField from '@mui/material/TextField';
+import MultiSelect from './multiselect';
 
 import './filter.css';
 
 const ChartFilter = ({ updateFilter, filter }) => {
     return (
         <div className="filter-wrapper">
-            <div className="date-field">
+            <div className="filter-control">
                 <TextField
                     id="fromDate"
                     label="From"
@@ -19,7 +20,7 @@ const ChartFilter = ({ updateFilter, filter }) => {
                     onChange={e => updateFilter({ ...filter, fromDate: new Date(e.target.value) })}
                 />
             </div>
-            <div className="date-field">
+            <div className="filter-control">
                 <TextField
                     id="toDate"
                     label="To"
@@ -31,6 +32,9 @@ const ChartFilter = ({ updateFilter, filter }) => {
                     }}
                     onChange={e => updateFilter({ ...filter, toDate: new Date(e.target.value) })}
                 />
+            </div>
+            <div className="filter-control">
+                <MultiSelect />
             </div>
         </div>
     )

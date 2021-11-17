@@ -65,8 +65,6 @@ namespace Waffler.Data
 
                 entity.Property(e => e.OpenPrice).HasColumnType("decimal(10, 2)");
 
-                entity.Property(e => e.PeriodDateTime).HasColumnType("datetime2(0)");
-
                 entity.Property(e => e.TotalAmount).HasColumnType("decimal(10, 2)");
 
                 entity.Property(e => e.Volume).HasColumnType("decimal(10, 2)");
@@ -127,6 +125,8 @@ namespace Waffler.Data
 
                 entity.Property(e => e.InsertDate).HasDefaultValueSql("(getutcdate())");
 
+                entity.Property(e => e.OrderDateTime).HasColumnType("datetime2(0)");
+
                 entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
 
                 entity.Property(e => e.TradeOrderStatusId).HasDefaultValueSql("((1))");
@@ -142,12 +142,6 @@ namespace Waffler.Data
                     .HasForeignKey(d => d.TradeRuleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("TradeOrder_TradeRuleFK");
-
-                entity.HasOne(d => d.TradeType)
-                    .WithMany(p => p.TradeOrder)
-                    .HasForeignKey(d => d.TradeTypeId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("TradeOrder_TradeTypeFK");
             });
 
             modelBuilder.Entity<TradeOrderStatus>(entity =>

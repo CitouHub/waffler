@@ -7,8 +7,6 @@ namespace Waffler.Domain
 		public int Id { get; set; }
 		public int TradeRuleId { get; set; }
 		public string TradeRuleName { get; set; }
-		public short TradeActionId { get; set; }
-		public string TradeActionName { get; set; }
 		public short TradeOrderStatusId { get; set; }
 		public string TradeOrderStatusName { get; set; }
 		public Guid OrderId { get; set; }

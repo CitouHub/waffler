@@ -31,41 +31,48 @@ namespace Waffler.Service.Background
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            while(!cancellationToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 _logger.LogInformation($"Waiting for trade request...");
                 var tradeRequest = await _testTradeRuleQueue.DequeueAsync(cancellationToken);
                 var currentStatus = _testTradeRuleQueue.SetStatus(tradeRequest);
 
-                _logger.LogInformation($"New trade request found {tradeRequest}");
-                using (IServiceScope scope = _serviceProvider.CreateScope())
+                try
                 {
-                    var _tradeRuleService = scope.ServiceProvider.GetRequiredService<ITradeRuleService>();
-                    var _tradeService = scope.ServiceProvider.GetRequiredService<ITradeService>();
+                    _logger.LogInformation($"New trade request found {tradeRequest}");
+                    using (IServiceScope scope = _serviceProvider.CreateScope())
+                    {
+                        var _tradeRuleService = scope.ServiceProvider.GetRequiredService<ITradeRuleService>();
+                        var _tradeService = scope.ServiceProvider.GetRequiredService<ITradeService>();
 
-                    var tradeRule = await _tradeRuleService.GetTradeRuleAsync(tradeRequest.TradeRuleId);
-                    var results = new List<TradeRuleEvaluationDTO>();
+                        var tradeRule = await _tradeRuleService.GetTradeRuleAsync(tradeRequest.TradeRuleId);
+                        var results = new List<TradeRuleEvaluationDTO>();
 
-                    currentStatus.CurrentPositionDate = tradeRequest.FromDate;
-                    while (currentStatus.CurrentPositionDate < tradeRequest.ToDate.AddMinutes(tradeRequest.MinuteStep))
-                    {
-                        var result = await _tradeService.HandleTradeRule(tradeRequest.TradeRuleId, tradeRequest.FromDate);
-                        results.Add(result);
-                        currentStatus.CurrentPositionDate = currentStatus.CurrentPositionDate.AddMinutes(tradeRequest.MinuteStep);
+                        currentStatus.CurrentPositionDate = tradeRequest.FromDate;
+                        while (currentStatus.CurrentPositionDate < tradeRequest.ToDate.AddMinutes(tradeRequest.MinuteStep))
+                        {
+                            var result = await _tradeService.HandleTradeRule(tradeRequest.TradeRuleId, tradeRequest.FromDate);
+                            results.Add(result);
+                            currentStatus.CurrentPositionDate = currentStatus.CurrentPositionDate.AddMinutes(tradeRequest.MinuteStep);
+                        }
+
+                        _logger.LogInformation($"- Trade rule result: {tradeRule.Id}:{tradeRule.Name}");
+                        foreach (var tradeRuleCondition in results.SelectMany(_ => _.TradeRuleCondtionEvaluations).GroupBy(_ => new
+                        {
+                            _.Id,
+                            _.Description
+                        }))
+                        {
+                            var conditionName = $"{tradeRuleCondition.Key.Id}:{tradeRuleCondition.Key.Description}";
+                            var conditions = tradeRuleCondition.Count();
+                            var fullfilled = tradeRuleCondition.Count(_ => _.IsFullfilled == true);
+                            _logger.LogInformation($"- - Condition: {conditionName} = {fullfilled}/{conditions}");
+                        }
                     }
-                    
-                    _logger.LogInformation($"- Trade rule result: {tradeRule.Id}:{tradeRule.Name}");
-                    foreach (var tradeRuleCondition in results.SelectMany(_ => _.TradeRuleCondtionEvaluations).GroupBy(_ => new
-                    {
-                        _.Id,
-                        _.Description
-                    }))
-                    {
-                        var conditionName = $"{tradeRuleCondition.Key.Id}:{tradeRuleCondition.Key.Description}";
-                        var conditions = tradeRuleCondition.Count();
-                        var fullfilled = tradeRuleCondition.Count(_ => _.IsFullfilled == true);
-                        _logger.LogInformation($"- - Condition: {conditionName} = {fullfilled}/{conditions}");
-                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"Unexpected exception", e);
                 }
             }
         }

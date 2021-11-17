@@ -11,7 +11,6 @@ using Waffler.Domain;
 
 namespace Waffler.Service.Background
 {
-
     public class BackgroundTradeService : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
@@ -38,71 +37,68 @@ namespace Waffler.Service.Background
 
         private async Task HandleTradeRules(CancellationToken cancellationToken)
         {
-            if(InProgress)
+            if (InProgress)
             {
                 return;
             }
-
             InProgress = true;
-            using (IServiceScope scope = _serviceProvider.CreateScope())
+
+            try
             {
-                var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
-                var _tradeRuleService = scope.ServiceProvider.GetRequiredService<ITradeRuleService>();
-                var _tradeService = scope.ServiceProvider.GetRequiredService<ITradeService>();
-
                 _logger.LogInformation($"Running trade analysis");
-                var lastCandleStick = await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow);
-                
-                if (IsDataSynced(lastCandleStick))
+                using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
-                    _logger.LogWarning($"- Data synced, last period {lastCandleStick.PeriodDateTime}, analyse trade rules...");
-                    var tradeRules = await _tradeRuleService.GetTradeRulesAsync();
+                    _logger.LogInformation($"- Setting up scoped services");
+                    var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
+                    var _tradeRuleService = scope.ServiceProvider.GetRequiredService<ITradeRuleService>();
+                    var _tradeService = scope.ServiceProvider.GetRequiredService<ITradeService>();
 
-                    foreach(int tradeRuleId in tradeRules.Select(_ => _.Id))
+                    _logger.LogInformation($"- Getting last candlestick");
+                    var lastCandleStick = await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow);
+
+                    if (IsDataSynced(lastCandleStick))
                     {
-                        if(cancellationToken.IsCancellationRequested == false)
-                        {
-                            var result = await _tradeService.HandleTradeRule(tradeRuleId, lastCandleStick.PeriodDateTime);
+                        _logger.LogWarning($"- Data synced, last period {lastCandleStick.PeriodDateTime}, analyse trade rules...");
+                        var tradeRules = await _tradeRuleService.GetTradeRulesAsync();
 
-                            _logger.LogInformation($"- Trade rule analyse result: {result.Id}:{result.Name}");
-                            foreach (var tradeRuleCondition in result.TradeRuleCondtionEvaluations)
+                        foreach (int tradeRuleId in tradeRules.Select(_ => _.Id))
+                        {
+                            if (cancellationToken.IsCancellationRequested == false)
                             {
-                                _logger.LogInformation($"- - Condition: {tradeRuleCondition.Id}:{tradeRuleCondition.Description} = {tradeRuleCondition.IsFullfilled}");
+                                var result = await _tradeService.HandleTradeRule(tradeRuleId, lastCandleStick.PeriodDateTime);
+
+                                _logger.LogInformation($"- Trade rule analyse result: {result.Id}:{result.Name}");
+                                foreach (var tradeRuleCondition in result.TradeRuleCondtionEvaluations)
+                                {
+                                    _logger.LogInformation($"- - Condition: {tradeRuleCondition.Id}:{tradeRuleCondition.Description} = {tradeRuleCondition.IsFullfilled}");
+                                }
                             }
                         }
                     }
-                } 
-                else
-                {
-                    if(lastCandleStick == null)
-                    {
-                        _logger.LogWarning($"- Data not synced, no data available");
-                    }
                     else
                     {
-                        _logger.LogWarning($"- Data not synced, last period {lastCandleStick.PeriodDateTime}");
+                        if (lastCandleStick == null)
+                        {
+                            _logger.LogWarning($"- Data not synced, no data available");
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"- Data not synced, last period {lastCandleStick.PeriodDateTime}");
+                        }
                     }
                 }
+                _logger.LogInformation($"Syncing waffle candle stick data finished");
+            } 
+            catch(Exception e)
+            {
+                _logger.LogError($"Unexpected exception", e);
             }
-            _logger.LogInformation($"Syncing waffle candle stick data finished");
             InProgress = false;
         }
 
         private bool IsDataSynced(CandleStickDTO lastCandleStick)
         {
             return lastCandleStick != null && Math.Abs((decimal)(DateTime.UtcNow - lastCandleStick.PeriodDateTime).TotalMinutes) < (int)ValidSyncOffser.TotalMinutes; 
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            _timer?.Change(Timeout.Infinite, 0);
-
-            return Task.CompletedTask;
-        }
-
-        public void Dispose()
-        {
-            _timer?.Dispose();
         }
     }
 }
