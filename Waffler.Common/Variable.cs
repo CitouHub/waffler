@@ -24,11 +24,9 @@
 
         public enum TradeRuleConditionSampleDirection
         {
-            Inward = 1,
-            Outward = 2,
-            LeftShift = 3,
-            RightShift = 4,
-            Centered = 5
+            Centered = 1,
+            LeftShift = 2,
+            RightShift = 3,
         }
 
         public enum TradeConditionOperator

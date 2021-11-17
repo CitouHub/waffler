@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waffler.Function", "Waffler.Function\Waffler.Function.csproj", "{C3A1E1E7-32F0-4EC6-B18A-821741CB2449}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waffler.Service", "Waffler.Service\Waffler.Service.csproj", "{2BA8BF5E-0A21-4D2A-A188-E8294F71C9E3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waffler.Data", "Waffler.Data\Waffler.Data.csproj", "{8C66C7FB-57F4-4766-B8E4-C63E36E5D55C}"
@@ -15,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waffler.Common", "Waffler.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waffler.Web", "Waffler.Web\Waffler.Web.csproj", "{163883AA-D189-4D22-AFC4-493CA5AD4605}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waffler.API", "Waffler.API\Waffler.API.csproj", "{6AB40EE5-8B46-4084-8991-99A1CA4F60A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waffler.API", "Waffler.API\Waffler.API.csproj", "{6AB40EE5-8B46-4084-8991-99A1CA4F60A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +21,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C3A1E1E7-32F0-4EC6-B18A-821741CB2449}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C3A1E1E7-32F0-4EC6-B18A-821741CB2449}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C3A1E1E7-32F0-4EC6-B18A-821741CB2449}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C3A1E1E7-32F0-4EC6-B18A-821741CB2449}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2BA8BF5E-0A21-4D2A-A188-E8294F71C9E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2BA8BF5E-0A21-4D2A-A188-E8294F71C9E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BA8BF5E-0A21-4D2A-A188-E8294F71C9E3}.Release|Any CPU.ActiveCfg = Release|Any CPU

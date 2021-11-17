@@ -95,7 +95,7 @@ namespace Waffler.Service
         public async Task<List<BalanceDTO>> GetBalanceAsync()
         {
             var pb_account = await _bitpandaService.GetAccountAsync();
-            return _mapper.Map<List<BalanceDTO>>(pb_account.balances);
+            return _mapper.Map<List<BalanceDTO>>(pb_account?.balances);
         }
     }
 }

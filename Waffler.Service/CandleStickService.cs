@@ -77,27 +77,18 @@ namespace Waffler.Service
 
             switch (sampleDirection)
             {
-                case Variable.TradeRuleConditionSampleDirection.Inward:
-                    fromToDateTime = fromToDateTime.AddMinutes(fromMinutesSample);
-                    toFromDateTime = toFromDateTime.AddMinutes(-1 * toMinutesSample);
-                    break;
-                case Variable.TradeRuleConditionSampleDirection.Outward:
-                    fromFromDateTime = fromFromDateTime.AddMinutes(-1 * fromMinutesSample);
-                    toToDateTime = toToDateTime.AddMinutes(toMinutesSample);
-                    break;
-                case Variable.TradeRuleConditionSampleDirection.LeftShift:
-                    fromFromDateTime = fromFromDateTime.AddMinutes(-1 * fromMinutesSample);
-                    toFromDateTime = fromToDateTime.AddMinutes(-1 * toMinutesSample);
-                    break;
-                case Variable.TradeRuleConditionSampleDirection.RightShift:
-                    fromToDateTime = toFromDateTime.AddMinutes(fromMinutesSample);
-                    toToDateTime = toToDateTime.AddMinutes(toMinutesSample);
-                    break;
                 case Variable.TradeRuleConditionSampleDirection.Centered:
                     fromFromDateTime = fromFromDateTime.AddMinutes(-1 * fromMinutesSample / 2);
                     fromToDateTime = fromToDateTime.AddMinutes(fromMinutesSample / 2);
-                    toFromDateTime = toFromDateTime.AddMinutes(-1 * toMinutesSample / 2);
-                    toToDateTime = toToDateTime.AddMinutes(toMinutesSample / 2);
+                    toFromDateTime = toFromDateTime.AddMinutes(-1 * toMinutesSample);
+                    break;
+                case Variable.TradeRuleConditionSampleDirection.RightShift:
+                    fromToDateTime = fromToDateTime.AddMinutes(fromMinutesSample);
+                    toFromDateTime = toFromDateTime.AddMinutes(-1 * toMinutesSample);
+                    break;
+                case Variable.TradeRuleConditionSampleDirection.LeftShift:
+                    fromFromDateTime = fromFromDateTime.AddMinutes(-1 * fromMinutesSample);
+                    toFromDateTime = toFromDateTime.AddMinutes(-1 * toMinutesSample);
                     break;
             }
 
@@ -107,9 +98,6 @@ namespace Waffler.Service
                 candleSticksDTO = await GetCandleSticksAsync(fromFromDateTime, DateTime.UtcNow, Variable.TradeType.BTC_EUR, 1);
                 _cache.Set(candleSticksDTO, fromFromDateTime);
             }
-
-            var f = candleSticksDTO.Where(_ => _.PeriodDateTime >= fromFromDateTime && _.PeriodDateTime <= fromToDateTime);
-            var t = candleSticksDTO.Where(_ => _.PeriodDateTime >= toFromDateTime && _.PeriodDateTime <= toToDateTime);
 
             var fromCandleSticks = candleSticksDTO.Where(_ => _.PeriodDateTime >= fromFromDateTime && _.PeriodDateTime <= fromToDateTime)
                 .GroupBy(_ => "From")

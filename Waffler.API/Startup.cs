@@ -19,6 +19,8 @@ using Waffler.Common.Util;
 using Waffler.Data;
 using Waffler.Domain;
 using Waffler.Service;
+using Waffler.Service.Background;
+using Waffler.Service.Infrastructure;
 
 namespace Waffler.API
 {
@@ -49,8 +51,14 @@ namespace Waffler.API
 
             services.AddScoped<IBitpandaService, BitpandaService>();
             services.AddScoped<ITradeOrderService, TradeOrderService>();
+            services.AddScoped<ITradeRuleService, TradeRuleService>();
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<ICandleStickService, CandleStickService>();
+            services.AddScoped<ITradeService, TradeService>();
+
+            services.AddHostedService<BackgroundChartSyncService>();
+            services.AddHostedService<BackgroundTradeService>();
+            services.AddHostedService<BackgroundTestTradeService>();
 
             var mapperConfig = new MapperConfiguration(mc =>
             {
@@ -59,6 +67,7 @@ namespace Waffler.API
 
             services.AddSingleton(mapperConfig.CreateMapper());
             services.AddSingleton(new Cache());
+            services.AddSingleton(new TestTradeRuleQueue());
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

@@ -56,7 +56,7 @@ CREATE TABLE [dbo].[CandleStick](
 	[AvgOpenClosePrice] [decimal](10,2) NOT NULL,
 	[TotalAmount] [decimal](10,2) NOT NULL,
 	[Volume] [decimal](10,2) NOT NULL,
-	[PeriodDateTime] [datetime2](0) NOT NULL
+	[PeriodDateTime] [datetime2](7) NOT NULL
  CONSTRAINT [CandleStick_PK] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

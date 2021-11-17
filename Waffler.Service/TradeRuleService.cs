@@ -15,6 +15,8 @@ namespace Waffler.Service
     {
         Task<List<TradeRuleDTO>> GetTradeRulesAsync();
 
+        Task<TradeRuleDTO> GetTradeRuleAsync(int tradeRuleId);
+
         Task<bool> UpdateTradeRuleLastTrigger(int tradeRuleId, DateTime triggerTime);
     }
 
@@ -32,8 +34,27 @@ namespace Waffler.Service
         public async Task<List<TradeRuleDTO>> GetTradeRulesAsync()
         {
             var tradeRules = await _context.TradeRule
-                .Include(_ => _.TradeRuleCondition).ToListAsync();
+                .Include(_ => _.TradeAction)
+                .Include(_ => _.TradeType)
+                .Include(_ => _.TradeConditionOperator)
+                .Include(_ => _.TradeRuleCondition).ThenInclude(_ => _.CandleStickValueType)
+                .Include(_ => _.TradeRuleCondition).ThenInclude(_ => _.TradeRuleConditionComparator)
+                .Include(_ => _.TradeRuleCondition).ThenInclude(_ => _.TradeRuleConditionSampleDirection)
+                .ToListAsync();
             return _mapper.Map<List<TradeRuleDTO>>(tradeRules);
+        }
+
+        public async Task<TradeRuleDTO> GetTradeRuleAsync(int tradeRuleId)
+        {
+            var tradeRule = await _context.TradeRule
+                .Include(_ => _.TradeAction)
+                .Include(_ => _.TradeType)
+                .Include(_ => _.TradeConditionOperator)
+                .Include(_ => _.TradeRuleCondition).ThenInclude(_ => _.CandleStickValueType)
+                .Include(_ => _.TradeRuleCondition).ThenInclude(_ => _.TradeRuleConditionComparator)
+                .Include(_ => _.TradeRuleCondition).ThenInclude(_ => _.TradeRuleConditionSampleDirection)
+                .FirstOrDefaultAsync(_ => _.Id == tradeRuleId);
+            return _mapper.Map<TradeRuleDTO>(tradeRule);
         }
 
         public async Task<bool> UpdateTradeRuleLastTrigger(int tradeRuleId, DateTime triggerTime)

@@ -74,6 +74,11 @@ namespace Waffler.Service
             var fromString = HttpUtility.UrlEncode(from.ToString("o"));
             var toString = HttpUtility.UrlEncode(to.ToString("o"));
 
+            //TODO: WHY is the Z included in some cases and in some not?!
+            //This fix solves the problem for now...
+            fromString = fromString.EndsWith("Z") ? fromString : fromString + "Z";
+            toString = toString.EndsWith("Z") ? toString : toString + "Z";
+
             var result = await PublicHttpClient.GetAsync($"candlesticks/{instrumentCode}?" +
                 $"unit={unit}&" +
                 $"period={period}&" +

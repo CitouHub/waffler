@@ -54,11 +54,9 @@ GO
 
 SET IDENTITY_INSERT TradeRuleConditionSampleDirection ON
 GO
-INSERT INTO TradeRuleConditionSampleDirection (ID, Name) VALUES (1, 'Inward')
-INSERT INTO TradeRuleConditionSampleDirection (ID, Name) VALUES (2, 'Outward')
-INSERT INTO TradeRuleConditionSampleDirection (ID, Name) VALUES (3, 'Left shift')
-INSERT INTO TradeRuleConditionSampleDirection (ID, Name) VALUES (4, 'Right shift')
-INSERT INTO TradeRuleConditionSampleDirection (ID, Name) VALUES (5, 'Centered')
+INSERT INTO TradeRuleConditionSampleDirection (ID, Name, Description) VALUES (1, 'Centered', 'The FromDate is sampled left and right from the sample point')
+INSERT INTO TradeRuleConditionSampleDirection (ID, Name, Description) VALUES (2, 'Left shift', 'The FromDate is sampled left from the sample point')
+INSERT INTO TradeRuleConditionSampleDirection (ID, Name, Description) VALUES (3, 'Right shift', 'The FromDate is sampled right from the sample point')
 SET IDENTITY_INSERT TradeRuleConditionSampleDirection OFF
 GO
 
@@ -88,7 +86,7 @@ INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRu
 VALUES (1, 6, 1, 2, -2*60, -1*60, 60, 60, -3, 'A drop of over 3% now')
 
 INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
-VALUES (2, 6, 1, 5, -4*24*60, -1*24*60, 6*60, 6*60, -6, 'A drop of over 6% over 3 days 1 day ago')
+VALUES (2, 6, 1, 1, -4*24*60, -1*24*60, 6*60, 6*60, -6, 'A drop of over 6% over 3 days 1 day ago')
 
 INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
-VALUES (3, 6, 2, 5, -60, -60, 30, 30, 0.0, 'Any change')
+VALUES (3, 6, 2, 1, -60, -60, 30, 30, 0.0, 'Any change')

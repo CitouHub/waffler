@@ -12,9 +12,16 @@ namespace Waffler.Domain
             SetupBitpandaMaps();
 
             CreateMap<CandleStickDTO, CandleStick>().ReverseMap();
-            CreateMap<TradeRuleCondition, TradeRuleConditionDTO>().ReverseMap();
+            CreateMap<TradeRuleCondition, TradeRuleConditionDTO>()
+                .ForMember(dest => dest.CandleStickValueTypeName, opt => opt.MapFrom(src => src.CandleStickValueType.Name))
+                .ForMember(dest => dest.TradeRuleConditionComparatorName, opt => opt.MapFrom(src => src.TradeRuleConditionComparator.Name))
+                .ForMember(dest => dest.TradeRuleConditionSampleDirectionName, opt => opt.MapFrom(src => src.TradeRuleConditionSampleDirection.Name))
+                .ReverseMap();
             CreateMap<TradeOrder, TradeOrderDTO>().ReverseMap();
             CreateMap<TradeRule, TradeRuleDTO>()
+                .ForMember(dest => dest.TradeActionName, opt => opt.MapFrom(src => src.TradeAction.Name))
+                .ForMember(dest => dest.TradeTypeName, opt => opt.MapFrom(src => src.TradeType.Name))
+                .ForMember(dest => dest.TradeConditionOperatorName, opt => opt.MapFrom(src => src.TradeConditionOperator.Name))
                 .ForMember(dest => dest.TradeRuleConditions, opt => opt.MapFrom(src => src.TradeRuleCondition));
 
             CreateMap<sp_getCandleSticks_Result, CandleStickDTO>();

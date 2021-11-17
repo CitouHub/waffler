@@ -6,6 +6,7 @@ import { Switch } from "react-router-dom";
 import Cache from '../../util/cache'
 import ProtectedRount from '../home/protectedroute'
 import TradeChart from "../chart/tradechart";
+import TradeRules from "../traderules/traderules";
 
 const Content = ({ sidebarIsOpen, toggleSidebar }) => {
     return (
@@ -15,7 +16,7 @@ const Content = ({ sidebarIsOpen, toggleSidebar }) => {
         >
             <Switch>
                 <ProtectedRount exact path="/" component={() => <TradeChart />} />
-                <ProtectedRount exact path="/traderules" component={() => "Trade rules"} />
+                <ProtectedRount exact path="/traderules" component={() => <TradeRules />} />
                 <ProtectedRount exact path="/settings" component={() => "Settings"} />
                 <ProtectedRount exact path="/logout" component={() => {
                     Cache.set("isAuthenticated", false);

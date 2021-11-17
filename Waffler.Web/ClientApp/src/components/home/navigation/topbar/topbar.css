@@ -13,7 +13,7 @@
     margin-right: 2rem;
 }
 
-h4 {
+.title h4 {
     vertical-align: middle;
     display: table-cell;
     color: rgba(20,24,33,.5);
