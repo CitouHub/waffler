@@ -4,6 +4,7 @@ DELETE TradeRuleCondition
 DELETE TradeRule
 DELETE TradeType
 DELETE TradeConditionOperator
+DELETE TradeRuleStatus
 DELETE TradeAction
 DELETE CandleStickValueType
 DELETE TradeRuleConditionComparator
@@ -52,6 +53,14 @@ INSERT INTO TradeRuleConditionComparator (ID, Name) VALUES (4, 'Abs more then')
 SET IDENTITY_INSERT TradeRuleConditionComparator OFF
 GO
 
+SET IDENTITY_INSERT TradeRuleStatus ON
+GO
+INSERT INTO TradeRuleStatus (ID, Name) VALUES (1, 'Active')
+INSERT INTO TradeRuleStatus (ID, Name) VALUES (2, 'Test')
+INSERT INTO TradeRuleStatus (ID, Name) VALUES (3, 'Disabled')
+SET IDENTITY_INSERT TradeRuleStatus OFF
+GO
+
 SET IDENTITY_INSERT TradeRuleConditionSampleDirection ON
 GO
 INSERT INTO TradeRuleConditionSampleDirection (ID, Name, Description) VALUES (1, 'Centered', 'The FromDate is sampled left and right from the sample point')
@@ -76,9 +85,9 @@ GO
 
 SET IDENTITY_INSERT TradeRule ON
 GO
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (1, 1, 1, 1, 'Fast drop, small buy', 0.0001, 60*2)
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (2, 1, 1, 1, 'Slow drop, big buy', 0.0004, 60*6)
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (3, 1, 1, 2, 'Buy mindless', 0.0002, 24*60)
+INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (1, 1, 1, 1, 2, 'Fast drop, small buy', 0.0001, 60*2)
+INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (2, 1, 1, 1, 2, 'Slow drop, big buy', 0.0004, 60*6)
+INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (3, 1, 1, 2, 2, 'Buy mindless', 0.0002, 24*60)
 SET IDENTITY_INSERT TradeRule OFF
 GO
 

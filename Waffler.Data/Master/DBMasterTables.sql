@@ -12,6 +12,8 @@ IF OBJECTPROPERTY(object_id('dbo.TradeType'), N'IsTable') = 1 DROP TABLE [dbo].[
 GO
 IF OBJECTPROPERTY(object_id('dbo.TradeConditionOperator'), N'IsTable') = 1 DROP TABLE [dbo].[TradeConditionOperator]
 GO
+IF OBJECTPROPERTY(object_id('dbo.TradeRuleStatus'), N'IsTable') = 1 DROP TABLE [dbo].[TradeRuleStatus]
+GO
 IF OBJECTPROPERTY(object_id('dbo.CandleStickValueType'), N'IsTable') = 1 DROP TABLE [dbo].[CandleStickValueType]
 GO
 IF OBJECTPROPERTY(object_id('dbo.TradeRuleConditionComparator'), N'IsTable') = 1 DROP TABLE [dbo].[TradeRuleConditionComparator]
@@ -101,6 +103,20 @@ CREATE TABLE [dbo].[TradeConditionOperator](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 )
 
+CREATE TABLE [dbo].[TradeRuleStatus](
+	[Id] [smallint] IDENTITY(1,1) NOT NULL,
+	[InsertDate] [datetime2](7) NOT NULL DEFAULT(GETUTCDATE()),
+	[InsertByUser] [int] NOT NULL DEFAULT(1),
+	[UpdateDate] [datetime2](7) NULL,
+	[UpdateByUser] [int] NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Description] [nvarchar](200) NULL
+ CONSTRAINT [TradeRuleStatus_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)
+
 CREATE TABLE [dbo].[TradeRule](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[InsertDate] [datetime2](7) NOT NULL DEFAULT(GETUTCDATE()),
@@ -110,12 +126,12 @@ CREATE TABLE [dbo].[TradeRule](
 	[TradeActionId] [smallint] NOT NULL,
 	[TradeTypeId] [smallint] NOT NULL,
 	[TradeConditionOperatorId] [smallint] NOT NULL,
+	[TradeRuleStatusId] [smallint] NOT NULL,
 	[Name] [nvarchar](50) NOT NULL,
 	[Description] [nvarchar](200) NULL,
 	[Amount] [decimal](10,8) NOT NULL,
 	[TradeMinIntervalMinutes] [int] NOT NULL,
-	[LastTrigger] [datetime2](0) NOT NULL DEFAULT('1900-01-01'),
-	[IsActive] [bit] NOT NULL DEFAULT(1)
+	[LastTrigger] [datetime2](0) NOT NULL DEFAULT('1900-01-01')
  CONSTRAINT [TradeRule_PK] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -127,6 +143,8 @@ GO
 ALTER TABLE [dbo].[TradeRule] WITH CHECK ADD CONSTRAINT [TradeRule_TradeTypeFK] FOREIGN KEY([TradeTypeId]) REFERENCES [dbo].[TradeType] ([Id])
 GO
 ALTER TABLE [dbo].[TradeRule] WITH CHECK ADD CONSTRAINT [TradeRule_TradeConditionOperatorFK] FOREIGN KEY([TradeConditionOperatorId]) REFERENCES [dbo].[TradeConditionOperator] ([Id])
+GO
+ALTER TABLE [dbo].[TradeRule] WITH CHECK ADD CONSTRAINT [TradeRule_TradeRuleStatusFK] FOREIGN KEY([TradeRuleStatusId]) REFERENCES [dbo].[TradeRuleStatus] ([Id])
 GO
 
 CREATE TABLE [dbo].[CandleStickValueType](
@@ -243,7 +261,8 @@ CREATE TABLE [dbo].[TradeOrder](
 	[OrderDateTime] [datetime2](0) NOT NULL,
 	[Price] [decimal](10,2) NOT NULL,
 	[Amount] [decimal](10,8) NOT NULL,
-	[FilledAmount] [decimal](10,8) NOT NULL DEFAULT(0.0)
+	[FilledAmount] [decimal](10,8) NOT NULL DEFAULT(0.0),
+	[IsTestOrder] [bit] NOT NULL DEFAULT(0)
  CONSTRAINT [TradeOrder_PK] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

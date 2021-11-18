@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
+using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -44,29 +44,58 @@ namespace Waffler.Service.Background
                     {
                         var _tradeRuleService = scope.ServiceProvider.GetRequiredService<ITradeRuleService>();
                         var _tradeService = scope.ServiceProvider.GetRequiredService<ITradeService>();
+                        var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
                         var tradeRule = await _tradeRuleService.GetTradeRuleAsync(tradeRequest.TradeRuleId);
-                        var results = new List<TradeRuleEvaluationDTO>();
+                        var tradeRuleDTO = _mapper.Map<TradeRuleDTO>(tradeRule);
+                        
+                        var testReady = await _tradeService.SetupTestTrade(tradeRuleDTO.Id);
+                        if(testReady)
+                        {
+                            var results = new List<TradeRuleEvaluationDTO>();
 
-                        currentStatus.CurrentPositionDate = tradeRequest.FromDate;
-                        while (currentStatus.CurrentPositionDate < tradeRequest.ToDate.AddMinutes(tradeRequest.MinuteStep))
-                        {
-                            var result = await _tradeService.HandleTradeRule(tradeRequest.TradeRuleId, tradeRequest.FromDate);
-                            results.Add(result);
-                            currentStatus.CurrentPositionDate = currentStatus.CurrentPositionDate.AddMinutes(tradeRequest.MinuteStep);
-                        }
+                            currentStatus.CurrentPositionDate = tradeRequest.FromDate;
+                            while (!cancellationToken.IsCancellationRequested &&
+                                currentStatus.CurrentPositionDate < tradeRequest.ToDate.AddMinutes(tradeRequest.MinuteStep))
+                            {
+                                var result = await _tradeService.HandleTradeRule(tradeRequest.TradeRuleId, tradeRequest.FromDate);
+                                if (result != null)
+                                {
+                                    results.Add(result);
+                                    currentStatus.CurrentPositionDate = currentStatus.CurrentPositionDate.AddMinutes(tradeRequest.MinuteStep);
+                                }
+                                else
+                                {
+                                    currentStatus.CurrentPositionDate = tradeRequest.ToDate.AddMinutes(tradeRequest.MinuteStep);
+                                }
+                            }
 
-                        _logger.LogInformation($"- Trade rule result: {tradeRule.Id}:{tradeRule.Name}");
-                        foreach (var tradeRuleCondition in results.SelectMany(_ => _.TradeRuleCondtionEvaluations).GroupBy(_ => new
+                            _logger.LogInformation($"- Trade rule result: {tradeRuleDTO.Id}:{tradeRuleDTO.Name}");
+                            foreach (var tradeRuleCondition in results.SelectMany(_ => _.TradeRuleCondtionEvaluations).GroupBy(_ => new
+                            {
+                                _.Id,
+                                _.Description
+                            }))
+                            {
+                                var conditionName = $"{tradeRuleCondition.Key.Id}:{tradeRuleCondition.Key.Description}";
+                                var conditions = tradeRuleCondition.Count();
+                                var fullfilled = tradeRuleCondition.Count(_ => _.IsFullfilled == true);
+                                _logger.LogInformation($"- - Condition: {conditionName} = {fullfilled}/{conditions}");
+                            }
+
+                            var updated = await _tradeRuleService.UpdateTradeRule(tradeRuleDTO);
+                            if(updated)
+                            {
+                                _logger.LogWarning($"Trade rule test finished and trade rule reset");
+                            } 
+                            else
+                            {
+                                _logger.LogWarning($"Unable to reset trade rule");
+                            }
+                        } 
+                        else
                         {
-                            _.Id,
-                            _.Description
-                        }))
-                        {
-                            var conditionName = $"{tradeRuleCondition.Key.Id}:{tradeRuleCondition.Key.Description}";
-                            var conditions = tradeRuleCondition.Count();
-                            var fullfilled = tradeRuleCondition.Count(_ => _.IsFullfilled == true);
-                            _logger.LogInformation($"- - Condition: {conditionName} = {fullfilled}/{conditions}");
+                            _logger.LogWarning($"Unable to setup trade test");
                         }
                     }
                 }

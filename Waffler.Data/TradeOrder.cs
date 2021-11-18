@@ -21,6 +21,7 @@ namespace Waffler.Data
         public decimal Price { get; set; }
         public decimal Amount { get; set; }
         public decimal FilledAmount { get; set; }
+        public bool IsTestOrder { get; set; }
 
         public virtual TradeOrderStatus TradeOrderStatus { get; set; }
         public virtual TradeRule TradeRule { get; set; }

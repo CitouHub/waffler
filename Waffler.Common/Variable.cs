@@ -22,6 +22,13 @@
             AbsMoreThen = 4
         }
 
+        public enum TradeRuleStatus
+        {
+            Active = 1,
+            Test = 2,
+            Disabled = 3
+        }
+
         public enum TradeRuleConditionSampleDirection
         {
             Centered = 1,

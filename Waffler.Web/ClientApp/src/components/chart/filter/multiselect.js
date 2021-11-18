@@ -1,5 +1,4 @@
 ﻿import * as React from 'react';
-import { useTheme } from '@mui/material/styles';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -30,53 +29,48 @@ const names = [
     'Kelly Snyder',
 ];
 
-function getStyles(name, personName, theme) {
-    return {
-        fontWeight:
-            personName.indexOf(name) === -1
-                ? theme.typography.fontWeightRegular
-                : theme.typography.fontWeightMedium,
-    };
-}
-
-export default function MultipleSelect() {
-    const theme = useTheme();
-    const [personName, setPersonName] = React.useState([]);
+export default function MultipleSelect({ tradeRules, updateSelectedTradeRules }) {
+    const [selectedTradeRules, setSelectedTradeRules] = React.useState([]);
 
     const handleChange = (event) => {
         const {
             target: { value },
         } = event;
-        setPersonName(
+        setSelectedTradeRules(
             // On autofill we get a the stringified value.
             typeof value === 'string' ? value.split(',') : value,
         );
+        updateSelectedTradeRules(selectedTradeRules);
     };
 
-    return (
-        <div>
-            <FormControl sx={{ width: 300 }}>
-                <InputLabel id="demo-multiple-name-label">Name</InputLabel>
-                <Select
-                    labelId="demo-multiple-name-label"
-                    id="demo-multiple-name"
-                    multiple
-                    value={personName}
-                    onChange={handleChange}
-                    input={<OutlinedInput label="Name" />}
-                    MenuProps={MenuProps}
-                >
-                    {names.map((name) => (
-                        <MenuItem
-                            key={name}
-                            value={name}
-                            style={getStyles(name, personName, theme)}
-                        >
-                            {name}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
-        </div>
-    );
+    if (tradeRules !== undefined && tradeRules.length > 0) {
+        return (
+            <div>
+                <FormControl sx={{ width: 300 }}>
+                    <InputLabel id="demo-multiple-name-label">Trade rules</InputLabel>
+                    <Select
+                        labelId="demo-multiple-name-label"
+                        id="demo-multiple-name"
+                        multiple
+                        value={selectedTradeRules}
+                        onChange={handleChange}
+                        input={<OutlinedInput label="Trade rules" />}
+                        MenuProps={MenuProps}
+                    >
+                        {tradeRules.map((tradeRule) => (
+                            <MenuItem
+                                key={tradeRule.id}
+                                value={tradeRule.id}
+                            >
+                                {tradeRule.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </div>
+        );
+    }
+    else {
+        return null
+    }
 }

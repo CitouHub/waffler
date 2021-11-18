@@ -19,6 +19,7 @@ import SellPartialAnnotate from './annotate/sell.partial.annotate'
 import SellCompleteAnnotate from './annotate/sell.complete.annotate'
 import CandleStickService from '../../services/candlestick.service'
 import TradeOrderService from '../../services/tradeorder.service'
+import TradeRuleService from '../../services/traderule.service'
 import ToolTipHelper from './tooltip/hover.tooltip'
 import ChartFilter from './filter/filter'
 
@@ -34,21 +35,24 @@ const TradeChart = (props) => {
     const [loading, setLoading] = useState(true);
     const [candleSticks, setCandleSticks] = useState([]);
     const [tradeOrders, setTradeOrders] = useState([]);
+    const [tradeRules, setTradeRules] = useState([]);
     const [filter, setFilter] = useState({
         fromDate: fromDate,
-        toDate: toDate
+        toDate: toDate,
+        tradeRules: []
     });
 
     useEffect(() => {
         setLoading(true);
         let toDate = new Date(filter.toDate);
         toDate.setDate(toDate.getDate() + 1);
-        CandleStickService.getCandleStickss(filter.fromDate, toDate, 1, 15).then((candleSticksResult) => {
+
+        CandleStickService.getCandleStickss(filter.fromDate, toDate, 1, 30).then((candleSticksResult) => {
             candleSticksResult.forEach((e) => {
                 e.date = new Date(e.date);
             });
 
-            TradeOrderService.getTradeOrders(filter.fromDate, filter.toDate).then((tradeOrdersResult) => {
+            TradeOrderService.getTradeOrders(filter.fromDate, toDate).then((tradeOrdersResult) => {
                 tradeOrdersResult.forEach((tradeOrder) => {
                     tradeOrder.orderDateTime = new Date(tradeOrder.orderDateTime);
                     let candleStick = candleSticksResult.find((candleStick) => {
@@ -57,6 +61,9 @@ const TradeChart = (props) => {
                         }
                     });
 
+                    if (candleStick === undefined) {
+                        candleStick = candleSticksResult[candleSticksResult.length - 1];
+                    }
                     candleStick.tradeOrder = tradeOrder;
                 });
                 setTradeOrders(tradeOrdersResult);
@@ -73,75 +80,72 @@ const TradeChart = (props) => {
                 height: canvasRef.current.offsetHeight
             });
         }
+
+        TradeRuleService.getTradeRules().then((result) => {
+            setTradeRules(result);
+        });
     }, []);
 
-    if (loading) {
-        return (
-            <div ref={canvasRef}>
+    const margin = { left: 0, right: 48, top: 100, bottom: 24 };
+    const xScaleProvider = discontinuousTimeScaleProviderBuilder().inputDateAccessor(
+        d => d.date,
+    );
+
+    const ema12 = ema()
+        .id(1)
+        .options({ windowSize: 12 })
+        .merge((d, c) => {
+            d.ema12 = c;
+        })
+        .accessor((d) => d.ema12);
+
+    const calculatedData = ema12(candleSticks);
+
+    const { data, xScale, xAccessor, displayXAccessor } = xScaleProvider(calculatedData);
+
+    const max = xAccessor(data[data.length - 1]);
+    const min = xAccessor(data[Math.max(0, data.length - 100)]);
+    const xExtents = [min, max];
+    const yExtents = (data) => {
+        return [data.high, data.low];
+    };
+
+    return (
+        <div>
+            {loading && <div ref={canvasRef}>
                 <LoadingBar active={loading} />
-            </div>
-        )
-    } else if (dimensions.width != 0 && candleSticks.length > 0) {
-        const margin = { left: 0, right: 48, top: 100, bottom: 24 };
-        const xScaleProvider = discontinuousTimeScaleProviderBuilder().inputDateAccessor(
-            d => d.date,
-        );
-
-        const ema12 = ema()
-            .id(1)
-            .options({ windowSize: 12 })
-            .merge((d, c) => {
-                d.ema12 = c;
-            })
-            .accessor((d) => d.ema12);
-
-        const calculatedData = ema12(candleSticks);
-
-        const { data, xScale, xAccessor, displayXAccessor } = xScaleProvider(calculatedData);
-
-        const max = xAccessor(data[data.length - 1]);
-        const min = xAccessor(data[Math.max(0, data.length - 100)]);
-        const xExtents = [min, max];
-        const yExtents = (data) => {
-            return [data.high, data.low];
-        };
-
-        return (
-            <div>
-                <ChartFilter filter={filter} updateFilter={(filter) => setFilter(filter)} />
-                <ChartCanvas
-                    height={600}
-                    ratio={1}
-                    width={dimensions.width}
-                    margin={margin}
-                    data={data}
-                    displayXAccessor={displayXAccessor}
-                    seriesName="BTC_EUR"
-                    xScale={xScale}
-                    xAccessor={xAccessor}
-                    xExtents={xExtents}
-                >
-                    <Chart id={1} yExtents={yExtents}>
-                        <XAxis showGridLines />
-                        <YAxis showGridLines />
-                        <CandlestickSeries />
-                        <BuyNewAnnotate />
-                        <BuyPartialAnnotate />
-                        <BuyCompleteAnnotate />
-                        <SellNewAnnotate />
-                        <SellPartialAnnotate />
-                        <SellCompleteAnnotate />
-                        <HoverTooltip
-                            yAccessor={ema12.accessor()}
-                            tooltip={{ content: ({ currentItem, xAccessor }) => ToolTipHelper.getToolTip(currentItem, xAccessor) }}
-                        />
-                    </Chart>
-                </ChartCanvas>
-            </div>
-        );
-    } else {
-        return <ChartFilter filter={filter} updateFilter={(filter) => setFilter(filter)} />
-    }
+            </div>}
+            <ChartFilter filter={filter} tradeRules={tradeRules} updateFilter={(filter) => setFilter(filter)} />
+            {!loading && <ChartCanvas
+                height={600}
+                ratio={1}
+                width={dimensions.width}
+                margin={margin}
+                data={data}
+                displayXAccessor={displayXAccessor}
+                seriesName="BTC_EUR"
+                xScale={xScale}
+                xAccessor={xAccessor}
+                xExtents={xExtents}
+            >
+                <Chart id={1} yExtents={yExtents}>
+                    <XAxis showGridLines />
+                    <YAxis showGridLines />
+                    <CandlestickSeries />
+                    <BuyNewAnnotate />
+                    <BuyPartialAnnotate />
+                    <BuyCompleteAnnotate />
+                    <SellNewAnnotate />
+                    <SellPartialAnnotate />
+                    <SellCompleteAnnotate />
+                    <HoverTooltip
+                        yAccessor={ema12.accessor()}
+                        tooltip={{ content: ({ currentItem, xAccessor }) => ToolTipHelper.getToolTip(currentItem, xAccessor) }}
+                    />
+                </Chart>
+            </ChartCanvas>}
+        </div>
+    );
 };
 
 export default TradeChart;

@@ -11,6 +11,8 @@ namespace Waffler.Service
     public interface ITradeService
     {
         Task<TradeRuleEvaluationDTO> HandleTradeRule(int tradeRuleId, DateTime currentPeriodDateTime);
+
+        Task<bool> SetupTestTrade(int tradeRuleId);
     }
 
     public class TradeService : ITradeService
@@ -34,78 +36,109 @@ namespace Waffler.Service
 
         public async Task<TradeRuleEvaluationDTO> HandleTradeRule(int tradeRuleId, DateTime currentPeriodDateTime)
         {
-            var candleStick = await _candleStickService.GetLastCandleStickAsync(currentPeriodDateTime);
+            _logger.LogInformation($"Handling trade rule");
             var tradeRule = await _tradeRuleService.GetTradeRuleAsync(tradeRuleId);
-
-            _logger.LogInformation($"Analysing \"{tradeRule.Name}\" at {currentPeriodDateTime:yyyy-MM-dd HH:mm:ss}");
-            var tradeRuleResult = new TradeRuleEvaluationDTO()
+            
+            if (CanHandleTradeRule(tradeRule, currentPeriodDateTime))
             {
-                Id = tradeRule.Id,
-                Name = tradeRule.Name,
-                TradeRuleCondtionEvaluations = new List<TradeRuleConditionEvaluationDTO>()
-            };
+                var candleStick = await _candleStickService.GetLastCandleStickAsync(currentPeriodDateTime);
 
-            foreach (var condition in tradeRule.TradeRuleConditions)
-            {
-                _logger.LogInformation($" - Checking condition \"{condition.Description}\"");
-                var trends = await _candleStickService.GetPriceTrendsAsync(
-                    currentPeriodDateTime,
-                    (TradeType)tradeRule.TradeTypeId,
-                    (TradeRuleConditionSampleDirection)condition.TradeRuleConditionSampleDirectionId,
-                    condition.FromMinutesOffset,
-                    condition.ToMinutesOffset,
-                    condition.FromMinutesSample,
-                    condition.ToMinutesSample);
-                _logger.LogInformation($" - Trends {trends}");
-                var conditionResult = new TradeRuleConditionEvaluationDTO()
+                _logger.LogInformation($"Analysing \"{tradeRule.Name}\" at {currentPeriodDateTime:yyyy-MM-dd HH:mm:ss}");
+                var tradeRuleResult = new TradeRuleEvaluationDTO()
                 {
-                    Id = condition.Id,
-                    Description = condition.Description,
-                    IsFullfilled = false
+                    Id = tradeRule.Id,
+                    Name = tradeRule.Name,
+                    TradeRuleCondtionEvaluations = new List<TradeRuleConditionEvaluationDTO>()
                 };
 
-                if (trends != null)
+                foreach (var condition in tradeRule.TradeRuleConditions)
                 {
-                    var value = GetTargetValue(condition, trends);
-                    conditionResult.IsFullfilled = EvaluateCondition(condition, value);
+                    _logger.LogInformation($" - Checking condition \"{condition.Description}\"");
+                    var trends = await _candleStickService.GetPriceTrendsAsync(
+                        currentPeriodDateTime,
+                        (TradeType)tradeRule.TradeTypeId,
+                        (TradeRuleConditionSampleDirection)condition.TradeRuleConditionSampleDirectionId,
+                        condition.FromMinutesOffset,
+                        condition.ToMinutesOffset,
+                        condition.FromMinutesSample,
+                        condition.ToMinutesSample);
+                    _logger.LogInformation($" - Trends {trends}");
+                    var conditionResult = new TradeRuleConditionEvaluationDTO()
+                    {
+                        Id = condition.Id,
+                        Description = condition.Description,
+                        IsFullfilled = false
+                    };
+
+                    if (trends != null)
+                    {
+                        var value = GetTargetValue(condition, trends);
+                        conditionResult.IsFullfilled = EvaluateCondition(condition, value);
+                    }
+
+                    tradeRuleResult.TradeRuleCondtionEvaluations.Add(conditionResult);
                 }
 
-                tradeRuleResult.TradeRuleCondtionEvaluations.Add(conditionResult);
-            }
+                var tradeConditionOperator = (TradeConditionOperator)tradeRule.TradeConditionOperatorId;
+                _logger.LogInformation($" - Evaluating result ({tradeConditionOperator}) {tradeRuleResult}");
+                var ruleFullfilled = EvaluateRule(tradeRuleResult.TradeRuleCondtionEvaluations, tradeConditionOperator);
+                _logger.LogInformation($" - Rule fullfilled: {ruleFullfilled}");
 
-            var tradeConditionOperator = (TradeConditionOperator)tradeRule.TradeConditionOperatorId;
-            _logger.LogInformation($" - Evaluating result ({tradeConditionOperator}) {tradeRuleResult}");
-            var ruleFullfilled = EvaluateRule(tradeRuleResult.TradeRuleCondtionEvaluations, tradeConditionOperator);
-            _logger.LogInformation($" - Rule fullfilled: {ruleFullfilled}");
+                if (ruleFullfilled)
+                {
+                    var tradeAction = (TradeAction)tradeRule.TradeActionId;
+                    _logger.LogInformation($" - Trade action: {tradeAction}");
+                    switch (tradeAction)
+                    {
+                        case TradeAction.Buy:
+                            var orderId = Guid.NewGuid();
+                            if (tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Active)
+                            {
+                                //orderId = await _bitpandaService.CreateOrderAsync(new CreateOrderDTO(){});
+                            }
 
-            if (ruleFullfilled)
+                            await _tradeOrderService.CreateTradeOrder(new TradeOrderDTO()
+                            {
+                                Amount = tradeRule.Amount,
+                                OrderDateTime = currentPeriodDateTime,
+                                Price = candleStick.HighPrice,
+                                TradeRuleId = tradeRule.Id,
+                                OrderId = orderId,
+                                TradeOrderStatusId = (short)TradeOrderStatus.Open,
+                                IsTestOrder = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test
+                            });
+                            await _tradeRuleService.UpdateTradeRuleLastTrigger(tradeRule.Id, candleStick.PeriodDateTime);
+                            break;
+                        case TradeAction.Sell:
+                            throw new NotImplementedException();
+                    }
+                    _logger.LogInformation($" - Trade complete!");
+                }
+
+                return tradeRuleResult;
+            } 
+            else
             {
-                var tradeAction = (TradeAction)tradeRule.TradeActionId;
-                _logger.LogInformation($" - Trade action: {tradeAction}");
-                switch (tradeAction)
-                {
+                _logger.LogInformation($"Trade rule skipped");
+                return null;
+            }
+        }
 
-                    case TradeAction.Buy:
-                        //await _bitpandaService.CreateOrderAsync(new CreateOrderDTO(){});
+        private bool CanHandleTradeRule(TradeRuleDTO tradeRule, DateTime currentPeriodDateTime)
+        {
+            return tradeRule.LastTrigger < currentPeriodDateTime.AddMinutes(-1 * tradeRule.TradeMinIntervalMinutes) &&
+                tradeRule.TradeRuleStatusId != (short)TradeRuleStatus.Disabled;
+        }
 
-                        await _tradeOrderService.CreateTradeOrder(new TradeOrderDTO()
-                        {
-                            Amount = tradeRule.Amount,
-                            OrderDateTime = currentPeriodDateTime,
-                            Price = candleStick.HighPrice,
-                            TradeRuleId = tradeRule.Id,
-                            OrderId = Guid.NewGuid(),
-                            TradeOrderStatusId = (short)TradeOrderStatus.Open
-                        });
-                        await _tradeRuleService.UpdateTradeRuleLastTrigger(tradeRule.Id, candleStick.PeriodDateTime);
-                        break;
-                    case TradeAction.Sell:
-                        throw new NotImplementedException();
-                }
-                _logger.LogInformation($" - Trade complete!");
+        public async Task<bool> SetupTestTrade(int tradeRuleId)
+        {
+            var success = await _tradeRuleService.SetupTradeRuleTestAsync(tradeRuleId);
+            if(success)
+            {
+                await _tradeOrderService.RemoveTestTradeOrders(tradeRuleId);
             }
 
-            return tradeRuleResult;
+            return success;
         }
 
         public static bool EvaluateRule(List<TradeRuleConditionEvaluationDTO> conditionResult, TradeConditionOperator tradeConditionOperator)

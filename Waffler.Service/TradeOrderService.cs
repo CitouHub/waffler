@@ -17,6 +17,7 @@ namespace Waffler.Service
     {
         Task CreateTradeOrder(TradeOrderDTO tradeOrderDto);
         Task<List<TradeOrderDTO>> GetTradeOrders(DateTime from, DateTime to);
+        Task RemoveTestTradeOrders(int tradeRuleId);
     }
 
     public class TradeOrderService : ITradeOrderService
@@ -43,6 +44,13 @@ namespace Waffler.Service
             tradeOrder.InsertDate = DateTime.UtcNow;
 
             await _context.TradeOrder.AddAsync(tradeOrder);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task RemoveTestTradeOrders(int tradeRuleId)
+        {
+            var tradeOrders = await _context.TradeOrder.Where(_ => _.TradeRuleId == tradeRuleId && _.IsTestOrder == true).ToArrayAsync();
+            _context.TradeOrder.RemoveRange(tradeOrders);
             await _context.SaveChangesAsync();
         }
     }

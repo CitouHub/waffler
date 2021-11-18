@@ -29,6 +29,7 @@ namespace Waffler.Data
         public virtual DbSet<TradeRuleCondition> TradeRuleCondition { get; set; }
         public virtual DbSet<TradeRuleConditionComparator> TradeRuleConditionComparator { get; set; }
         public virtual DbSet<TradeRuleConditionSampleDirection> TradeRuleConditionSampleDirection { get; set; }
+        public virtual DbSet<TradeRuleStatus> TradeRuleStatus { get; set; }
         public virtual DbSet<TradeType> TradeType { get; set; }
         public virtual DbSet<WafflerProfile> WafflerProfile { get; set; }
 
@@ -167,10 +168,6 @@ namespace Waffler.Data
 
                 entity.Property(e => e.InsertDate).HasDefaultValueSql("(getutcdate())");
 
-                entity.Property(e => e.IsActive)
-                    .IsRequired()
-                    .HasDefaultValueSql("((1))");
-
                 entity.Property(e => e.LastTrigger)
                     .HasColumnType("datetime2(0)")
                     .HasDefaultValueSql("('1900-01-01')");
@@ -190,6 +187,12 @@ namespace Waffler.Data
                     .HasForeignKey(d => d.TradeConditionOperatorId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("TradeRule_TradeConditionOperatorFK");
+
+                entity.HasOne(d => d.TradeRuleStatus)
+                    .WithMany(p => p.TradeRule)
+                    .HasForeignKey(d => d.TradeRuleStatusId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("TradeRule_TradeRuleStatusFK");
 
                 entity.HasOne(d => d.TradeType)
                     .WithMany(p => p.TradeRule)
@@ -251,6 +254,19 @@ namespace Waffler.Data
             });
 
             modelBuilder.Entity<TradeRuleConditionSampleDirection>(entity =>
+            {
+                entity.Property(e => e.Description).HasMaxLength(200);
+
+                entity.Property(e => e.InsertByUser).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.InsertDate).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<TradeRuleStatus>(entity =>
             {
                 entity.Property(e => e.Description).HasMaxLength(200);
 

@@ -12,9 +12,9 @@ namespace Waffler.Domain
             {
                 var totalMinutes = (ToDate - FromDate).TotalMinutes;
                 var minutesProsessed = (ToDate - CurrentPositionDate).TotalMinutes;
-                var progress = Math.Round((100 - (decimal)minutesProsessed / (decimal)totalMinutes) * 100, 2);
+                var progress = Math.Round((100 - ((decimal)minutesProsessed / (decimal)totalMinutes) * 100), 2);
 
-                return progress < 0 ? 0 : progress;
+                return progress > 100 ? 100 : progress;
             }
         }
     }
