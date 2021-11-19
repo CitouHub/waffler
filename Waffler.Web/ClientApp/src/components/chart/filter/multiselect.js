@@ -1,4 +1,4 @@
-﻿import * as React from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -16,33 +16,7 @@ const MenuProps = {
     },
 };
 
-const names = [
-    'Oliver Hansen',
-    'Van Henry',
-    'April Tucker',
-    'Ralph Hubbard',
-    'Omar Alexander',
-    'Carlos Abbott',
-    'Miriam Wagner',
-    'Bradley Wilkerson',
-    'Virginia Andrews',
-    'Kelly Snyder',
-];
-
-export default function MultipleSelect({ tradeRules, updateSelectedTradeRules }) {
-    const [selectedTradeRules, setSelectedTradeRules] = React.useState([]);
-
-    const handleChange = (event) => {
-        const {
-            target: { value },
-        } = event;
-        setSelectedTradeRules(
-            // On autofill we get a the stringified value.
-            typeof value === 'string' ? value.split(',') : value,
-        );
-        updateSelectedTradeRules(selectedTradeRules);
-    };
-
+export default function MultipleSelect({ tradeRules, selectedTradeRules, updateSelectedTradeRules }) {
     if (tradeRules !== undefined && tradeRules.length > 0) {
         return (
             <div>
@@ -53,14 +27,14 @@ export default function MultipleSelect({ tradeRules, updateSelectedTradeRules })
                         id="demo-multiple-name"
                         multiple
                         value={selectedTradeRules}
-                        onChange={handleChange}
+                        onChange={e => updateSelectedTradeRules(e.target.value)}
                         input={<OutlinedInput label="Trade rules" />}
                         MenuProps={MenuProps}
                     >
                         {tradeRules.map((tradeRule) => (
                             <MenuItem
                                 key={tradeRule.id}
-                                value={tradeRule.id}
+                                value={tradeRule}
                             >
                                 {tradeRule.name}
                             </MenuItem>

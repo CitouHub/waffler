@@ -29,6 +29,7 @@ namespace Waffler.Data
         public decimal Amount { get; set; }
         public int TradeMinIntervalMinutes { get; set; }
         public DateTime LastTrigger { get; set; }
+        public bool QueuedForTestTrade { get; set; }
 
         public virtual TradeAction TradeAction { get; set; }
         public virtual TradeConditionOperator TradeConditionOperator { get; set; }

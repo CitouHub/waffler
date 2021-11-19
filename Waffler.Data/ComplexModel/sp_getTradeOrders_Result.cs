@@ -16,5 +16,6 @@ namespace Waffler.Data.ComplexModel
 		public decimal Price { get; set; }
 		public decimal Amount { get; set; }
 		public decimal FilledAmount { get; set; }
+		public bool IsTestOrder { get; set; }
 	}
 }

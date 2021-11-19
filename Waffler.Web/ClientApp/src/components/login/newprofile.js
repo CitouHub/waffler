@@ -13,7 +13,7 @@ const NewProfile = (props) => {
 
     const onSubmit = (values) => {
         ProfileService.createProfile(values.password).then((success) => {
-            history.push("/login");
+            history.push("/");
         });
     };
 

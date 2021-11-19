@@ -2,16 +2,15 @@
 import { Annotate, SvgPathAnnotation } from "react-financial-charts";
 import brokenHeartIcon from '../../../assets/paths/broken-heart';
 
-const SellCompleteAnnotate = () => {
+const SellTestAnnotate = () => {
     const whenSell = (data) => {
         return data.tradeOrder !== undefined &&
             data.tradeOrder.tradeActionId === 2 &&
-            data.tradeOrder.amount === data.tradeOrder.filledAmount &&
-            data.tradeOrder.isTestOrder === false;
+            data.tradeOrder.isTestOrder === true;
     }
 
     const brokenHeart = {
-        fill: 'rgba(220, 20, 60, 1)',
+        fill: 'rgba(77, 171, 245, 1)',
         path: () => brokenHeartIcon,
         pathWidth: 9,
         pathHeight: 9,
@@ -22,4 +21,4 @@ const SellCompleteAnnotate = () => {
         <Annotate with={SvgPathAnnotation} usingProps={brokenHeart} when={whenSell} />
     );
 }
-export default SellCompleteAnnotate;
+export default SellTestAnnotate;

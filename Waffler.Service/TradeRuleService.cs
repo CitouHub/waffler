@@ -86,6 +86,7 @@ namespace Waffler.Service
             {
                 tradeRule.LastTrigger = DateTime.MinValue;
                 tradeRule.TradeRuleStatusId = (short)Common.Variable.TradeRuleStatus.Test;
+                tradeRule.QueuedForTestTrade = true;
                 tradeRule.UpdateByUser = 1;
                 tradeRule.UpdateDate = DateTime.UtcNow;
 

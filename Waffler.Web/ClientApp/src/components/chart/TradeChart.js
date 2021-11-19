@@ -14,9 +14,11 @@ import LoadingBar from '../utils/loadingbar'
 import BuyNewAnnotate from './annotate/buy.new.annotate'
 import BuyPartialAnnotate from './annotate/buy.partial.annotate'
 import BuyCompleteAnnotate from './annotate/buy.complete.annotate'
+import BuyTestAnnotate from './annotate/buy.test.annotate'
 import SellNewAnnotate from './annotate/sell.new.annotate'
 import SellPartialAnnotate from './annotate/sell.partial.annotate'
 import SellCompleteAnnotate from './annotate/sell.complete.annotate'
+import SellTestAnnotate from './annotate/sell.test.annotate'
 import CandleStickService from '../../services/candlestick.service'
 import TradeOrderService from '../../services/tradeorder.service'
 import TradeRuleService from '../../services/traderule.service'
@@ -34,12 +36,13 @@ const TradeChart = (props) => {
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [loading, setLoading] = useState(true);
     const [candleSticks, setCandleSticks] = useState([]);
+    const [candleSticksChart, setCandleSticksChart] = useState([]);
     const [tradeOrders, setTradeOrders] = useState([]);
     const [tradeRules, setTradeRules] = useState([]);
+    const [selectedTradeRules, setSelectedTradeRules] = useState([]);
     const [filter, setFilter] = useState({
         fromDate: fromDate,
-        toDate: toDate,
-        tradeRules: []
+        toDate: toDate
     });
 
     useEffect(() => {
@@ -55,23 +58,26 @@ const TradeChart = (props) => {
             TradeOrderService.getTradeOrders(filter.fromDate, toDate).then((tradeOrdersResult) => {
                 tradeOrdersResult.forEach((tradeOrder) => {
                     tradeOrder.orderDateTime = new Date(tradeOrder.orderDateTime);
-                    let candleStick = candleSticksResult.find((candleStick) => {
-                        if (candleStick.date >= tradeOrder.orderDateTime) {
-                            return candleStick;
-                        }
-                    });
-
-                    if (candleStick === undefined) {
-                        candleStick = candleSticksResult[candleSticksResult.length - 1];
-                    }
-                    candleStick.tradeOrder = tradeOrder;
                 });
                 setTradeOrders(tradeOrdersResult);
                 setCandleSticks(candleSticksResult);
+                
                 setLoading(false);
             });
         });
     }, [filter]);
+
+    useEffect(() => {
+        setCandleStickTradeOrders();
+    }, [selectedTradeRules]);
+
+    useEffect(() => {
+        setCandleStickTradeOrders();
+    }, [tradeOrders]);
+
+    useEffect(() => {
+        setCandleStickTradeOrders();
+    }, [candleSticks]);
 
     useEffect(() => {
         if (canvasRef.current) {
@@ -83,8 +89,35 @@ const TradeChart = (props) => {
 
         TradeRuleService.getTradeRules().then((result) => {
             setTradeRules(result);
+            setSelectedTradeRules(result);
         });
     }, []);
+
+    const setCandleStickTradeOrders = () => {
+        const candleSticksUpdate = [...candleSticks];
+        if (candleSticksUpdate.length > 0 && tradeOrders.length > 0) {
+            tradeOrders.forEach((tradeOrder) => {
+                let candleStick = candleSticksUpdate.find((candleStick) => {
+                    if (candleStick.date >= tradeOrder.orderDateTime) {
+                        return candleStick;
+                    }
+                });
+
+                if (candleStick === undefined) {
+                    candleSticksUpdate = candleSticksUpdate[candleSticks.length - 1];
+                }
+
+                if (selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0) {
+                    candleStick.tradeOrder = tradeOrder;
+                }
+                else {
+                    candleStick.tradeOrder = undefined;
+                }
+            });
+        }
+
+        setCandleSticksChart(candleSticksUpdate);
+    }
 
     const margin = { left: 0, right: 48, top: 100, bottom: 24 };
     const xScaleProvider = discontinuousTimeScaleProviderBuilder().inputDateAccessor(
@@ -99,7 +132,7 @@ const TradeChart = (props) => {
         })
         .accessor((d) => d.ema12);
 
-    const calculatedData = ema12(candleSticks);
+    const calculatedData = ema12(candleSticksChart);
 
     const { data, xScale, xAccessor, displayXAccessor } = xScaleProvider(calculatedData);
 
@@ -115,7 +148,12 @@ const TradeChart = (props) => {
             {loading && <div ref={canvasRef}>
                 <LoadingBar active={loading} />
             </div>}
-            <ChartFilter filter={filter} tradeRules={tradeRules} updateFilter={(filter) => setFilter(filter)} />
+            <ChartFilter
+                filter={filter}
+                tradeRules={tradeRules}
+                selectedTradeRules={selectedTradeRules}
+                updateSelectedTradeRules={(selectedTradeRules) => setSelectedTradeRules(selectedTradeRules)}
+                updateFilter={(filter) => setFilter(filter)} />
             {!loading && <ChartCanvas
                 height={600}
                 ratio={1}
@@ -135,9 +173,11 @@ const TradeChart = (props) => {
                     <BuyNewAnnotate />
                     <BuyPartialAnnotate />
                     <BuyCompleteAnnotate />
+                    <BuyTestAnnotate />
                     <SellNewAnnotate />
                     <SellPartialAnnotate />
                     <SellCompleteAnnotate />
+                    <SellTestAnnotate />
                     <HoverTooltip
                         yAccessor={ema12.accessor()}
                         tooltip={{ content: ({ currentItem, xAccessor }) => ToolTipHelper.getToolTip(currentItem, xAccessor) }}

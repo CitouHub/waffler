@@ -58,16 +58,13 @@ namespace Waffler.Service.Background
                             while (!cancellationToken.IsCancellationRequested &&
                                 currentStatus.CurrentPositionDate < tradeRequest.ToDate.AddMinutes(tradeRequest.MinuteStep))
                             {
-                                var result = await _tradeService.HandleTradeRule(tradeRequest.TradeRuleId, tradeRequest.FromDate);
+                                var result = await _tradeService.HandleTradeRule(tradeRequest.TradeRuleId, currentStatus.CurrentPositionDate);
                                 if (result != null)
                                 {
                                     results.Add(result);
-                                    currentStatus.CurrentPositionDate = currentStatus.CurrentPositionDate.AddMinutes(tradeRequest.MinuteStep);
+                                    
                                 }
-                                else
-                                {
-                                    currentStatus.CurrentPositionDate = tradeRequest.ToDate.AddMinutes(tradeRequest.MinuteStep);
-                                }
+                                currentStatus.CurrentPositionDate = currentStatus.CurrentPositionDate.AddMinutes(tradeRequest.MinuteStep);
                             }
 
                             _logger.LogInformation($"- Trade rule result: {tradeRuleDTO.Id}:{tradeRuleDTO.Name}");

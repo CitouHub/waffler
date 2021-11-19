@@ -6,7 +6,8 @@ const SellCompleteAnnotate = () => {
     const whenSell = (data) => {
         return data.tradeOrder !== undefined &&
             data.tradeOrder.tradeActionId === 2 &&
-            data.tradeOrder.amount === data.tradeOrder.filledAmount;;
+            data.tradeOrder.amount === data.tradeOrder.filledAmount &&
+            data.tradeOrder.isTestOrder === false;
     }
 
     const brokenHeart = {

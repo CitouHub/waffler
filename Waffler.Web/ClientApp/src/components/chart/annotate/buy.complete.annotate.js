@@ -6,7 +6,8 @@ const BuyCompleteAnnotate = () => {
     const whenBuy = (data) => {
         return data.tradeOrder !== undefined &&
             data.tradeOrder.tradeActionId === 1 &&
-            data.tradeOrder.amount === data.tradeOrder.filledAmount;
+            data.tradeOrder.amount === data.tradeOrder.filledAmount &&
+            data.tradeOrder.isTestOrder === false;
     }
 
     const btc = {

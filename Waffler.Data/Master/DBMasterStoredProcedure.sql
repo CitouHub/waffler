@@ -67,7 +67,8 @@ BEGIN
 		TradeOrder.OrderDateTime AS OrderDateTime,
 		TradeOrder.Price AS Price,
 		TradeOrder.Amount AS Amount,
-		TradeOrder.FilledAmount AS FilledAmount
+		TradeOrder.FilledAmount AS FilledAmount,
+		TradeOrder.IsTestOrder AS IsTestOrder
 	FROM TradeOrder
 		INNER JOIN TradeRule ON TradeOrder.TradeRuleId = TradeRule.Id
 		INNER JOIN TradeAction ON TradeRule.TradeActionId = TradeAction.Id

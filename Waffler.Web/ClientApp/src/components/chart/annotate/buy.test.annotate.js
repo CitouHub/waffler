@@ -2,17 +2,15 @@
 import { Annotate, SvgPathAnnotation } from 'react-financial-charts';
 import btcIcon from '../../../assets/paths/btc';
 
-const BuyNewAnnotate = () => {
+const BuyTestAnnotate = () => {
     const whenBuy = (data) => {
         return data.tradeOrder !== undefined &&
             data.tradeOrder.tradeActionId === 1 &&
-            data.tradeOrder.filledAmount !== 0 &&
-            data.tradeOrder.filledAmount !== data.tradeOrder.amount &&
-            data.tradeOrder.isTestOrder === false;
+            data.tradeOrder.isTestOrder === true;
     }
 
     const btc = {
-        fill: 'rgba(242, 169, 0, 1)',
+        fill: 'rgba(77, 171, 245, 1)',
         path: () => btcIcon,
         pathWidth: 9,
         pathHeight: 9,
@@ -23,4 +21,4 @@ const BuyNewAnnotate = () => {
         <Annotate with={SvgPathAnnotation} usingProps={btc} when={whenBuy} />
     );
 }
-export default BuyNewAnnotate;
+export default BuyTestAnnotate;

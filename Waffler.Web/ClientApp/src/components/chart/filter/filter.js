@@ -4,7 +4,7 @@ import MultiSelect from './multiselect';
 
 import './filter.css';
 
-const ChartFilter = ({ updateFilter, filter, tradeRules }) => {
+const ChartFilter = ({ updateFilter, filter, tradeRules, selectedTradeRules, updateSelectedTradeRules }) => {
     return (
         <div className="filter-wrapper">
             <div className="filter-control">
@@ -34,7 +34,7 @@ const ChartFilter = ({ updateFilter, filter, tradeRules }) => {
                 />
             </div>
             <div className="filter-control">
-                <MultiSelect tradeRules={tradeRules} updateSelectedTradeRules={(selectedTradeRules) => updateFilter({ ...filter, tradeRules: selectedTradeRules }) } />
+                <MultiSelect tradeRules={tradeRules} selectedTradeRules={selectedTradeRules} updateSelectedTradeRules={updateSelectedTradeRules}/>
             </div>
         </div>
     )

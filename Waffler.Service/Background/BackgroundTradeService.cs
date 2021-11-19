@@ -61,16 +61,19 @@ namespace Waffler.Service.Background
                         _logger.LogWarning($"- Data synced, last period {lastCandleStick.PeriodDateTime}, analyse trade rules...");
                         var tradeRules = await _tradeRuleService.GetTradeRulesAsync();
 
-                        foreach (int tradeRuleId in tradeRules.Select(_ => _.Id))
+                        foreach (int tradeRuleId in tradeRules.Where(_ => _.QueuedForTestTrade == false).Select(_ => _.Id))
                         {
                             if (cancellationToken.IsCancellationRequested == false)
                             {
                                 var result = await _tradeService.HandleTradeRule(tradeRuleId, lastCandleStick.PeriodDateTime);
-
-                                _logger.LogInformation($"- Trade rule analyse result: {result.Id}:{result.Name}");
-                                foreach (var tradeRuleCondition in result.TradeRuleCondtionEvaluations)
+                                
+                                if(result != null)
                                 {
-                                    _logger.LogInformation($"- - Condition: {tradeRuleCondition.Id}:{tradeRuleCondition.Description} = {tradeRuleCondition.IsFullfilled}");
+                                    _logger.LogInformation($"- Trade rule analyse result: {result.Id}:{result.Name}");
+                                    foreach (var tradeRuleCondition in result.TradeRuleCondtionEvaluations)
+                                    {
+                                        _logger.LogInformation($"- - Condition: {tradeRuleCondition.Id}:{tradeRuleCondition.Description} = {tradeRuleCondition.IsFullfilled}");
+                                    }
                                 }
                             }
                         }

@@ -131,7 +131,8 @@ CREATE TABLE [dbo].[TradeRule](
 	[Description] [nvarchar](200) NULL,
 	[Amount] [decimal](10,8) NOT NULL,
 	[TradeMinIntervalMinutes] [int] NOT NULL,
-	[LastTrigger] [datetime2](0) NOT NULL DEFAULT('1900-01-01')
+	[LastTrigger] [datetime2](0) NOT NULL DEFAULT('1900-01-01'),
+	[QueuedForTestTrade] [bit] NOT NULL DEFAULT(0)
  CONSTRAINT [TradeRule_PK] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

@@ -92,7 +92,7 @@ SET IDENTITY_INSERT TradeRule OFF
 GO
 
 INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
-VALUES (1, 6, 1, 2, -2*60, -1*60, 60, 60, -3, 'A drop of over 3% now')
+VALUES (1, 6, 1, 2, -4*60, -1*60, 60, 60, -3, 'A drop of over 3% now')
 
 INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
 VALUES (2, 6, 1, 1, -4*24*60, -1*24*60, 6*60, 6*60, -6, 'A drop of over 6% over 3 days 1 day ago')
