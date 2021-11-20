@@ -1,4 +1,4 @@
-﻿import React, { useRef, useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
     ema,
     discontinuousTimeScaleProviderBuilder,
@@ -10,6 +10,7 @@ import {
     YAxis,
 } from "react-financial-charts";
 
+import { useWindowSize } from '../../util/use.windowsize'
 import LoadingBar from '../utils/loadingbar'
 import BuyNewAnnotate from './annotate/buy.new.annotate'
 import BuyPartialAnnotate from './annotate/buy.partial.annotate'
@@ -27,13 +28,11 @@ import ChartFilter from './filter/filter'
 
 import './chart.css';
 
-const TradeChart = (props) => {
+const TradeChart = () => {
     let fromDate = new Date();
     let toDate = new Date();
     fromDate.setDate(fromDate.getDate() - 30);
 
-    const canvasRef = useRef();
-    const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [loading, setLoading] = useState(true);
     const [candleSticks, setCandleSticks] = useState([]);
     const [candleSticksChart, setCandleSticksChart] = useState([]);
@@ -44,6 +43,8 @@ const TradeChart = (props) => {
         fromDate: fromDate,
         toDate: toDate
     });
+
+    const windowSize = useWindowSize();
 
     useEffect(() => {
         setLoading(true);
@@ -68,32 +69,6 @@ const TradeChart = (props) => {
     }, [filter]);
 
     useEffect(() => {
-        setCandleStickTradeOrders();
-    }, [selectedTradeRules]);
-
-    useEffect(() => {
-        setCandleStickTradeOrders();
-    }, [tradeOrders]);
-
-    useEffect(() => {
-        setCandleStickTradeOrders();
-    }, [candleSticks]);
-
-    useEffect(() => {
-        if (canvasRef.current) {
-            setDimensions({
-                width: canvasRef.current.offsetWidth,
-                height: canvasRef.current.offsetHeight
-            });
-        }
-
-        TradeRuleService.getTradeRules().then((result) => {
-            setTradeRules(result);
-            setSelectedTradeRules(result);
-        });
-    }, []);
-
-    const setCandleStickTradeOrders = () => {
         const candleSticksUpdate = [...candleSticks];
         if (candleSticksUpdate.length > 0 && tradeOrders.length > 0) {
             tradeOrders.forEach((tradeOrder) => {
@@ -101,6 +76,8 @@ const TradeChart = (props) => {
                     if (candleStick.date >= tradeOrder.orderDateTime) {
                         return candleStick;
                     }
+
+                    return null;
                 });
 
                 if (candleStick === undefined) {
@@ -117,9 +94,16 @@ const TradeChart = (props) => {
         }
 
         setCandleSticksChart(candleSticksUpdate);
-    }
+    }, [selectedTradeRules, tradeOrders, candleSticks]);
 
-    const margin = { left: 0, right: 48, top: 100, bottom: 24 };
+    useEffect(() => {
+        TradeRuleService.getTradeRules().then((result) => {
+            setTradeRules(result);
+            setSelectedTradeRules(result);
+        });
+    }, []);
+
+    const margin = { left: 0, right: 48, top: 24, bottom: 24 };
     const xScaleProvider = discontinuousTimeScaleProviderBuilder().inputDateAccessor(
         d => d.date,
     );
@@ -145,19 +129,19 @@ const TradeChart = (props) => {
 
     return (
         <div>
-            {loading && <div ref={canvasRef}>
+            <div>
                 <LoadingBar active={loading} />
-            </div>}
+            </div>
             <ChartFilter
                 filter={filter}
                 tradeRules={tradeRules}
                 selectedTradeRules={selectedTradeRules}
                 updateSelectedTradeRules={(selectedTradeRules) => setSelectedTradeRules(selectedTradeRules)}
                 updateFilter={(filter) => setFilter(filter)} />
-            {!loading && <ChartCanvas
-                height={800}
+            {candleSticksChart.length > 0 && <ChartCanvas
+                height={windowSize.height-200}
                 ratio={1}
-                width={dimensions.width}
+                width={windowSize.width-360}
                 margin={margin}
                 data={data}
                 displayXAccessor={displayXAccessor}

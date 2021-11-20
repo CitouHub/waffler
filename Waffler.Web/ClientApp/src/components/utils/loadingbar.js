@@ -8,7 +8,9 @@ const LoadingBar = (props) => {
             <div className="progress-line"></div>
         )
     } else {
-        return null;
+        return (
+            <div className="progress-placeholder"></div>
+        )
     }
 };
 

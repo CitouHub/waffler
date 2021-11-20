@@ -1,4 +1,10 @@
-﻿.progress-line, .progress-line:before {
+﻿.progress-placeholder {
+    height: 2px;
+    width: 100%;
+    margin: 0;
+}
+
+.progress-line, .progress-line:before {
     height: 2px;
     width: 100%;
     margin: 0;
