@@ -1,22 +1,22 @@
-﻿.progress-placeholder {
+﻿.loading-placeholder {
     height: 2px;
     width: 100%;
     margin: 0;
 }
 
-.progress-line, .progress-line:before {
+.loading-line, .loading-line:before {
     height: 2px;
     width: 100%;
     margin: 0;
 }
 
-.progress-line {
+.loading-line {
     background-color: #FFFFFF;
     display: -webkit-flex;
     display: flex;
 }
 
-    .progress-line:before {
+    .loading-line:before {
         background-color: #7386d5;
         content: '';
         -webkit-animation: running-progress 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;

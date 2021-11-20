@@ -132,7 +132,7 @@ CREATE TABLE [dbo].[TradeRule](
 	[Amount] [decimal](10,8) NOT NULL,
 	[TradeMinIntervalMinutes] [int] NOT NULL,
 	[LastTrigger] [datetime2](0) NOT NULL DEFAULT('1900-01-01'),
-	[QueuedForTestTrade] [bit] NOT NULL DEFAULT(0)
+	[TestTradeInProgress] [bit] NOT NULL DEFAULT(0)
  CONSTRAINT [TradeRule_PK] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -271,6 +271,7 @@ CREATE TABLE [dbo].[TradeOrder](
 )
 
 ALTER TABLE [dbo].[TradeOrder] WITH CHECK ADD CONSTRAINT [TradeOrder_TradeRuleFK] FOREIGN KEY([TradeRuleId]) REFERENCES [dbo].[TradeRule] ([ID])
+ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[TradeOrder] WITH CHECK ADD CONSTRAINT [TradeOrder_TradeOrderStatusFK] FOREIGN KEY([TradeOrderStatusId]) REFERENCES [dbo].[TradeOrderStatus] ([ID])
 GO

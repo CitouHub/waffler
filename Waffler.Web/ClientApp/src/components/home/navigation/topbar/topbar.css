@@ -17,6 +17,11 @@
     vertical-align: middle;
     display: table-cell;
     color: rgba(20,24,33,.5);
+    line-height: 0.5;
+}
+
+.version {
+    font-size: 10px;
 }
 
 .waffle {

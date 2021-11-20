@@ -61,7 +61,7 @@ namespace Waffler.Service.Background
                         _logger.LogWarning($"- Data synced, last period {lastCandleStick.PeriodDateTime}, analyse trade rules...");
                         var tradeRules = await _tradeRuleService.GetTradeRulesAsync();
 
-                        foreach (int tradeRuleId in tradeRules.Where(_ => _.QueuedForTestTrade == false).Select(_ => _.Id))
+                        foreach (int tradeRuleId in tradeRules.Where(_ => _.TestTradeInProgress == false).Select(_ => _.Id))
                         {
                             if (cancellationToken.IsCancellationRequested == false)
                             {

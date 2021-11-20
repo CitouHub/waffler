@@ -35,6 +35,16 @@ namespace Waffler.Domain
                 .ForMember(dest => dest.TradeRuleStatus, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeType, opt => opt.Ignore());
 
+            CreateMap<TradeAction, CommonAttributeDTO>();
+            CreateMap<CandleStickValueType, CommonAttributeDTO>();
+            CreateMap<TradeConditionOperator, CommonAttributeDTO>();
+            CreateMap<TradeOrderStatus, CommonAttributeDTO>();
+            CreateMap<TradeRuleStatus, CommonAttributeDTO>();
+            CreateMap<TradeRuleCondition, CommonAttributeDTO>();
+            CreateMap<TradeRuleConditionComparator, CommonAttributeDTO>();
+            CreateMap<TradeRuleConditionSampleDirection, CommonAttributeDTO>();
+            CreateMap<TradeType, CommonAttributeDTO>();
+
             CreateMap<sp_getCandleSticks_Result, CandleStickDTO>();
             CreateMap<sp_getTradeOrders_Result, TradeOrderDTO>();
         }

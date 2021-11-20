@@ -107,7 +107,7 @@ namespace Waffler.Service
                                 TradeOrderStatusId = (short)TradeOrderStatus.Open,
                                 IsTestOrder = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test
                             });
-                            await _tradeRuleService.UpdateTradeRuleLastTrigger(tradeRule.Id, candleStick.PeriodDateTime);
+                            await _tradeRuleService.UpdateTradeRuleLastTriggerAsync(tradeRule.Id, candleStick.PeriodDateTime);
                             break;
                         case TradeAction.Sell:
                             throw new NotImplementedException();

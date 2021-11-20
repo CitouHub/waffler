@@ -1,0 +1,20 @@
+﻿.table-form {
+    display: flex;
+}
+
+.actions {
+    margin: auto 0 auto auto;
+}
+
+.actions svg {
+    cursor: pointer;
+    font-size: 1.75em;
+}
+
+.fa-icon:hover {
+    -moz-transition: all .1s ease-in;
+    -o-transition: all .1s ease-in;
+    -webkit-transition: all .1s ease-in;
+    transition: all .1s ease-in;
+    color: #1565c0;
+}

@@ -19,7 +19,7 @@ namespace Waffler.Domain
         public decimal Amount { get; set; }
         public int TradeMinIntervalMinutes { get; set; }
         public DateTime LastTrigger { get; set; }
-        public bool QueuedForTestTrade { get; set; }
+        public bool TestTradeInProgress { get; set; }
 
         public List<TradeRuleConditionDTO> TradeRuleConditions { get; set; }
     }

@@ -5,11 +5,11 @@ import './loadingbar.css';
 const LoadingBar = (props) => {
     if (props.active || props.active === undefined) {
         return (
-            <div className="progress-line"></div>
+            <div className="loading-line"></div>
         )
     } else {
         return (
-            <div className="progress-placeholder"></div>
+            <div className="loading-placeholder"></div>
         )
     }
 };

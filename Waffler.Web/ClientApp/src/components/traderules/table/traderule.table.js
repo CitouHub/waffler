@@ -1,4 +1,4 @@
-﻿import * as React from 'react';
+﻿import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
@@ -16,14 +16,13 @@ import TradeRuleForm from '../form/traderule.form';
 
 import './table.css';
 
-function Row(props) {
-    const { row } = props;
-    const [open, setOpen] = React.useState(false);
+function Row({ row, tradeRuleAttributes, updateTradeRules}) {
+    const [open, setOpen] = useState(false);
 
     return (
         <React.Fragment>
             <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-                <TableCell>
+                <TableCell width="2%">
                     <IconButton
                         aria-label="expand row"
                         size="small"
@@ -32,15 +31,9 @@ function Row(props) {
                         {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                     </IconButton>
                 </TableCell>
-                <TableCell align="right">{row.tradeActionName}</TableCell>
-                <TableCell align="right">{row.tradeTypeName}</TableCell>
-                <TableCell align="right">{row.tradeConditionOperatorName}</TableCell>
-                <TableCell align="right">{row.name}</TableCell>
-                <TableCell align="right">{row.description}</TableCell>
-                <TableCell align="right">{row.amount}</TableCell>
-                <TableCell align="right">{row.tradeMinIntervalMinutes}</TableCell>
-                <TableCell align="right">{row.lastTrigger}</TableCell>
-                <TableCell align="right">{row.isActive}</TableCell>
+                <TableCell width="98%" colSpan={9} align="right">
+                    <TradeRuleForm data={row} tradeRuleAttributes={tradeRuleAttributes} updateTradeRules={updateTradeRules} />
+                </TableCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
@@ -64,27 +57,27 @@ function Row(props) {
                                         <TableCell align="right">Active</TableCell>
                                     </TableRow>
                                 </TableHead>
-                                <TableBody>
-                                    {row.tradeRuleConditions.map((tradeRuleConditionRow) => (
-                                        <TableRow key={tradeRuleConditionRow.id}>
-                                            <TableCell align="right" colSpan={10}>
-                                                <TradeRuleForm />
-                                            </TableCell>
-                                        </TableRow>
-                                        //<TableRow key={tradeRuleConditionRow.id}>
-                                        //    <TableCell align="right">{tradeRuleConditionRow.description}</TableCell>
-                                        //    <TableCell align="right">{tradeRuleConditionRow.candleStickValueTypeName}</TableCell>
-                                        //    <TableCell align="right">{tradeRuleConditionRow.fromMinutesSample}</TableCell>
-                                        //    <TableCell align="right">{tradeRuleConditionRow.fromMinutesOffset}</TableCell>
-                                        //    <TableCell align="right">{tradeRuleConditionRow.toMinutesSample}</TableCell>
-                                        //    <TableCell align="right">{tradeRuleConditionRow.toMinutesOffset}</TableCell>
-                                        //    <TableCell align="right">{tradeRuleConditionRow.tradeRuleConditionSampleDirectionName}</TableCell>
-                                        //    <TableCell align="right">{tradeRuleConditionRow.tradeRuleConditionComparatorName}</TableCell>
-                                        //    <TableCell align="right">{tradeRuleConditionRow.deltaPercent}</TableCell>
-                                        //    <TableCell align="right">{tradeRuleConditionRow.isActive}</TableCell>
-                                        //</TableRow>
-                                    ))}
-                                </TableBody>
+                                {/*<TableBody>*/}
+                                {/*    {row.tradeRuleConditions.map((tradeRuleConditionRow) => (*/}
+                                {/*        <TableRow key={tradeRuleConditionRow.id}>*/}
+                                {/*            <TableCell align="right" colSpan={10}>*/}
+                                {/*                <TradeRuleForm />*/}
+                                {/*            </TableCell>*/}
+                                {/*        </TableRow>*/}
+                                {/*        //<TableRow key={tradeRuleConditionRow.id}>*/}
+                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.description}</TableCell>*/}
+                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.candleStickValueTypeName}</TableCell>*/}
+                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.fromMinutesSample}</TableCell>*/}
+                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.fromMinutesOffset}</TableCell>*/}
+                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.toMinutesSample}</TableCell>*/}
+                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.toMinutesOffset}</TableCell>*/}
+                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.tradeRuleConditionSampleDirectionName}</TableCell>*/}
+                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.tradeRuleConditionComparatorName}</TableCell>*/}
+                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.deltaPercent}</TableCell>*/}
+                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.isActive}</TableCell>*/}
+                                {/*        //</TableRow>*/}
+                                {/*    ))}*/}
+                                {/*</TableBody>*/}
                             </Table>
                         </Box>
                     </Collapse>
@@ -94,27 +87,13 @@ function Row(props) {
     );
 }
 
-export default function TradeRuleTable(props) {
+export default function TradeRuleTable({ tradeRules, tradeRuleAttributes, updateTradeRules }) {
     return (
         <TableContainer component={Paper}>
             <Table aria-label="collapsible table">
-                <TableHead>
-                    <TableRow>
-                        <TableCell />
-                        <TableCell align="right">Action</TableCell>
-                        <TableCell align="right">Type</TableCell>
-                        <TableCell align="right">Condition operator</TableCell>
-                        <TableCell align="right">Name</TableCell>
-                        <TableCell align="right">Description</TableCell>
-                        <TableCell align="right">Amount</TableCell>
-                        <TableCell align="right">Min trade interval</TableCell>
-                        <TableCell align="right">Last trade</TableCell>
-                        <TableCell align="right">Active</TableCell>
-                    </TableRow>
-                </TableHead>
                 <TableBody>
-                    {props.data.map((tradeRule) => (
-                        <Row key={tradeRule.id} row={tradeRule} />
+                    {tradeRules.map((tradeRule) => (
+                        <Row key={tradeRule.id} row={tradeRule} tradeRuleAttributes={tradeRuleAttributes} updateTradeRules={updateTradeRules}/>
                     ))}
                 </TableBody>
             </Table>

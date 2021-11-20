@@ -25,15 +25,34 @@ namespace Waffler.API.Controller
             _testTradeRuleQueue = testTradeRuleQueue;
         }
 
+        [HttpPost]
+        public async Task<TradeRuleDTO> NewTradeRuleAsync()
+        {
+            return await _tradeRuleService.NewTradeRuleAsync();
+        }
+
         [HttpGet]
         public async Task<IEnumerable<TradeRuleDTO>> GetTradeRulesAsync()
         {
             return await _tradeRuleService.GetTradeRulesAsync();
         }
 
+        [HttpGet]
+        [Route("attribute")]
+        public async Task<Dictionary<string, List<CommonAttributeDTO>>> GetTradeRuleAttributesAsync()
+        {
+            return await _tradeRuleService.GetTradeRuleAttributesAsync();
+        }
+
+        [HttpPut]
+        public async Task<bool> UpdateTradeRulesAsync([FromBody] TradeRuleDTO tradeRule)
+        {
+            return await _tradeRuleService.UpdateTradeRuleAsync(tradeRule);
+        }
+
         [HttpPost]
-        [Route("test")]
-        public void TestTradeRuleAsync([FromBody] TradeRuleTestRequestDTO tradeRequest)
+        [Route("test/start")]
+        public void StartTradeRuleTestAsync([FromBody] TradeRuleTestRequestDTO tradeRequest)
         {
             _testTradeRuleQueue.QueueTest(tradeRequest);
         }
@@ -50,6 +69,13 @@ namespace Waffler.API.Controller
         public void AbortTradeRuleTestAsync(int tradeRuleId)
         {
             _testTradeRuleQueue.AbortTest(tradeRuleId);
+        }
+
+        [HttpDelete]
+        [Route("{tradeRuleId}")]
+        public async Task<bool> DeleteTradeRuleAsync(int tradeRuleId)
+        {
+            return await _tradeRuleService.DeleteTradeRuleAsync(tradeRuleId);
         }
     }
 }

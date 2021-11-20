@@ -15,8 +15,8 @@ const Content = ({ sidebarIsOpen, toggleSidebar }) => {
             className={classNames("content", { "is-open": sidebarIsOpen })}
         >
             <Switch>
-                <ProtectedRount exact path="/" component={() => <TradeChart />} />
-                <ProtectedRount exact path="/traderules" component={() => <TradeRules />} />
+                <ProtectedRount exact path="/c" component={() => <TradeChart />} />
+                <ProtectedRount exact path="/" component={() => <TradeRules />} />
                 <ProtectedRount exact path="/settings" component={() => "Settings"} />
                 <ProtectedRount exact path="/logout" component={() => {
                     Cache.set("isAuthenticated", false);

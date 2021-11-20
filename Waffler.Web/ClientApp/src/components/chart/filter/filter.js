@@ -7,7 +7,7 @@ import './filter.css';
 const ChartFilter = ({ updateFilter, filter, tradeRules, selectedTradeRules, updateSelectedTradeRules }) => {
     return (
         <div className="filter-wrapper">
-            <div className="filter-control">
+            <div className="m-2">
                 <TextField
                     id="fromDate"
                     label="From"
@@ -20,7 +20,7 @@ const ChartFilter = ({ updateFilter, filter, tradeRules, selectedTradeRules, upd
                     onChange={e => updateFilter({ ...filter, fromDate: new Date(e.target.value) })}
                 />
             </div>
-            <div className="filter-control">
+            <div className="m-2">
                 <TextField
                     id="toDate"
                     label="To"
@@ -33,7 +33,7 @@ const ChartFilter = ({ updateFilter, filter, tradeRules, selectedTradeRules, upd
                     onChange={e => updateFilter({ ...filter, toDate: new Date(e.target.value) })}
                 />
             </div>
-            <div className="filter-control">
+            <div className="m-2">
                 <MultiSelect tradeRules={tradeRules} selectedTradeRules={selectedTradeRules} updateSelectedTradeRules={updateSelectedTradeRules}/>
             </div>
         </div>
