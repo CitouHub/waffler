@@ -126,7 +126,7 @@ CREATE TABLE [dbo].[TradeRule](
 	[TradeActionId] [smallint] NOT NULL,
 	[TradeTypeId] [smallint] NOT NULL,
 	[TradeConditionOperatorId] [smallint] NOT NULL,
-	[TradeRuleStatusId] [smallint] NOT NULL,
+	[TradeRuleStatusId] [smallint] DEFAULT(1) NOT NULL,
 	[Name] [nvarchar](50) NOT NULL,
 	[Description] [nvarchar](200) NULL,
 	[Amount] [decimal](10,8) NOT NULL,
@@ -206,7 +206,7 @@ CREATE TABLE [dbo].[TradeRuleCondition](
 	[ToMinutesSample] [int] NOT NULL,
 	[DeltaPercent] [decimal](6,4) NOT NULL,
 	[Description] [nvarchar](200) NULL,
-	[IsActive] [bit] NOT NULL DEFAULT(1)
+	[IsOn] [bit] NOT NULL DEFAULT(0)
  CONSTRAINT [TradeRuleCondition_PK] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

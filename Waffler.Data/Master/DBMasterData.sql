@@ -55,9 +55,9 @@ GO
 
 SET IDENTITY_INSERT TradeRuleStatus ON
 GO
-INSERT INTO TradeRuleStatus (ID, Name) VALUES (1, 'Active')
+INSERT INTO TradeRuleStatus (ID, Name) VALUES (1, 'Inactive')
 INSERT INTO TradeRuleStatus (ID, Name) VALUES (2, 'Test')
-INSERT INTO TradeRuleStatus (ID, Name) VALUES (3, 'Disabled')
+INSERT INTO TradeRuleStatus (ID, Name) VALUES (3, 'Active')
 SET IDENTITY_INSERT TradeRuleStatus OFF
 GO
 

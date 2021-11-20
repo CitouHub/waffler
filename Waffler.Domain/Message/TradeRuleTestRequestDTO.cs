@@ -2,7 +2,7 @@
 
 namespace Waffler.Domain.Message
 {
-    public class TradeTestRequestDTO
+    public class TradeRuleTestRequestDTO
     {
         public int TradeRuleId { get; set; }
         public DateTime FromDate { get; set; }

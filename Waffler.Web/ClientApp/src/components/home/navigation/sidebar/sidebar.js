@@ -1,6 +1,6 @@
 ﻿import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChartLine, faRulerCombined, faTools, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import { faChartLine, faRulerCombined, faTools, faSignOutAlt, faTasks } from "@fortawesome/free-solid-svg-icons";
 import { NavItem, NavLink, Nav } from "reactstrap";
 import classNames from "classnames";
 import { Link } from "react-router-dom";
@@ -20,6 +20,12 @@ const SideBar = ({ isOpen, toggle }) => (
                     <NavLink tag={Link} to={"/"}>
                         <FontAwesomeIcon icon={faChartLine} className="mr-2" />
                         Chart
+                    </NavLink>
+                </NavItem>
+                <NavItem>
+                    <NavLink tag={Link} to={"/tradeorders"}>
+                        <FontAwesomeIcon icon={faTasks} className="mr-2" />
+                        Orders
                     </NavLink>
                 </NavItem>
                 <NavItem>

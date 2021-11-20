@@ -15,11 +15,11 @@ namespace Waffler.API.Controller
     public class TradeRuleController : ControllerBase
     {
         private readonly ITradeRuleService _tradeRuleService;
-        private readonly TestTradeRuleQueue _testTradeRuleQueue;
+        private readonly TradeRuleTestQueue _testTradeRuleQueue;
 
         public TradeRuleController(
             ITradeRuleService tradeRuleService,
-            TestTradeRuleQueue testTradeRuleQueue)
+            TradeRuleTestQueue testTradeRuleQueue)
         {
             _tradeRuleService = tradeRuleService;
             _testTradeRuleQueue = testTradeRuleQueue;
@@ -33,16 +33,23 @@ namespace Waffler.API.Controller
 
         [HttpPost]
         [Route("test")]
-        public void TestTradeRuleAsync([FromBody] TradeTestRequestDTO tradeRequest)
+        public void TestTradeRuleAsync([FromBody] TradeRuleTestRequestDTO tradeRequest)
         {
-            _testTradeRuleQueue.Queue(tradeRequest);
+            _testTradeRuleQueue.QueueTest(tradeRequest);
+        }
+
+        [HttpGet]
+        [Route("test/status/{tradeRuleId}")]
+        public TradeRuleTestStatusDTO GetTradeRuleTestStatusAsync(int tradeRuleId)
+        {
+            return _testTradeRuleQueue.GetTradeRuleTestStatus(tradeRuleId);
         }
 
         [HttpPost]
-        [Route("test/status/{tradeRuleId}")]
-        public TradeTestStatusDTO GetTestTradeRuleStatusAsync(int tradeRuleId)
+        [Route("test/abort/{tradeRuleId}")]
+        public void AbortTradeRuleTestAsync(int tradeRuleId)
         {
-            return _testTradeRuleQueue.GetStatus(tradeRuleId);
+            _testTradeRuleQueue.AbortTest(tradeRuleId);
         }
     }
 }

@@ -2,12 +2,13 @@
 
 namespace Waffler.Domain
 {
-    public class TradeTestStatusDTO
+    public class TradeRuleTestStatusDTO
     {
         public int TradeRuleId { get; set; }
         public DateTime FromDate { get; set; }
         public DateTime ToDate { get; set; }
         public DateTime CurrentPositionDate { get; set; }
+        public bool Aborted { get; set; }
         public decimal Progress { get
             {
                 var totalMinutes = (ToDate - FromDate).TotalMinutes;

@@ -72,7 +72,7 @@ namespace Waffler.Service
 
                     if (trends != null)
                     {
-                        var value = GetTargetValue(condition, trends);
+                        var value = GetTargetValue(condition.CandleStickValueTypeId, trends);
                         conditionResult.IsFullfilled = EvaluateCondition(condition, value);
                     }
 
@@ -180,9 +180,9 @@ namespace Waffler.Service
             return false;
         }
 
-        public static decimal GetTargetValue(TradeRuleConditionDTO condition, PriceTrendsDTO trends)
+        public static decimal GetTargetValue(short candleStickValueTypeId, PriceTrendsDTO trends)
         {
-            switch ((CandleStickValueType)condition.CandleStickValueTypeId)
+            switch ((CandleStickValueType)candleStickValueTypeId)
             {
                 case CandleStickValueType.HighPrice:
                     return trends.HighPriceTrend;

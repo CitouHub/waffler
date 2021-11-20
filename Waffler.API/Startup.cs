@@ -67,7 +67,7 @@ namespace Waffler.API
 
             services.AddSingleton(mapperConfig.CreateMapper());
             services.AddSingleton(new Cache());
-            services.AddSingleton(new TestTradeRuleQueue());
+            services.AddSingleton(new TradeRuleTestQueue());
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

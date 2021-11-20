@@ -104,7 +104,7 @@ const TradeChart = (props) => {
                 });
 
                 if (candleStick === undefined) {
-                    candleSticksUpdate = candleSticksUpdate[candleSticks.length - 1];
+                    candleStick = candleSticksUpdate[candleSticksUpdate.length - 1];
                 }
 
                 if (selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0) {
@@ -155,7 +155,7 @@ const TradeChart = (props) => {
                 updateSelectedTradeRules={(selectedTradeRules) => setSelectedTradeRules(selectedTradeRules)}
                 updateFilter={(filter) => setFilter(filter)} />
             {!loading && <ChartCanvas
-                height={600}
+                height={800}
                 ratio={1}
                 width={dimensions.width}
                 margin={margin}

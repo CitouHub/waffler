@@ -176,6 +176,8 @@ namespace Waffler.Data
                     .IsRequired()
                     .HasMaxLength(50);
 
+                entity.Property(e => e.TradeRuleStatusId).HasDefaultValueSql("((1))");
+
                 entity.HasOne(d => d.TradeAction)
                     .WithMany(p => p.TradeRule)
                     .HasForeignKey(d => d.TradeActionId)
@@ -210,10 +212,6 @@ namespace Waffler.Data
                 entity.Property(e => e.InsertByUser).HasDefaultValueSql("((1))");
 
                 entity.Property(e => e.InsertDate).HasDefaultValueSql("(getutcdate())");
-
-                entity.Property(e => e.IsActive)
-                    .IsRequired()
-                    .HasDefaultValueSql("((1))");
 
                 entity.HasOne(d => d.CandleStickValueType)
                     .WithMany(p => p.TradeRuleCondition)

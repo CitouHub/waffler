@@ -24,7 +24,7 @@ namespace Waffler.Data
         public int ToMinutesSample { get; set; }
         public decimal DeltaPercent { get; set; }
         public string Description { get; set; }
-        public bool? IsActive { get; set; }
+        public bool IsOn { get; set; }
 
         public virtual CandleStickValueType CandleStickValueType { get; set; }
         public virtual TradeRule TradeRule { get; set; }
