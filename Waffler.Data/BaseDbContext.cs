@@ -162,8 +162,6 @@ namespace Waffler.Data
             {
                 entity.Property(e => e.Amount).HasColumnType("decimal(10, 8)");
 
-                entity.Property(e => e.Description).HasMaxLength(200);
-
                 entity.Property(e => e.InsertByUser).HasDefaultValueSql("((1))");
 
                 entity.Property(e => e.InsertDate).HasDefaultValueSql("(getutcdate())");

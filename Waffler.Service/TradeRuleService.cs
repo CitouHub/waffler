@@ -24,8 +24,6 @@ namespace Waffler.Service
 
         Task<bool> UpdateTradeRuleAsync(TradeRuleDTO tradeRuleDTO);
 
-        Task<bool> UpdateTradeRuleLastTriggerAsync(int tradeRuleId, DateTime triggerTime);
-
         Task<bool> SetupTradeRuleTestAsync(int tradeRuleId);
 
         Task<bool> DeleteTradeRuleAsync(int tradeRuleId);
@@ -69,9 +67,7 @@ namespace Waffler.Service
                 .Include(_ => _.TradeType)
                 .Include(_ => _.TradeConditionOperator)
                 .Include(_ => _.TradeRuleStatus)
-                .Include(_ => _.TradeRuleCondition).ThenInclude(_ => _.CandleStickValueType)
-                .Include(_ => _.TradeRuleCondition).ThenInclude(_ => _.TradeRuleConditionComparator)
-                .Include(_ => _.TradeRuleCondition).ThenInclude(_ => _.TradeRuleConditionSampleDirection)
+                .Include(_ => _.TradeRuleCondition)
                 .ToListAsync();
             return _mapper.Map<List<TradeRuleDTO>>(tradeRules);
         }
@@ -105,28 +101,10 @@ namespace Waffler.Service
                 .Include(_ => _.TradeAction)
                 .Include(_ => _.TradeType)
                 .Include(_ => _.TradeConditionOperator)
-                .Include(_ => _.TradeRuleCondition).ThenInclude(_ => _.CandleStickValueType)
-                .Include(_ => _.TradeRuleCondition).ThenInclude(_ => _.TradeRuleConditionComparator)
-                .Include(_ => _.TradeRuleCondition).ThenInclude(_ => _.TradeRuleConditionSampleDirection)
+                .Include(_ => _.TradeRuleStatus)
+                .Include(_ => _.TradeRuleCondition)
                 .FirstOrDefaultAsync(_ => _.Id == tradeRuleId);
             return _mapper.Map<TradeRuleDTO>(tradeRule);
-        }
-
-        public async Task<bool> UpdateTradeRuleLastTriggerAsync(int tradeRuleId, DateTime triggerTime)
-        {
-            var tradeRule = await _context.TradeRule.FindAsync(tradeRuleId);
-            if(tradeRule != null)
-            {
-                tradeRule.LastTrigger = triggerTime;
-                tradeRule.UpdateByUser = 1;
-                tradeRule.UpdateDate = DateTime.UtcNow;
-
-                await _context.SaveChangesAsync();
-
-                return true;
-            }
-
-            return false;
         }
 
         public async Task<bool> SetupTradeRuleTestAsync(int tradeRuleId)

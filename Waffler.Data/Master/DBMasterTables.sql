@@ -128,7 +128,6 @@ CREATE TABLE [dbo].[TradeRule](
 	[TradeConditionOperatorId] [smallint] NOT NULL,
 	[TradeRuleStatusId] [smallint] DEFAULT(1) NOT NULL,
 	[Name] [nvarchar](50) NOT NULL,
-	[Description] [nvarchar](200) NULL,
 	[Amount] [decimal](10,8) NOT NULL,
 	[TradeMinIntervalMinutes] [int] NOT NULL,
 	[LastTrigger] [datetime2](0) NOT NULL DEFAULT('1900-01-01'),

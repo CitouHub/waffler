@@ -51,7 +51,7 @@ namespace Waffler.Service
                     TradeRuleCondtionEvaluations = new List<TradeRuleConditionEvaluationDTO>()
                 };
 
-                foreach (var condition in tradeRule.TradeRuleConditions)
+                foreach (var condition in tradeRule.TradeRuleConditions.Where(_ => _.IsOn == true))
                 {
                     _logger.LogInformation($" - Checking condition \"{condition.Description}\"");
                     var trends = await _candleStickService.GetPriceTrendsAsync(
@@ -107,7 +107,8 @@ namespace Waffler.Service
                                 TradeOrderStatusId = (short)TradeOrderStatus.Open,
                                 IsTestOrder = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test
                             });
-                            await _tradeRuleService.UpdateTradeRuleLastTriggerAsync(tradeRule.Id, candleStick.PeriodDateTime);
+                            tradeRule.LastTrigger = candleStick.PeriodDateTime;
+                            await _tradeRuleService.UpdateTradeRuleAsync(tradeRule);
                             break;
                         case TradeAction.Sell:
                             throw new NotImplementedException();

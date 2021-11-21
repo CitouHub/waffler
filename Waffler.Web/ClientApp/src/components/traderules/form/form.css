@@ -18,3 +18,12 @@
     transition: all .1s ease-in;
     color: #1565c0;
 }
+
+.trc-form {
+    width: 94%;
+}
+
+.trc-section {
+    margin-top: 1rem;
+    width: 100%;
+}

@@ -85,17 +85,17 @@ GO
 
 SET IDENTITY_INSERT TradeRule ON
 GO
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (1, 1, 1, 1, 2, 'Fast drop, small buy', 0.0001, 60*2)
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (2, 1, 1, 1, 2, 'Slow drop, big buy', 0.0004, 60*6)
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (3, 1, 1, 2, 2, 'Buy mindless', 0.0002, 24*60)
+INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (1, 1, 1, 1, 2, 'Fast drop, small buy', 10, 60*2)
+INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (2, 1, 1, 1, 2, 'Slow drop, big buy', 40, 60*6)
+INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (3, 1, 1, 2, 2, 'Buy dayly', 20, 24*60)
 SET IDENTITY_INSERT TradeRule OFF
 GO
 
-INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
-VALUES (1, 6, 1, 2, -4*60, -1*60, 60, 60, -3, 'A drop of over 3% now')
+INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description], [IsOn]) 
+VALUES (1, 6, 1, 2, -4*60, -1*60, 60, 60, -3, 'A drop of over 3% now', 1)
 
-INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
-VALUES (2, 6, 1, 1, -4*24*60, -1*24*60, 6*60, 6*60, -6, 'A drop of over 6% over 3 days 1 day ago')
+INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description], [IsOn]) 
+VALUES (2, 6, 1, 1, -4*24*60, -1*24*60, 6*60, 6*60, -6, 'A drop of over 6% over 3 days 1 day ago', 1)
 
-INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description]) 
-VALUES (3, 6, 2, 1, -60, -60, 30, 30, 0.0, 'Any change')
+INSERT INTO TradeRuleCondition([TradeRuleId], [CandleStickValueTypeId], [TradeRuleConditionComparatorId], [TradeRuleConditionSampleDirectionId], [FromMinutesOffset], [ToMinutesOffset], [FromMinutesSample], [ToMinutesSample], [DeltaPercent], [Description], [IsOn]) 
+VALUES (3, 6, 2, 1, -60, -60, 30, 30, 0.0, 'Any change', 1)

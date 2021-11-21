@@ -15,7 +15,6 @@ namespace Waffler.Domain
         public short TradeRuleStatusId { get; set; }
         public string TradeRuleStatusName { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
         public decimal Amount { get; set; }
         public int TradeMinIntervalMinutes { get; set; }
         public DateTime LastTrigger { get; set; }

@@ -8,15 +8,17 @@ import ProtectedRount from '../home/protectedroute'
 import TradeChart from "../chart/tradechart";
 import TradeRules from "../traderules/traderules";
 
-const Content = ({ sidebarIsOpen, toggleSidebar }) => {
+const Content = ({ sidebarIsOpen }) => {
+
     return (
         <Container
             fluid
             className={classNames("content", { "is-open": sidebarIsOpen })}
         >
             <Switch>
-                <ProtectedRount exact path="/c" component={() => <TradeChart />} />
-                <ProtectedRount exact path="/" component={() => <TradeRules />} />
+                <ProtectedRount exact path="/" component={() => <TradeChart />} />
+                <ProtectedRount exact path="/tradeorders" component={() => "Orders"} />
+                <ProtectedRount exact path="/traderules" component={() => <TradeRules />} />
                 <ProtectedRount exact path="/settings" component={() => "Settings"} />
                 <ProtectedRount exact path="/logout" component={() => {
                     Cache.set("isAuthenticated", false);

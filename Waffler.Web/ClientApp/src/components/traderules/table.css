@@ -1,0 +1,15 @@
+﻿button:focus {
+    outline: none;
+}
+
+.control {
+    width: 100%;
+    float: right;
+    display: flex;
+    justify-content: space-between;
+}
+
+.trade-rule-condition {
+    width: 92%;
+    float: right;
+}

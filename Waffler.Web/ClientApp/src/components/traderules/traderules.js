@@ -6,7 +6,7 @@ import TradeRuleTable from './table/traderule.table';
 
 import TradeRuleService from '../../services/traderule.service';
 
-import './traderule.css';
+import './table.css';
 
 const TradeRules = () => {
     const [loading, setLoading] = useState(true);
@@ -41,6 +41,7 @@ const TradeRules = () => {
         <div>
             <LoadingBar active={loading} />
             <div className='mt-3 mb-3 control'>
+                <h4>Rules</h4>
                 <Button variant="contained" onClick={newTradeRule} disabled={loading}>+ Add new trade rule</Button>
             </div>
             {tradeRules.length > 0 && Object.keys(tradeRuleAttributes).length > 0 &&

@@ -9,7 +9,7 @@ import ProfileService from '../../services/profile.service'
 import waffle from '../../assets/images/waffle.png';
 import './login.css';
 
-const Login = (props) => {
+const Login = () => {
     const [passwordChecked, setPasswordChecked] = useState(false);
     const [validPassword, setPasswordValid] = useState(false);
     let history = useHistory();

@@ -16,7 +16,10 @@ namespace Waffler.Domain
                 .ForMember(dest => dest.CandleStickValueTypeName, opt => opt.MapFrom(src => src.CandleStickValueType.Name))
                 .ForMember(dest => dest.TradeRuleConditionComparatorName, opt => opt.MapFrom(src => src.TradeRuleConditionComparator.Name))
                 .ForMember(dest => dest.TradeRuleConditionSampleDirectionName, opt => opt.MapFrom(src => src.TradeRuleConditionSampleDirection.Name))
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.CandleStickValueType, opt => opt.Ignore())
+                .ForMember(dest => dest.TradeRuleConditionComparator, opt => opt.Ignore())
+                .ForMember(dest => dest.TradeRuleConditionSampleDirection, opt => opt.Ignore());
             CreateMap<TradeOrder, TradeOrderDTO>()
                 .ReverseMap()
                 .ForMember(dest => dest.TradeOrderStatus, opt => opt.Ignore())

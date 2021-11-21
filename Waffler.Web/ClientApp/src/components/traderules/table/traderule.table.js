@@ -6,15 +6,13 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import TradeRuleForm from '../form/traderule.form';
 
-import './table.css';
+import TradeRuleCondition from '../traderuleconditions';
 
 function Row({ row, tradeRuleAttributes, updateTradeRules}) {
     const [open, setOpen] = useState(false);
@@ -39,46 +37,7 @@ function Row({ row, tradeRuleAttributes, updateTradeRules}) {
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{ margin: 1 }}>
-                            <Typography variant="h6" gutterBottom component="div">
-                                Conditions
-                            </Typography>
-                            <Table size="small" aria-label="purchases">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell align="right">Description</TableCell>
-                                        <TableCell align="right">Value type</TableCell>
-                                        <TableCell align="right">From</TableCell>
-                                        <TableCell align="right">From offset</TableCell>
-                                        <TableCell align="right">To</TableCell>
-                                        <TableCell align="right">To offset</TableCell>
-                                        <TableCell align="right">Sample direction</TableCell>
-                                        <TableCell align="right">Condition</TableCell>
-                                        <TableCell align="right">Change</TableCell>
-                                        <TableCell align="right">Active</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                {/*<TableBody>*/}
-                                {/*    {row.tradeRuleConditions.map((tradeRuleConditionRow) => (*/}
-                                {/*        <TableRow key={tradeRuleConditionRow.id}>*/}
-                                {/*            <TableCell align="right" colSpan={10}>*/}
-                                {/*                <TradeRuleForm />*/}
-                                {/*            </TableCell>*/}
-                                {/*        </TableRow>*/}
-                                {/*        //<TableRow key={tradeRuleConditionRow.id}>*/}
-                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.description}</TableCell>*/}
-                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.candleStickValueTypeName}</TableCell>*/}
-                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.fromMinutesSample}</TableCell>*/}
-                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.fromMinutesOffset}</TableCell>*/}
-                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.toMinutesSample}</TableCell>*/}
-                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.toMinutesOffset}</TableCell>*/}
-                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.tradeRuleConditionSampleDirectionName}</TableCell>*/}
-                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.tradeRuleConditionComparatorName}</TableCell>*/}
-                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.deltaPercent}</TableCell>*/}
-                                {/*        //    <TableCell align="right">{tradeRuleConditionRow.isActive}</TableCell>*/}
-                                {/*        //</TableRow>*/}
-                                {/*    ))}*/}
-                                {/*</TableBody>*/}
-                            </Table>
+                            <TradeRuleCondition tradeRuleId={row.id}/>
                         </Box>
                     </Collapse>
                 </TableCell>

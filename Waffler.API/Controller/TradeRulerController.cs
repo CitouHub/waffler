@@ -66,8 +66,11 @@ namespace Waffler.API.Controller
 
         [HttpPost]
         [Route("test/abort/{tradeRuleId}")]
-        public void AbortTradeRuleTestAsync(int tradeRuleId)
+        public async Task AbortTradeRuleTestAsync(int tradeRuleId)
         {
+            var tradeRule = await _tradeRuleService.GetTradeRuleAsync(tradeRuleId);
+            tradeRule.TestTradeInProgress = false;
+            await _tradeRuleService.UpdateTradeRuleAsync(tradeRule);
             _testTradeRuleQueue.AbortTest(tradeRuleId);
         }
 
