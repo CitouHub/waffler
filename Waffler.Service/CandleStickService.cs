@@ -20,6 +20,7 @@ namespace Waffler.Service
         Task AddCandleSticksAsync(List<CandleStickDTO> candleSticks);
         Task<List<CandleStickDTO>> GetCandleSticksAsync(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.TradeType tradeType, short periodMinutes);
         Task<CandleStickDTO> GetLastCandleStickAsync(DateTime toPeriodDateTime);
+        Task<CandleStickDTO> GetFirstCandleStickAsync(DateTime toPeriodDateTime);
         Task<PriceTrendsDTO> GetPriceTrendsAsync(DateTime currentPeriodDateTime, Variable.TradeType tradeType, Variable.TradeRuleConditionSampleDirection sampleDirection, int fromMinutesOffset, int toMinutesOffset, int fromMinutesSample, int toMinutesSample);
     }
 
@@ -59,6 +60,13 @@ namespace Waffler.Service
         {
             var candleStick = await _context.CandleStick.Where(_ => _.PeriodDateTime <= toPeriodDateTime)
                 .OrderByDescending(_ => _.PeriodDateTime).FirstOrDefaultAsync();
+            return _mapper.Map<CandleStickDTO>(candleStick);
+        }
+
+        public async Task<CandleStickDTO> GetFirstCandleStickAsync(DateTime fromPeriodDateTime)
+        {
+            var candleStick = await _context.CandleStick.Where(_ => _.PeriodDateTime >= fromPeriodDateTime)
+                .OrderBy(_ => _.PeriodDateTime).FirstOrDefaultAsync();
             return _mapper.Map<CandleStickDTO>(candleStick);
         }
 

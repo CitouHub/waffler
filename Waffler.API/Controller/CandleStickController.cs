@@ -26,5 +26,16 @@ namespace Waffler.API.Controller
         {
             return await _candleStickService.GetCandleSticksAsync(from, to, tradeType, periodMinutes);
         }
+
+        [HttpGet]
+        [Route("sync/status")]
+        public async Task<CandleStickSyncStatusDTO> GetCandleStickSyncStatucAsync()
+        {
+            return new CandleStickSyncStatusDTO()
+            {
+                FirstPeriodDateTime = (await _candleStickService.GetFirstCandleStickAsync(DateTime.MinValue))?.PeriodDateTime,
+                LastPeriodDateTime = (await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow))?.PeriodDateTime
+            };
+        }
     }
 }
