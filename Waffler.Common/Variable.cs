@@ -71,5 +71,12 @@
             Closed = 8,
             Failed = 9
         }
+
+        public enum TimeUnit
+        {
+            Minute = 1,
+            Hour = 2,
+            Day = 3
+        }
     }
 }

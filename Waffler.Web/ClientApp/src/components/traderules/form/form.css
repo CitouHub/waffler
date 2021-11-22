@@ -2,14 +2,18 @@
     display: flex;
 }
 
-.actions {
+.actions-center {
     margin: auto 0 auto auto;
 }
 
-.actions svg {
-    cursor: pointer;
-    font-size: 1.75em;
+.actions-bottom {
+    margin: auto 0 0 auto;
 }
+
+    .actions-center svg, .actions-bottom svg {
+        cursor: pointer;
+        font-size: 1.75em;
+    }
 
 .fa-icon:hover {
     -moz-transition: all .1s ease-in;
@@ -26,4 +30,5 @@
 .trc-section {
     margin-top: 1rem;
     width: 100%;
+    text-align: left;
 }

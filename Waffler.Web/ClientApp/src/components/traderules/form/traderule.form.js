@@ -125,7 +125,7 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules }) => {
                             ))}
                         </Select>
                     </FormControl>
-                    <div className="actions">
+                    <div className="actions-center">
                         {!runningTest && <span className='fa-icon' onClick={saveTradeRule}><FontAwesomeIcon icon={faSave} className="mr-2" /></span>}
                         {!runningTest && <span className='fa-icon' onClick={deleteTradeRule}><FontAwesomeIcon icon={faTrashAlt} className="mr-2" /></span>}
                         {!runningTest && <span className='fa-icon' onClick={() => setDialogOpen(true)}><FontAwesomeIcon icon={faPlayCircle} className="mr-2" /></span>}

@@ -16,7 +16,7 @@ const Content = ({ sidebarIsOpen }) => {
             className={classNames("content", { "is-open": sidebarIsOpen })}
         >
             <Switch>
-                <ProtectedRount exact path="/" component={() => <TradeChart />} />
+                <ProtectedRount exact path="/" component={() => <TradeRules />} />
                 <ProtectedRount exact path="/tradeorders" component={() => "Orders"} />
                 <ProtectedRount exact path="/traderules" component={() => <TradeRules />} />
                 <ProtectedRount exact path="/settings" component={() => "Settings"} />
