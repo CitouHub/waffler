@@ -20,11 +20,10 @@ namespace Waffler.Service.Background
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundChartSyncService> _logger;
+        private readonly TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
+        private readonly TimeSpan RequestMinutes = TimeSpan.FromHours(4);
 
         private Timer _timer;
-        private TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
-        private TimeSpan RequestMinutes = TimeSpan.FromHours(4);
-        private TimeSpan DefaultStartDate = -1 * TimeSpan.FromDays(90); //If no data exists then start 90 days back
         private bool InProgress = false;
 
         public BackgroundChartSyncService(
@@ -55,21 +54,23 @@ namespace Waffler.Service.Background
                 using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
                     _logger.LogInformation($"- Setting up scoped services");
+                    var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
                     var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
                     var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
-                    
+
                     var syncingData = true;
                     var requestCount = 0;
                     var requestMinuteLimit = 180; //This limit is related to the throtteling limit at Bitpanda
                     var saveLimit = 10; //This limit is due to the fact that Bitpanda sometimes return the same candlestick entity when reaching the current time
                     var startTime = DateTime.UtcNow;
+                    var profile = await _profileService.GetProfileAsync();
 
-                    while (syncingData && cancellationToken.IsCancellationRequested == false)
+                    while (profile != null && syncingData && cancellationToken.IsCancellationRequested == false)
                     {
                         _logger.LogInformation($"- Getting last candlestick");
                         var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow))?.PeriodDateTime ??
-                            DateTime.UtcNow.AddMinutes(DefaultStartDate.TotalMinutes);
+                            DateTime.UtcNow.AddMinutes(-1 * TimeSpan.FromDays(profile.CandleStickSyncOffsetDays).TotalMinutes);
                         period = period.AddMilliseconds(1);
 
                         _logger.LogInformation($"- Fetch data from {period} onward");

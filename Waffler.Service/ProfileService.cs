@@ -11,15 +11,17 @@ namespace Waffler.Service
 {
     public interface IProfileService
     {
-        Task<bool> HasProfile();
+        Task<bool> HasProfileAsync();
 
         Task<bool> CreateProfileAsync(ProfileDTO profile);
 
-        Task<bool> IsPasswordValid(string password);
+        Task<ProfileDTO> GetProfileAsync();
 
-        Task<bool> SetBitpandaApiKey(string apiKey);
+        Task<bool> IsPasswordValidAsync(string password);
 
-        Task<string> GetBitpandaApiKey();
+        Task<bool> UpdateProfileAsync(ProfileDTO profile);
+
+        Task<string> GetBitpandaApiKeyAsync();
 
         Task<List<BalanceDTO>> GetBalanceAsync();
     }
@@ -37,26 +39,29 @@ namespace Waffler.Service
             _bitpandaService = bitpandaService;
         }
 
-        public async Task<bool> HasProfile()
+        public async Task<bool> HasProfileAsync()
         {
             return await _context.WafflerProfile.FirstOrDefaultAsync() != null;
         }
 
         public async Task<bool> CreateProfileAsync(ProfileDTO profile)
         {
-            if(await HasProfile() == false)
+            if(await HasProfileAsync() == false)
             {
                 var salt = BCrypt.Net.BCrypt.GenerateSalt();
                 var passwordHash = BCrypt.Net.BCrypt.HashPassword(profile.Password, salt);
-                BCrypt.Net.BCrypt.Verify(profile.Password, passwordHash);
+                var passwordValid = BCrypt.Net.BCrypt.Verify(profile.Password, passwordHash);
 
-                await _context.WafflerProfile.AddAsync(new WafflerProfile()
+                if(passwordValid)
                 {
-                    InsertByUser = 1,
-                    InsertDate = DateTime.UtcNow,
-                    Password = passwordHash
-                });
-                await _context.SaveChangesAsync();
+                    profile.Password = passwordHash;
+                    var wafflerProfile = _mapper.Map<WafflerProfile>(profile);
+                    wafflerProfile.InsertByUser = 1;
+                    wafflerProfile.InsertDate = DateTime.UtcNow;
+
+                    await _context.WafflerProfile.AddAsync(wafflerProfile);
+                    await _context.SaveChangesAsync();
+                }
 
                 return true;
             }
@@ -64,18 +69,24 @@ namespace Waffler.Service
             return false;
         }
 
-        public async Task<bool> IsPasswordValid(string password)
+        public async Task<ProfileDTO> GetProfileAsync()
+        {
+            var profile = await _context.WafflerProfile.FirstOrDefaultAsync();
+            return _mapper.Map<ProfileDTO>(profile);
+        }
+
+        public async Task<bool> IsPasswordValidAsync(string password)
         {
             var passwordHash = (await _context.WafflerProfile.FirstOrDefaultAsync())?.Password;
             return BCrypt.Net.BCrypt.Verify(password, passwordHash);
         }
 
-        public async Task<bool> SetBitpandaApiKey(string apiKey)
+        public async Task<bool> UpdateProfileAsync(ProfileDTO profileDto)
         {
             var profile = await _context.WafflerProfile.FirstOrDefaultAsync();
             if(profile != null)
             {
-                profile.ApiKey = apiKey;
+                _mapper.Map(profileDto, profile);
                 profile.UpdateByUser = 1;
                 profile.UpdateDate = DateTime.UtcNow;
 
@@ -87,7 +98,7 @@ namespace Waffler.Service
             return false;
         }
 
-        public async Task<string> GetBitpandaApiKey()
+        public async Task<string> GetBitpandaApiKeyAsync()
         {
             return (await _context.WafflerProfile.FirstOrDefaultAsync())?.ApiKey;
         }

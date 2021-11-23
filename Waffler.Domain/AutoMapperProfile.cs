@@ -11,6 +11,7 @@ namespace Waffler.Domain
         {
             SetupBitpandaMaps();
 
+            CreateMap<ProfileDTO, WafflerProfile>().ReverseMap();
             CreateMap<CandleStickDTO, CandleStick>().ReverseMap();
             CreateMap<TradeRuleCondition, TradeRuleConditionDTO>()
                 .ForMember(dest => dest.CandleStickValueTypeName, opt => opt.MapFrom(src => src.CandleStickValueType.Name))

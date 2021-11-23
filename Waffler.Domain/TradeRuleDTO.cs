@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Waffler.Common;
+using Waffler.Common.Util;
 
 namespace Waffler.Domain
 {
@@ -21,5 +23,9 @@ namespace Waffler.Domain
         public bool TestTradeInProgress { get; set; }
 
         public List<TradeRuleConditionDTO> TradeRuleConditions { get; set; }
+
+        //Consolidation of time interval 
+        public Variable.TimeUnit IntervalTimeUnit { get { return TimeUnitManager.GetTimeUnit(TradeMinIntervalMinutes); } }
+        public int TradeMinInterval { get { return -1 * TimeUnitManager.GetTimeValue(IntervalTimeUnit, TradeMinIntervalMinutes); } }
     }
 }

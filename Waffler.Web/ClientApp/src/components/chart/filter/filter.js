@@ -12,7 +12,7 @@ const ChartFilter = ({ updateFilter, filter, tradeRules, selectedTradeRules, upd
                     id="fromDate"
                     label="From"
                     type="date"
-                    defaultValue={filter?.fromDate.toJSON().slice(0, 10)}
+                    defaultValue={filter?.fromDate?.toJSON()?.slice(0, 10)}
                     sx={{ width: 220 }}
                     InputLabelProps={{
                         shrink: true,
@@ -25,7 +25,8 @@ const ChartFilter = ({ updateFilter, filter, tradeRules, selectedTradeRules, upd
                     id="toDate"
                     label="To"
                     type="date"
-                    defaultValue={filter?.toDate.toJSON().slice(0, 10)}
+                    minDate="2021-11-10"
+                    defaultValue={filter?.toDate?.toJSON()?.slice(0, 10)}
                     sx={{ width: 220 }}
                     InputLabelProps={{
                         shrink: true,

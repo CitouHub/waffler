@@ -7,6 +7,8 @@ import Cache from '../../util/cache'
 import ProtectedRount from '../home/protectedroute'
 import TradeChart from "../chart/tradechart";
 import TradeRules from "../traderules/traderules";
+import Profile from "../profile/profile";
+import Orders from "../orders/orders";
 
 const Content = ({ sidebarIsOpen }) => {
 
@@ -16,10 +18,10 @@ const Content = ({ sidebarIsOpen }) => {
             className={classNames("content", { "is-open": sidebarIsOpen })}
         >
             <Switch>
-                <ProtectedRount exact path="/" component={() => <TradeRules />} />
-                <ProtectedRount exact path="/tradeorders" component={() => "Orders"} />
+                <ProtectedRount exact path="/" component={() => <TradeChart />} />
+                <ProtectedRount exact path="/tradeorders" component={() => <Orders />} />
                 <ProtectedRount exact path="/traderules" component={() => <TradeRules />} />
-                <ProtectedRount exact path="/settings" component={() => "Settings"} />
+                <ProtectedRount exact path="/profile" component={() => <Profile />} />
                 <ProtectedRount exact path="/logout" component={() => {
                     Cache.set("isAuthenticated", false);
                     window.location.replace("/login");

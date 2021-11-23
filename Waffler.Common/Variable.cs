@@ -76,7 +76,8 @@
         {
             Minute = 1,
             Hour = 2,
-            Day = 3
+            Day = 3,
+            Week = 4
         }
     }
 }

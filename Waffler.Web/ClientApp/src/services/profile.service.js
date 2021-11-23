@@ -22,7 +22,7 @@ export default {
         return Request.handleResponse(response)
     }),
     getBalance: async () => await Request.send({
-        url: `/profile/bitpanda/balance`,
+        url: `/profile/balance`,
         method: 'GET'
     }).then((response) => {
         return Request.handleResponse(response)

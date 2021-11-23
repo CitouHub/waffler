@@ -68,31 +68,33 @@ const TradeChart = () => {
     }, [syncStatus]);
 
     useEffect(() => {
-        const candleSticksUpdate = [...candleSticks];
-        if (candleSticksUpdate.length > 0 && tradeOrders.length > 0) {
-            tradeOrders.forEach((tradeOrder) => {
-                let candleStick = candleSticksUpdate.find((candleStick) => {
-                    if (candleStick.date >= tradeOrder.orderDateTime) {
-                        return candleStick;
+        if (candleSticks && tradeOrders) {
+            const candleSticksUpdate = [...candleSticks];
+            if (candleSticksUpdate.length > 0 && tradeOrders.length > 0) {
+                tradeOrders.forEach((tradeOrder) => {
+                    let candleStick = candleSticksUpdate.find((candleStick) => {
+                        if (candleStick.date >= tradeOrder.orderDateTime) {
+                            return candleStick;
+                        }
+
+                        return null;
+                    });
+
+                    if (candleStick === undefined) {
+                        candleStick = candleSticksUpdate[candleSticksUpdate.length - 1];
                     }
 
-                    return null;
+                    if (selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0) {
+                        candleStick.tradeOrder = tradeOrder;
+                    }
+                    else {
+                        candleStick.tradeOrder = undefined;
+                    }
                 });
+            }
 
-                if (candleStick === undefined) {
-                    candleStick = candleSticksUpdate[candleSticksUpdate.length - 1];
-                }
-
-                if (selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0) {
-                    candleStick.tradeOrder = tradeOrder;
-                }
-                else {
-                    candleStick.tradeOrder = undefined;
-                }
-            });
+            setCandleSticksChart(candleSticksUpdate);
         }
-
-        setCandleSticksChart(candleSticksUpdate);
     }, [selectedTradeRules, tradeOrders, candleSticks]);
 
     const getCandleStickSyncStatus = () => {
@@ -114,14 +116,19 @@ const TradeChart = () => {
             toDate.setDate(toDate.getDate() + 1);
 
             CandleStickService.getCandleSticks(filter.fromDate, toDate, 1, 30).then((candleSticksResult) => {
-                candleSticksResult.forEach((e) => {
-                    e.date = new Date(e.date);
-                });
+                if (candleSticksResult && candleSticksResult.length > 0) {
+                    candleSticksResult.forEach((e) => {
+                        e.date = new Date(e.date);
+                    });
+                }
 
                 TradeOrderService.getTradeOrders(filter.fromDate, toDate).then((tradeOrdersResult) => {
-                    tradeOrdersResult.forEach((tradeOrder) => {
-                        tradeOrder.orderDateTime = new Date(tradeOrder.orderDateTime);
-                    });
+                    if (candleSticksResult && candleSticksResult.length > 0) {
+                        tradeOrdersResult.forEach((tradeOrder) => {
+                            tradeOrder.orderDateTime = new Date(tradeOrder.orderDateTime);
+                        });
+                    }
+                    
                     setTradeOrders(tradeOrdersResult);
                     setCandleSticks(candleSticksResult);
 
@@ -157,9 +164,7 @@ const TradeChart = () => {
 
     return (
         <div>
-            {syncStatus.progress >= 95 && <div>
-                <LoadingBar active={loading} />
-            </div>}
+            <LoadingBar active={loading && syncStatus.progress >= 95} />
             {syncStatus.progress < 95 && <SyncBar currentDate={syncStatus?.lastPeriodDateTime?.toJSON()?.slice(0, 10)} progress={syncStatus.progress} />}
             {syncStatus.progress >= 95 &&
                 <div>
@@ -169,7 +174,7 @@ const TradeChart = () => {
                         selectedTradeRules={selectedTradeRules}
                         updateSelectedTradeRules={(selectedTradeRules) => setSelectedTradeRules(selectedTradeRules)}
                         updateFilter={(filter) => setFilter(filter)} />
-                    {candleSticksChart.length > 0 && <ChartCanvas
+                    {candleSticksChart && candleSticksChart.length > 0 && <ChartCanvas
                         height={windowSize.height - 200}
                         ratio={1}
                         width={windowSize.width - 360}

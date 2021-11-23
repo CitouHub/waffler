@@ -1,4 +1,5 @@
 ﻿using Waffler.Common;
+using Waffler.Common.Util;
 
 namespace Waffler.Domain
 {
@@ -21,102 +22,12 @@ namespace Waffler.Domain
         public bool IsOn { get; set; }
 
         //Consolidation of span and sampling for ease of use
-        public Variable.TimeUnit SpanTimeUnit
-        {
-            get
-            {
-                if(FromMinutesOffset % (24*60) == 0)
-                {
-                    return Variable.TimeUnit.Day;
-                } 
-                else if(FromMinutesOffset % 60 == 0)
-                {
-                    return Variable.TimeUnit.Hour;
-                }
-
-                return Variable.TimeUnit.Minute;
-            }
-        }
-
-        public int FromTime
-        {
-            get
-            {
-                switch(SpanTimeUnit)
-                {
-                    case Variable.TimeUnit.Day:
-                        return -1 * FromMinutesOffset / (24 * 60);
-                    case Variable.TimeUnit.Hour:
-                        return -1 * FromMinutesOffset / 60;
-                }
-
-                return -1 * FromMinutesOffset;
-            }
-        }
-
-        public int ToTime
-        {
-            get
-            {
-                switch (SpanTimeUnit)
-                {
-                    case Variable.TimeUnit.Day:
-                        return -1 * ToMinutesOffset / (24 * 60);
-                    case Variable.TimeUnit.Hour:
-                        return -1 * ToMinutesOffset / 60;
-                }
-
-                return -1 * ToMinutesOffset;
-            }
-        }
-
-        public Variable.TimeUnit SampleTimeUnit
-        {
-            get
-            {
-                if (FromMinutesSample % (24 * 60) == 0)
-                {
-                    return Variable.TimeUnit.Day;
-                }
-                else if (FromMinutesSample % 60 == 0)
-                {
-                    return Variable.TimeUnit.Hour;
-                }
-
-                return Variable.TimeUnit.Minute;
-            }
-        }
-
-        public int FromSample
-        {
-            get
-            {
-                switch (SampleTimeUnit)
-                {
-                    case Variable.TimeUnit.Day:
-                        return FromMinutesSample / (24 * 60);
-                    case Variable.TimeUnit.Hour:
-                        return FromMinutesSample / 60;
-                }
-
-                return FromMinutesSample;
-            }
-        }
-
-        public int ToSample
-        {
-            get
-            {
-                switch (SampleTimeUnit)
-                {
-                    case Variable.TimeUnit.Day:
-                        return ToMinutesSample / (24 * 60);
-                    case Variable.TimeUnit.Hour:
-                        return ToMinutesSample / 60;
-                }
-
-                return ToMinutesSample;
-            }
-        }
+        public Variable.TimeUnit SpanTimeUnit { get { return TimeUnitManager.GetTimeUnit(FromMinutesOffset); } }
+        public int FromTime { get { return -1 * TimeUnitManager.GetTimeValue(SpanTimeUnit, FromMinutesOffset); } }
+        public int ToTime { get { return -1 * TimeUnitManager.GetTimeValue(SpanTimeUnit, ToMinutesOffset); } }
+        
+        public Variable.TimeUnit SampleTimeUnit { get { return TimeUnitManager.GetTimeUnit(FromMinutesSample); } }
+        public int FromSample { get { return -1 * TimeUnitManager.GetTimeValue(SampleTimeUnit, FromMinutesSample); } }
+        public int ToSample { get { return -1 * TimeUnitManager.GetTimeValue(SampleTimeUnit, ToMinutesSample); } }
     }
 }

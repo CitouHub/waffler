@@ -7,6 +7,7 @@ import Select from '@mui/material/Select';
 import InputAdornment from '@mui/material/InputAdornment';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import TimeUnit from './timeunit';
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt, faSave } from "@fortawesome/free-solid-svg-icons";
@@ -37,31 +38,15 @@ const TradeRuleConditionForm = ({ data, tradeRuleConditionAttributes, updateTrad
 
             const tradeRuleConditionUpdate = {
                 ...tradeRuleCondition,
-                fromMinutesOffset: -1 * getMinutes(tradeRuleCondition.spanTimeUnit, tradeRuleCondition.fromTime),
-                toMinutesOffset: -1 * getMinutes(tradeRuleCondition.spanTimeUnit, tradeRuleCondition.toTime),
-                fromMinutesSample: getMinutes(tradeRuleCondition.sampleTimeUnit, tradeRuleCondition.fromSample),
-                toMinutesSample: getMinutes(tradeRuleCondition.sampleTimeUnit, tradeRuleCondition.toSample),
+                fromMinutesOffset: -1 * TimeUnit.getMinutes(tradeRuleCondition.spanTimeUnit, tradeRuleCondition.fromTime),
+                toMinutesOffset: -1 * TimeUnit.getMinutes(tradeRuleCondition.spanTimeUnit, tradeRuleCondition.toTime),
+                fromMinutesSample: TimeUnit.getMinutes(tradeRuleCondition.sampleTimeUnit, tradeRuleCondition.fromSample),
+                toMinutesSample: TimeUnit.getMinutes(tradeRuleCondition.sampleTimeUnit, tradeRuleCondition.toSample),
             };
 
             TradeRuleConditionService.updateTradeRuleCondition(tradeRuleConditionUpdate).then((result) => {
                 setLoading(false);
             });
-        }
-    }
-
-    const getMinutes = (timeUnitId, value) => {
-        switch (timeUnitId) {
-            case 1: return value;
-            case 2: return value*60;
-            case 3: return value*60*24;
-        }
-    }
-
-    const getTimeUnit = (timeUnitId) => {
-        switch (timeUnitId) {
-            case 1: return 'Minutes';
-            case 2: return 'Hours';
-            case 3: return 'Days';
         }
     }
 
@@ -87,8 +72,8 @@ const TradeRuleConditionForm = ({ data, tradeRuleConditionAttributes, updateTrad
                         <div className='trc-section'>
                             <h5>Time span</h5>
                             <FormControl sx={{ width: '20%' }}>
-                                <InputLabel id="tr-spanTimeUnit-label">Time unit</InputLabel>
-                                <Select labelId="tr-spanTimeUnit" id="tr-spanTimeUnit-select" value={tradeRuleCondition.spanTimeUnit} label="Time unit"
+                                <InputLabel id="tr-spanTimeUnit-label">Time span unit</InputLabel>
+                                <Select labelId="tr-spanTimeUnit" id="tr-spanTimeUnit-select" value={tradeRuleCondition.spanTimeUnit} label="Time span unit"
                                     onChange={e => setTradeRuleCondition({ ...tradeRuleCondition, spanTimeUnit: e.target.value })} >
                                     <MenuItem value={1}>Minute</MenuItem>
                                     <MenuItem value={2}>Hour</MenuItem>
@@ -98,12 +83,12 @@ const TradeRuleConditionForm = ({ data, tradeRuleConditionAttributes, updateTrad
                             <TextField sx={{ width: '20%' }} id="tr-fromMinutesOffset" label="From" variant="outlined" type="number" value={tradeRuleCondition.fromTime}
                                 onChange={e => setTradeRuleCondition({ ...tradeRuleCondition, fromTime: e.target.value })}
                                 InputProps={{
-                                    endAdornment: <InputAdornment position="end">{getTimeUnit(tradeRuleCondition.spanTimeUnit)} ago</InputAdornment>,
+                                    endAdornment: <InputAdornment position="end">{TimeUnit.getUnit(tradeRuleCondition.spanTimeUnit)} ago</InputAdornment>,
                                 }} />
                             <TextField sx={{ width: '20%' }} id="tr-toMinutesOffset" label="To" variant="outlined" type="number" value={tradeRuleCondition.toTime}
                                 onChange={e => setTradeRuleCondition({ ...tradeRuleCondition, toTime: e.target.value })}
                                 InputProps={{
-                                    endAdornment: <InputAdornment position="end">{getTimeUnit(tradeRuleCondition.spanTimeUnit)} ago</InputAdornment>,
+                                    endAdornment: <InputAdornment position="end">{TimeUnit.getUnit(tradeRuleCondition.spanTimeUnit)} ago</InputAdornment>,
                                 }} />
                             <FormControl sx={{ width: '20%' }}>
                                 <InputLabel id="tr-tradeRuleConditionComparatorId-label">Condition comparator</InputLabel>
@@ -124,8 +109,8 @@ const TradeRuleConditionForm = ({ data, tradeRuleConditionAttributes, updateTrad
                         <div className='trc-section'>
                             <h5>Sampling</h5>
                             <FormControl sx={{ width: '20%' }}>
-                                <InputLabel id="tr-sampleTimeUnit-label">Time unit</InputLabel>
-                                <Select labelId="tr-sampleTimeUnit" id="tr-sampleTimeUnit-select" value={tradeRuleCondition.sampleTimeUnit} label="Time unit"
+                                <InputLabel id="tr-sampleTimeUnit-label">Sample unit</InputLabel>
+                                <Select labelId="tr-sampleTimeUnit" id="tr-sampleTimeUnit-select" value={tradeRuleCondition.sampleTimeUnit} label="Sample unit"
                                     onChange={e => setTradeRuleCondition({ ...tradeRuleCondition, sampleTimeUnit: e.target.value })} >
                                     <MenuItem value={1}>Minute</MenuItem>
                                     <MenuItem value={2}>Hour</MenuItem>
@@ -135,12 +120,12 @@ const TradeRuleConditionForm = ({ data, tradeRuleConditionAttributes, updateTrad
                             <TextField sx={{ width: '20%' }} id="tr-fromMinutesSample" label="From" variant="outlined" type="number" value={tradeRuleCondition.fromSample}
                                 onChange={e => setTradeRuleCondition({ ...tradeRuleCondition, fromSample: e.target.value })}
                                 InputProps={{
-                                    endAdornment: <InputAdornment position="end">{getTimeUnit(tradeRuleCondition.sampleTimeUnit)}</InputAdornment>,
+                                    endAdornment: <InputAdornment position="end">{TimeUnit.getUnit(tradeRuleCondition.sampleTimeUnit)}</InputAdornment>,
                                 }} />
                             <TextField sx={{ width: '20%' }} id="tr-toMinutesSample" label="To" variant="outlined" type="number" value={tradeRuleCondition.toSample}
                                 onChange={e => setTradeRuleCondition({ ...tradeRuleCondition, toSample: e.target.value })}
                                 InputProps={{
-                                    endAdornment: <InputAdornment position="end">{getTimeUnit(tradeRuleCondition.sampleTimeUnit)}</InputAdornment>,
+                                    endAdornment: <InputAdornment position="end">{TimeUnit.getUnit(tradeRuleCondition.sampleTimeUnit)}</InputAdornment>,
                                 }} />
                             <FormControl sx={{ width: '20%' }}>
                                 <InputLabel id="tr-tradeRuleConditionSampleDirectionId-label">Sample direction</InputLabel>

@@ -35,9 +35,9 @@ const SideBar = ({ isOpen, toggle }) => (
                     </NavLink>
                 </NavItem>
                 <NavItem>
-                    <NavLink tag={Link} to={"/settings"}>
+                    <NavLink tag={Link} to={"/profile"}>
                         <FontAwesomeIcon icon={faTools} className="mr-2" />
-                        Settings
+                        Profile
                     </NavLink>
                 </NavItem>
                 <NavItem className="logout">
