@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import {
     ema,
     discontinuousTimeScaleProviderBuilder,
@@ -9,8 +9,8 @@ import {
     XAxis,
     YAxis,
 } from "react-financial-charts";
+import { useWindowSize } from "../../util/use.windowsize";
 
-import { useWindowSize } from '../../util/use.windowsize'
 import LoadingBar from '../utils/loadingbar'
 import BuyNewAnnotate from './annotate/buy.new.annotate'
 import BuyPartialAnnotate from './annotate/buy.partial.annotate'
@@ -30,11 +30,13 @@ import SyncBar from './syncbar'
 import './chart.css';
 
 const TradeChart = () => {
+    let syncActive = true;
     let fromDate = new Date();
     let toDate = new Date();
     fromDate.setDate(fromDate.getDate() - 30);
 
     const [loading, setLoading] = useState(true);
+    const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [syncStatus, setSyncStatus] = useState({});
     const [candleSticks, setCandleSticks] = useState([]);
     const [candleSticksChart, setCandleSticksChart] = useState([]);
@@ -46,7 +48,17 @@ const TradeChart = () => {
         toDate: toDate
     });
 
+    const canvasRef = useRef();
     const windowSize = useWindowSize();
+
+    useEffect(() => {
+        if (canvasRef.current) {
+            setDimensions({
+                width: canvasRef.current.offsetWidth,
+                height: canvasRef.current.offsetHeight
+            });
+        }
+    }, [windowSize]);
 
     useEffect(() => {
         getCandleStickSyncStatus();
@@ -55,9 +67,26 @@ const TradeChart = () => {
             setTradeRules(result);
             setSelectedTradeRules(result);
         });
+
+        return () => {
+            syncActive = false;
+        }
     }, []);
 
     useEffect(() => {
+        if (loading === false) {
+            getCandleStickSyncStatus();
+        }
+    }, [loading]);
+
+    useEffect(() => {
+        if (canvasRef.current) {
+            setDimensions({
+                width: canvasRef.current.offsetWidth,
+                height: canvasRef.current.offsetHeight
+            });
+        }
+
         updateCandleStickData();
     }, [filter]);
 
@@ -103,7 +132,11 @@ const TradeChart = () => {
             syncStatus.lastPeriodDateTime = new Date(syncStatus.lastPeriodDateTime);
 
             setSyncStatus(syncStatus);
-            if (syncStatus.progress < 95) {
+            if (syncStatus.progress >= 95) {
+                syncActive = false;
+            }
+
+            if (syncActive) {
                 setTimeout(() => getCandleStickSyncStatus(), 800);
             }
         });
@@ -128,7 +161,7 @@ const TradeChart = () => {
                             tradeOrder.orderDateTime = new Date(tradeOrder.orderDateTime);
                         });
                     }
-                    
+
                     setTradeOrders(tradeOrdersResult);
                     setCandleSticks(candleSticksResult);
 
@@ -163,10 +196,10 @@ const TradeChart = () => {
     };
 
     return (
-        <div>
+        <div className='chart-wrapper' ref={canvasRef}>
             <LoadingBar active={loading && syncStatus.progress >= 95} />
             {syncStatus.progress < 95 && <SyncBar currentDate={syncStatus?.lastPeriodDateTime?.toJSON()?.slice(0, 10)} progress={syncStatus.progress} />}
-            {syncStatus.progress >= 95 &&
+            {syncStatus.progress >= 95 && dimensions.width > 0 && dimensions.height > 0 &&
                 <div>
                     <ChartFilter
                         filter={filter}
@@ -175,9 +208,9 @@ const TradeChart = () => {
                         updateSelectedTradeRules={(selectedTradeRules) => setSelectedTradeRules(selectedTradeRules)}
                         updateFilter={(filter) => setFilter(filter)} />
                     {candleSticksChart && candleSticksChart.length > 0 && <ChartCanvas
-                        height={windowSize.height - 200}
+                        height={dimensions.height - 100}
                         ratio={1}
-                        width={windowSize.width - 360}
+                        width={dimensions.width}
                         margin={margin}
                         data={data}
                         displayXAccessor={displayXAccessor}

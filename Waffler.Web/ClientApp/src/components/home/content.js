@@ -11,12 +11,8 @@ import Profile from "../profile/profile";
 import Orders from "../orders/orders";
 
 const Content = ({ sidebarIsOpen }) => {
-
     return (
-        <Container
-            fluid
-            className={classNames("content", { "is-open": sidebarIsOpen })}
-        >
+        <Container fluid className={classNames("content", { "is-open": sidebarIsOpen })}>
             <Switch>
                 <ProtectedRount exact path="/" component={() => <TradeChart />} />
                 <ProtectedRount exact path="/tradeorders" component={() => <Orders />} />

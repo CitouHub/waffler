@@ -1,51 +1,22 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import InputAdornment from '@mui/material/InputAdornment';
-import ProgressBar from '../../../components/utils/progressbar';
 import TimeUnit from './timeunit';
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt, faPlayCircle, faStopCircle, faSave } from "@fortawesome/free-solid-svg-icons";
 
 import TradeRuleService from '../../../services/traderule.service';
-import TradeRuleTestDialog from '../form/traderuletest.dialog';
 
 import './form.css';
 
-const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules }) => {
+const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartTestDialog, stopTradeRuleTest, runningTest}) => {
     const [loading, setLoading] = useState(false);
     const [tradeRule, setTradeRule] = useState(data);
-    const [traderRuleTestStatus, setTraderRuleTestStatus] = useState({});
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [runningTest, setRunningTest] = useState(data.testTradeInProgress);
-
-    useEffect(() => {
-        getTradeRuleTestStatus();
-    }, [runningTest]);
-
-    const getTradeRuleTestStatus = () => {
-        if (runningTest === true) {
-            TradeRuleService.getTradeRuleTestStatus(tradeRule.id).then((result) => {
-                if (result !== undefined) {
-                    setTraderRuleTestStatus(result);
-
-                    if (result.aborted === true) {
-                        setRunningTest(false);
-                    }
-
-                    if (result.progress < 100 && result.aborted === false) {
-                        setTimeout(() => getTradeRuleTestStatus(), 800);
-                    } else {
-                        setTraderRuleTestStatus({});
-                    }
-                }
-            });
-        }
-    }
 
     const deleteTradeRule = () => {
         if (loading === false && runningTest === false) {
@@ -72,19 +43,6 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules }) => {
                 setLoading(false);
             });
         }
-    }
-
-    const startTradeRuleTest = (tradeRuleTest) => {
-        TradeRuleService.startTradeRuleTest({ ...tradeRuleTest, tradeRuleId: tradeRule.id }).then((result) => {
-            setDialogOpen(false);
-            setRunningTest(true);
-        });
-    }
-
-    const stopTradeRuleTest = () => {
-        TradeRuleService.abortTradeRuleTest(tradeRule.id).then(() => {
-            setRunningTest(false);
-        });
     }
 
     if (tradeRule !== undefined) {
@@ -144,12 +102,10 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules }) => {
                     <div className="actions-center">
                         {!runningTest && <span className='fa-icon' onClick={saveTradeRule}><FontAwesomeIcon icon={faSave} className="mr-2" /></span>}
                         {!runningTest && <span className='fa-icon' onClick={deleteTradeRule}><FontAwesomeIcon icon={faTrashAlt} className="mr-2" /></span>}
-                        {!runningTest && <span className='fa-icon' onClick={() => setDialogOpen(true)}><FontAwesomeIcon icon={faPlayCircle} className="mr-2" /></span>}
+                        {!runningTest && <span className='fa-icon' onClick={() => openStartTestDialog()}><FontAwesomeIcon icon={faPlayCircle} className="mr-2" /></span>}
                         {runningTest && <span className='fa-icon' onClick={() => stopTradeRuleTest()}><FontAwesomeIcon icon={faStopCircle} className="mr-2" /></span>}
                     </div>
                 </div>
-                <ProgressBar progress={traderRuleTestStatus?.progress ?? 0} />
-                <TradeRuleTestDialog dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} startTradeRuleTest={startTradeRuleTest}/>
             </div>
         )
     } else {

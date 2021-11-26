@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Redirect } from "react-router-dom";
 
 import Cache from '../../util/cache'
@@ -16,7 +16,6 @@ const Home = () => {
     const [sidebarIsOpen, setSidebarOpen] = useState(true);
     const toggleSidebar = () => setSidebarOpen(!sidebarIsOpen);
 
-    const canvasRef = useRef();
     const isAuthenticated = Cache.get("isAuthenticated");
 
     useEffect(() => {
@@ -32,7 +31,7 @@ const Home = () => {
                 <BrowserRouter>
                     <div className="home wrapper">
                         <TopBar />
-                        <div className="page" ref={canvasRef}>
+                        <div className="page">
                             <SideBar toggle={toggleSidebar} isOpen={sidebarIsOpen} />
                             <Content toggleSidebar={toggleSidebar} sidebarIsOpen={sidebarIsOpen} />
                         </div>

@@ -25,7 +25,6 @@ const ChartFilter = ({ updateFilter, filter, tradeRules, selectedTradeRules, upd
                     id="toDate"
                     label="To"
                     type="date"
-                    minDate="2021-11-10"
                     defaultValue={filter?.toDate?.toJSON()?.slice(0, 10)}
                     sx={{ width: 220 }}
                     InputLabelProps={{

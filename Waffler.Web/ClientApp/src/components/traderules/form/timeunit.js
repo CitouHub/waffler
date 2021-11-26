@@ -5,6 +5,7 @@
             case 2: return value * 60;
             case 3: return value * 60 * 24;
             case 4: return value * 60 * 24 * 7;
+            default: return value;
         }
     },
     getUnit(timeUnitId) {
@@ -13,6 +14,7 @@
             case 2: return 'Hours';
             case 3: return 'Days';
             case 4: return 'Weeks';
+            default: return 'Unknown';
         }
     }
 }
