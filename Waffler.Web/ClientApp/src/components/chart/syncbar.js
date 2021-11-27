@@ -6,7 +6,7 @@ const SyncBar = ({ progress, currentDate }) => {
     return (
         <div className="sync-bar mt-3 mb-3">
             <h4>Syncing data, please wait...</h4>
-            {currentDate && <span>Now fetching data for {currentDate}</span>}
+            {currentDate && <span>Now fetching data for {currentDate} <strong>{Math.round(progress)}%</strong></span>}
             {progress >= 1 && <div className="sync-progress" style={{ width: `${progress}%` }}>
                 
             </div>}

@@ -137,7 +137,7 @@ const TradeChart = () => {
             }
 
             if (syncActive) {
-                setTimeout(() => getCandleStickSyncStatus(), 800);
+                setTimeout(() => getCandleStickSyncStatus(), 1500);
             }
         });
     }
