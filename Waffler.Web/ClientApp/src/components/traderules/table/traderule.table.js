@@ -13,7 +13,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import TradeRuleForm from '../form/traderule.form';
 import ProgressBar from '../../../components/utils/progressbar';
 import TradeRuleCondition from '../traderuleconditions';
-import TradeRuleTestDialog from '../form/traderuletest.dialog';
+import TradeRuleTestDialog from '../traderuletest.dialog';
 
 import TradeRuleService from '../../../services/traderule.service';
 

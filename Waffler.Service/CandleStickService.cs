@@ -22,6 +22,7 @@ namespace Waffler.Service
         Task<CandleStickDTO> GetLastCandleStickAsync(DateTime toPeriodDateTime);
         Task<CandleStickDTO> GetFirstCandleStickAsync(DateTime toPeriodDateTime);
         Task<PriceTrendsDTO> GetPriceTrendsAsync(DateTime currentPeriodDateTime, Variable.TradeType tradeType, Variable.TradeRuleConditionSampleDirection sampleDirection, int fromMinutesOffset, int toMinutesOffset, int fromMinutesSample, int toMinutesSample);
+        Task ResetCandleStickSyncAsync();
     }
 
     public class CandleStickService : ICandleStickService
@@ -147,6 +148,11 @@ namespace Waffler.Service
             }
 
             return null;
+        }
+
+        public async Task ResetCandleStickSyncAsync()
+        {
+            await _context.TruncateTable(nameof(CandleStick));
         }
     }
 }

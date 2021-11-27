@@ -11,6 +11,12 @@ export default {
     }).then((response) => {
         return Request.handleResponse(response)
     }),
+    resetCandleSticksSync: async () => await Request.send({
+        url: `/candlestick/sync/reset`,
+        method: 'POST'
+    }).then((response) => {
+        return Request.handleResponse(response)
+    }),
     getCandleSticksSyncStatus: async () => await Request.send({
         url: `/candlestick/sync/status`,
         method: 'GET'

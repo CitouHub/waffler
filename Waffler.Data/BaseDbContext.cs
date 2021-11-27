@@ -291,6 +291,8 @@ namespace Waffler.Data
             {
                 entity.Property(e => e.ApiKey).HasMaxLength(4000);
 
+                entity.Property(e => e.CandleStickSyncFromDate).HasColumnType("date");
+
                 entity.Property(e => e.InsertByUser).HasDefaultValueSql("((1))");
 
                 entity.Property(e => e.InsertDate).HasDefaultValueSql("(getutcdate())");

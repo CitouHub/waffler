@@ -16,6 +16,6 @@ namespace Waffler.Data
         public int? UpdateByUser { get; set; }
         public string Password { get; set; }
         public string ApiKey { get; set; }
-        public int CandleStickSyncOffsetDays { get; set; }
+        public DateTime CandleStickSyncFromDate { get; set; }
     }
 }

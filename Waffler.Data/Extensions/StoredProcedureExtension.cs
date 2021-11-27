@@ -8,7 +8,7 @@ using Waffler.Data.ComplexModel;
 
 namespace Waffler.Data.Extensions
 {
-    public static class StoredProcedure
+    public static class StoredProcedureExtension
     {
         public static async Task<List<sp_getCandleSticks_Result>> sp_getCandleSticks(this WafflerDbContext context,
             DateTime fromPeriodDateTime, 

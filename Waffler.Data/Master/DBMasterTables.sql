@@ -229,7 +229,7 @@ CREATE TABLE [dbo].[WafflerProfile](
 	[UpdateByUser] [int] NULL,
 	[Password] [nvarchar](500) NOT NULL,
 	[ApiKey] [nvarchar](4000) NULL,
-	[CandleStickSyncOffsetDays] [int] NOT NULL
+	[CandleStickSyncFromDate] [date] NOT NULL
  CONSTRAINT [WafflerProfile_PK] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

@@ -1,0 +1,38 @@
+﻿.get-api-key a, .get-api-key a:visited {
+    color: #1976d2;
+}
+
+.get-api-key a:hover {
+    color: #90caf9;
+}
+
+.sync-control {
+    display: flex;
+}
+
+.stepback-center {
+    margin: auto 0 auto 1rem;
+}
+
+    .stepback-center svg {
+        cursor: pointer;
+        font-size: 1.75em;
+    }
+
+.fa-icon:hover {
+    -moz-transition: all .1s ease-in;
+    -o-transition: all .1s ease-in;
+    -webkit-transition: all .1s ease-in;
+    transition: all .1s ease-in;
+    color: #1565c0;
+}
+
+.dialog-control {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.error {
+    color: red;
+}

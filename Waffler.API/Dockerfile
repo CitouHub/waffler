@@ -1,0 +1,26 @@
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+WORKDIR /src
+COPY ["Waffler.API/Waffler.API.csproj", "Waffler.API/"]
+COPY ["Waffler.Common/Waffler.Common.csproj", "Waffler.Common/"]
+COPY ["Waffler.Service/Waffler.Service.csproj", "Waffler.Service/"]
+COPY ["Waffler.Data/Waffler.Data.csproj", "Waffler.Data/"]
+COPY ["Waffler.Domain/Waffler.Domain.csproj", "Waffler.Domain/"]
+RUN dotnet restore "Waffler.API/Waffler.API.csproj"
+COPY . .
+WORKDIR "/src/Waffler.API"
+RUN dotnet build "Waffler.API.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "Waffler.API.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "Waffler.API.dll"]

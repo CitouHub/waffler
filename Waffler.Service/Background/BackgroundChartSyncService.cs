@@ -42,7 +42,7 @@ namespace Waffler.Service.Background
 
         private async Task FetchCandleStickDataAsync(CancellationToken cancellationToken)
         {
-            if(InProgress)
+            if (InProgress)
             {
                 return;
             }
@@ -70,7 +70,7 @@ namespace Waffler.Service.Background
                     {
                         _logger.LogInformation($"- Getting last candlestick");
                         var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow))?.PeriodDateTime ??
-                            DateTime.UtcNow.AddMinutes(-1 * TimeSpan.FromDays(profile.CandleStickSyncOffsetDays).TotalMinutes);
+                            profile.CandleStickSyncFromDate;
                         period = period.AddMilliseconds(1);
 
                         _logger.LogInformation($"- Fetch data from {period} onward");

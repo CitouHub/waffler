@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
@@ -31,8 +32,36 @@ namespace Waffler.API.Controller
         [HttpPost]
         public async Task<bool> CreateProfileAsync([FromBody]ProfileDTO newProfile)
         {
-            newProfile.CandleStickSyncOffsetDays = _configuration.GetValue<int>("Profile:DefaultCandleStickSyncOffsetDays");
+            var defaultOffset = _configuration.GetValue<int>("Profile:DefaultCandleStickSyncOffsetDays");
+            newProfile.CandleStickSyncFromDate = DateTime.UtcNow.AddDays(-1 * defaultOffset);
             return await _profileService.CreateProfileAsync(newProfile);
+        }
+
+        [HttpGet]
+        [Route("")]
+        public async Task<ProfileDTO> GetProfileAsync()
+        {
+            var profile =  await _profileService.GetProfileAsync();
+            if(profile != null)
+            {
+                profile.Password = null;
+            }
+
+            return profile;
+        }
+
+        [HttpPut]
+        [Route("password")]
+        public async Task<bool> UpdatePasswordAsync([FromBody] ChangePasswordDTO changePassword)
+        {
+            var isValid = await _profileService.IsPasswordValidAsync(changePassword.OldPassword);
+            if(isValid)
+            {
+                var changed = await _profileService.SetPasswordAsync(changePassword.NewPassword);
+                return changed;
+            }
+            
+            return false;
         }
 
         [HttpPost]
