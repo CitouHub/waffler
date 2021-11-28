@@ -9,7 +9,7 @@ const ChartFilter = ({ updateFilter, filter, tradeRules, selectedTradeRules, upd
         <div className="filter-wrapper">
             <div className="m-2">
                 <TextField
-                    id="fromDate"
+                    id="filter-fromDate"
                     label="From"
                     type="date"
                     defaultValue={filter?.fromDate?.toJSON()?.slice(0, 10)}
@@ -22,7 +22,7 @@ const ChartFilter = ({ updateFilter, filter, tradeRules, selectedTradeRules, upd
             </div>
             <div className="m-2">
                 <TextField
-                    id="toDate"
+                    id="filter-toDate"
                     label="To"
                     type="date"
                     defaultValue={filter?.toDate?.toJSON()?.slice(0, 10)}

@@ -7,6 +7,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
+import './dialog.css';
+
 const TradeRuleTestDialog = ({ dialogOpen, setDialogOpen, startTradeRuleTest }) => {
     let fromDate = new Date();
     let toDate = new Date();
@@ -56,8 +58,10 @@ const TradeRuleTestDialog = ({ dialogOpen, setDialogOpen, startTradeRuleTest }) 
                     </div>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="contained" onClick={() => startTradeRuleTest(tradeRuleTest)}>Start test</Button>
-                    <Button variant="contained" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                    <div className='dialog-control'>
+                        <Button className='m-3' variant="outlined" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                        <Button className='m-3' variant="contained" onClick={() => startTradeRuleTest(tradeRuleTest)}>Start test</Button>
+                    </div>
                 </DialogActions>
             </Dialog>
         </div>

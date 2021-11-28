@@ -49,6 +49,7 @@ const Login = () => {
                                         <Input
                                             {...input}
                                             type="password"
+                                            autoFocus
                                             placeholder="password"
                                             invalid={meta.error && meta.touched}
                                         />

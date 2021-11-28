@@ -27,7 +27,7 @@ namespace Waffler.Domain
         public int ToTime { get { return -1 * TimeUnitManager.GetTimeValue(SpanTimeUnit, ToMinutesOffset); } }
         
         public Variable.TimeUnit SampleTimeUnit { get { return TimeUnitManager.GetTimeUnit(FromMinutesSample); } }
-        public int FromSample { get { return -1 * TimeUnitManager.GetTimeValue(SampleTimeUnit, FromMinutesSample); } }
-        public int ToSample { get { return -1 * TimeUnitManager.GetTimeValue(SampleTimeUnit, ToMinutesSample); } }
+        public int FromSample { get { return TimeUnitManager.GetTimeValue(SampleTimeUnit, FromMinutesSample); } }
+        public int ToSample { get { return TimeUnitManager.GetTimeValue(SampleTimeUnit, ToMinutesSample); } }
     }
 }

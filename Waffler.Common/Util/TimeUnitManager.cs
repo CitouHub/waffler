@@ -6,11 +6,11 @@
         {
             return timeUnit switch
             {
-                Variable.TimeUnit.Week => -1 * value / (7 * 24 * 60),
-                Variable.TimeUnit.Day => -1 * value / (24 * 60),
-                Variable.TimeUnit.Hour => -1 * value / 60,
-                Variable.TimeUnit.Minute => -1 * value,
-                _ => -1 * value,
+                Variable.TimeUnit.Week => value / (7 * 24 * 60),
+                Variable.TimeUnit.Day => value / (24 * 60),
+                Variable.TimeUnit.Hour => value / 60,
+                Variable.TimeUnit.Minute => value,
+                _ => value,
             };
         }
 

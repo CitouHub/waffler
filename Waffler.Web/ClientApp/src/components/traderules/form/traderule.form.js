@@ -49,26 +49,26 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartT
         return (
             <div>
                 <div className='table-form'>
-                    <TextField sx={{ width: '32%' }} id="outlined-basic" label="Name" variant="outlined" value={tradeRule.name}
+                    <TextField sx={{ width: '32%' }} id="tr-name" label="Name" variant="outlined" value={tradeRule.name}
                         onChange={e => setTradeRule({ ...tradeRule, name: e.target.value })}
                     />
                     <FormControl sx={{ width: '10%' }}>
-                        <InputLabel id="tr-action">Action</InputLabel>
-                        <Select labelId="tr-action" id="tr-action-select" value={tradeRule.tradeActionId} label="Action"
+                        <InputLabel id="tr-action-label">Action</InputLabel>
+                        <Select labelId="tr-action-label" id="tr-action-select" value={tradeRule.tradeActionId} label="Action"
                             onChange={e => setTradeRule({ ...tradeRule, tradeActionId: e.target.value })} >
                             {tradeRuleAttributes.TradeAction.map((tradeAction) => (
                                 <MenuItem key={tradeAction.id} value={tradeAction.id}> {tradeAction.name} </MenuItem>
                             ))}
                         </Select>
                     </FormControl>
-                    <TextField sx={{ width: '10%' }} id="outlined-basic" label="Amount" variant="outlined" type="number" value={tradeRule.amount}
+                    <TextField sx={{ width: '10%' }} id="tr-amount" label="Amount" variant="outlined" type="number" value={tradeRule.amount}
                         onChange={e => setTradeRule({ ...tradeRule, amount: e.target.value })}
                         InputProps={{
                             endAdornment: <InputAdornment position="end">€</InputAdornment>,
                         }} />
                     <FormControl sx={{ width: '10%' }}>
                         <InputLabel id="tr-intervalTimeUnit-label">Interval unit</InputLabel>
-                        <Select labelId="tr-intervalTimeUnit" id="tr-intervalTimeUnit-select" value={tradeRule.intervalTimeUnit} label="Interval unit"
+                        <Select labelId="tr-intervalTimeUnit-label" id="tr-intervalTimeUnit-select" value={tradeRule.intervalTimeUnit} label="Interval unit"
                             onChange={e => setTradeRule({ ...tradeRule, intervalTimeUnit: e.target.value })} >
                             <MenuItem value={1}>Minute</MenuItem>
                             <MenuItem value={2}>Hour</MenuItem>
@@ -76,14 +76,14 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartT
                             <MenuItem value={4}>Week</MenuItem>
                         </Select>
                     </FormControl>
-                    <TextField sx={{ width: '10%' }} id="outlined-basic" label="Minimum interval" variant="outlined" type="number" value={tradeRule.tradeMinInterval}
+                    <TextField sx={{ width: '10%' }} id="tr-minimumInterval" label="Minimum interval" variant="outlined" type="number" value={tradeRule.tradeMinInterval}
                         onChange={e => setTradeRule({ ...tradeRule, tradeMinInterval: e.target.value })}
                         InputProps={{
                             endAdornment: <InputAdornment position="end">{TimeUnit.getUnit(tradeRule.intervalTimeUnit)}</InputAdornment>,
                         }} />
                     <FormControl sx={{ width: '10%' }}>
-                        <InputLabel id="tr-type">Condition operator</InputLabel>
-                        <Select labelId="tr-type" id="tr-type-select" value={tradeRule.tradeConditionOperatorId} label="Condition operator"
+                        <InputLabel id="tr-conditionOperator-label">Condition operator</InputLabel>
+                        <Select labelId="tr-conditionOperator-label" id="tr-conditionOperator-select" value={tradeRule.tradeConditionOperatorId} label="Condition operator"
                             onChange={e => setTradeRule({ ...tradeRule, tradeConditionOperatorId: e.target.value })} >
                             {tradeRuleAttributes.TradeConditionOperator.map((tradeConditionOperator) => (
                                 <MenuItem key={tradeConditionOperator.id} value={tradeConditionOperator.id}> {tradeConditionOperator.name} </MenuItem>
@@ -91,8 +91,8 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartT
                         </Select>
                     </FormControl>
                     <FormControl sx={{ width: '10%' }}>
-                        <InputLabel id="tr-type">Status</InputLabel>
-                        <Select labelId="tr-type" id="tr-type-select" value={tradeRule.tradeRuleStatusId} label="Status"
+                        <InputLabel id="tr-status-label">Status</InputLabel>
+                        <Select labelId="tr-status-label" id="tr-status-select" value={tradeRule.tradeRuleStatusId} label="Status"
                             onChange={e => setTradeRule({ ...tradeRule, tradeRuleStatusId: e.target.value })} >
                             {tradeRuleAttributes.TradeRuleStatus.map((tradeRuleStatus) => (
                                 <MenuItem key={tradeRuleStatus.id} value={tradeRuleStatus.id}> {tradeRuleStatus.name} </MenuItem>

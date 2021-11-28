@@ -46,6 +46,7 @@ const NewProfile = (props) => {
                                         <Input
                                             {...input}
                                             type="password"
+                                            autoFocus
                                             placeholder="password"
                                             invalid={meta.error && meta.touched}
                                         />

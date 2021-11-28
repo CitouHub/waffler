@@ -26,6 +26,6 @@ namespace Waffler.Domain
 
         //Consolidation of time interval 
         public Variable.TimeUnit IntervalTimeUnit { get { return TimeUnitManager.GetTimeUnit(TradeMinIntervalMinutes); } }
-        public int TradeMinInterval { get { return -1 * TimeUnitManager.GetTimeValue(IntervalTimeUnit, TradeMinIntervalMinutes); } }
+        public int TradeMinInterval { get { return TimeUnitManager.GetTimeValue(IntervalTimeUnit, TradeMinIntervalMinutes); } }
     }
 }

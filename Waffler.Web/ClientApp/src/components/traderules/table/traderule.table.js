@@ -13,7 +13,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import TradeRuleForm from '../form/traderule.form';
 import ProgressBar from '../../../components/utils/progressbar';
 import TradeRuleCondition from '../traderuleconditions';
-import TradeRuleTestDialog from '../traderuletest.dialog';
+import TradeRuleTestDialog from '../../utils/dialog/traderuletest.dialog';
 
 import TradeRuleService from '../../../services/traderule.service';
 
@@ -41,13 +41,10 @@ function Row({ row, tradeRuleAttributes, updateTradeRules }) {
                 if (result !== undefined && unmount === false) {
                     setTraderRuleTestStatus(result);
 
-                    if (result.aborted === true) {
-                        setRunningTest(false);
-                    }
-
                     if (result.progress < 100 && result.aborted === false) {
                         setTimeout(() => getTradeRuleTestStatus(tradeRuleId), 800);
                     } else {
+                        setRunningTest(false);
                         setTraderRuleTestStatus({});
                     }
                 }

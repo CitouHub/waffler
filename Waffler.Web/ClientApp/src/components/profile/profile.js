@@ -2,7 +2,7 @@
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import LoadingBar from '../../components/utils/loadingbar';
-import ChangePasswordDialog from '../profile/changepassword.dialog'
+import ChangePasswordDialog from '../utils/dialog/changepassword.dialog'
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStepBackward } from "@fortawesome/free-solid-svg-icons";

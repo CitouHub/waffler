@@ -21,10 +21,10 @@ export default function MultipleSelect({ tradeRules, selectedTradeRules, updateS
         return (
             <div>
                 <FormControl sx={{ width: 300 }}>
-                    <InputLabel id="demo-multiple-name-label">Trade rules</InputLabel>
+                    <InputLabel id="traderule-multiselect-label">Trade rules</InputLabel>
                     <Select
-                        labelId="demo-multiple-name-label"
-                        id="demo-multiple-name"
+                        labelId="traderule-multiselect-label"
+                        id="traderule-multiselect-select"
                         multiple
                         value={selectedTradeRules}
                         onChange={e => updateSelectedTradeRules(e.target.value)}

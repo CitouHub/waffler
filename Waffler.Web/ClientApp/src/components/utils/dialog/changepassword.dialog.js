@@ -6,9 +6,9 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 
-import ProfileService from '../../services/profile.service';
+import ProfileService from '../../../services/profile.service';
 
-import './profile.css';
+import './dialog.css';
 
 const ChangePasswordDialog = ({ dialogOpen, setDialogOpen }) => {
     const [loading, setLoading] = useState(false);

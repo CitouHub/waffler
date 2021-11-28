@@ -27,12 +27,6 @@
     color: #1565c0;
 }
 
-.dialog-control {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
-
 .error {
     color: red;
 }
