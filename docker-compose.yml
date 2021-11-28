@@ -1,0 +1,39 @@
+version: "3"
+
+volumes:
+  wafflerdb:
+
+services:
+  api:
+    build:
+      context: ./Waffler.API
+      dockerfile: Dockerfile
+      args:
+        build_id: 1
+    depends_on:
+      - db
+    image: waffler-api
+    ports:
+      - 5005:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Staging
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DbDefaultConnection=Server=db;Database=db_waffler;User=WAFAdmin;Password=pAssword1234
+    volumes:
+      - ./https:/https:ro
+  db:
+    build:
+      context: ./Waffler.Data
+      dockerfile: ./Docker/Dockerfile
+      args:
+        RS_DATABASE_NAME: db_waffler
+    environment:
+      - ACCEPT_EULA=Y
+      - DB_USER=WAFAdmin
+      - SA_PASSWORD=pAssword1234
+      - MSSQL_PID=Developer
+      - MSSQL_COLLATION=SQL_Latin1_General_CP1_CI_AS
+    ports:
+      - 1433:1433
+    volumes:
+      - wafflerdb:/var/opt/mssql/
