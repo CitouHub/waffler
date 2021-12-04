@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Reflection;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using AutoMapper;
 
@@ -27,12 +29,14 @@ namespace Waffler.Service
 
     public class CandleStickService : ICandleStickService
     {
+        private readonly ILogger<CandleStickService> _logger;
         private readonly WafflerDbContext _context;
         private readonly IMapper _mapper;
         private readonly Cache _cache;
 
-        public CandleStickService(WafflerDbContext context, IMapper mapper, Cache cache)
+        public CandleStickService(ILogger<CandleStickService> logger, WafflerDbContext context, IMapper mapper, Cache cache)
         {
+            _logger = logger;
             _context = context;
             _mapper = mapper;
             _cache = cache;
@@ -47,7 +51,7 @@ namespace Waffler.Service
                 _.InsertDate = DateTime.UtcNow;
             });
 
-            await _context.CandleStick.AddRangeAsync(newCandleSticks);
+            await _context.CandleSticks.AddRangeAsync(newCandleSticks);
             await _context.SaveChangesAsync();
         }
 
@@ -59,14 +63,14 @@ namespace Waffler.Service
 
         public async Task<CandleStickDTO> GetLastCandleStickAsync(DateTime toPeriodDateTime)
         {
-            var candleStick = await _context.CandleStick.Where(_ => _.PeriodDateTime <= toPeriodDateTime)
+            var candleStick = await _context.CandleSticks.Where(_ => _.PeriodDateTime <= toPeriodDateTime)
                 .OrderByDescending(_ => _.PeriodDateTime).FirstOrDefaultAsync();
             return _mapper.Map<CandleStickDTO>(candleStick);
         }
 
         public async Task<CandleStickDTO> GetFirstCandleStickAsync(DateTime fromPeriodDateTime)
         {
-            var candleStick = await _context.CandleStick.Where(_ => _.PeriodDateTime >= fromPeriodDateTime)
+            var candleStick = await _context.CandleSticks.Where(_ => _.PeriodDateTime >= fromPeriodDateTime)
                 .OrderBy(_ => _.PeriodDateTime).FirstOrDefaultAsync();
             return _mapper.Map<CandleStickDTO>(candleStick);
         }
@@ -101,11 +105,11 @@ namespace Waffler.Service
                     break;
             }
 
-            var candleSticksDTO = _cache.Get<List<CandleStickDTO>, DateTime?>(out DateTime? cacheFromPeriodDateTime);
+            var candleSticksDTO = _cache.Get<List<CandleStickDTO>, DateTime?>(MethodBase.GetCurrentMethod().Name, out DateTime? cacheFromPeriodDateTime);
             if (cacheFromPeriodDateTime == null || fromFromDateTime < cacheFromPeriodDateTime)
             {
                 candleSticksDTO = await GetCandleSticksAsync(fromFromDateTime, DateTime.UtcNow, Variable.TradeType.BTC_EUR, 1);
-                _cache.Set(candleSticksDTO, fromFromDateTime);
+                _cache.Set(MethodBase.GetCurrentMethod().Name, candleSticksDTO, fromFromDateTime);
             }
 
             var fromCandleSticks = candleSticksDTO.Where(_ => _.PeriodDateTime >= fromFromDateTime && _.PeriodDateTime <= fromToDateTime)

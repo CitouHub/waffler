@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+
+using AutoMapper;
 
 using Waffler.Domain;
 using Waffler.Domain.Message;
@@ -130,7 +132,7 @@ namespace Waffler.Service.Background
             }
             catch (Exception e)
             {
-                _logger.LogError($"Unexpected exception", e);
+                _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
             }
         }
     }

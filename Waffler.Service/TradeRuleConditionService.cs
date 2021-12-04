@@ -56,7 +56,7 @@ namespace Waffler.Service
                 IsOn = false
             };
 
-            await _context.TradeRuleCondition.AddAsync(newTradeRuleCondition);
+            await _context.TradeRuleConditions.AddAsync(newTradeRuleCondition);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<TradeRuleConditionDTO>(newTradeRuleCondition);
@@ -64,7 +64,7 @@ namespace Waffler.Service
 
         public async Task<List<TradeRuleConditionDTO>> GetTradeRuleConditionsAsync(int tradeRuleId)
         {
-            var tradeRuleConditions = await _context.TradeRuleCondition
+            var tradeRuleConditions = await _context.TradeRuleConditions
                 .Include(_ => _.CandleStickValueType)
                 .Include(_ => _.TradeRuleConditionComparator)
                 .Include(_ => _.TradeRuleConditionSampleDirection)
@@ -79,22 +79,22 @@ namespace Waffler.Service
             {
                 {
                     nameof(CandleStickValueType),
-                    _mapper.Map<List<CommonAttributeDTO>>(await _context.CandleStickValueType.ToArrayAsync())
+                    _mapper.Map<List<CommonAttributeDTO>>(await _context.CandleStickValueTypes.ToArrayAsync())
                 },
                 {
                     nameof(TradeRuleConditionComparator),
-                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeRuleConditionComparator.ToArrayAsync())
+                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeRuleConditionComparators.ToArrayAsync())
                 },
                 {
                     nameof(TradeRuleConditionSampleDirection),
-                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeRuleConditionSampleDirection.ToArrayAsync())
+                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeRuleConditionSampleDirections.ToArrayAsync())
                 }
             };
         }
 
         public async Task<bool> UpdateTradeRuleConditionAsync(TradeRuleConditionDTO tradeRuleConditionDTO)
         {
-            var tradeRuleCondition = await _context.TradeRuleCondition.FindAsync(tradeRuleConditionDTO.Id);
+            var tradeRuleCondition = await _context.TradeRuleConditions.FindAsync(tradeRuleConditionDTO.Id);
             if (tradeRuleCondition != null)
             {
                 _mapper.Map(tradeRuleConditionDTO, tradeRuleCondition);
@@ -111,10 +111,10 @@ namespace Waffler.Service
 
         public async Task<bool> DeleteTradeRuleConditionAsync(int tradeRuleConditionId)
         {
-            var tradeRuleCondition = await _context.TradeRuleCondition.FindAsync(tradeRuleConditionId);
+            var tradeRuleCondition = await _context.TradeRuleConditions.FindAsync(tradeRuleConditionId);
             if(tradeRuleCondition != null)
             {
-                _context.TradeRuleCondition.Remove(tradeRuleCondition);
+                _context.TradeRuleConditions.Remove(tradeRuleCondition);
                 await _context.SaveChangesAsync();
 
                 return true;

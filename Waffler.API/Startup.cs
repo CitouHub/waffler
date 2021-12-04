@@ -18,17 +18,18 @@ using Waffler.Domain;
 using Waffler.Service;
 using Waffler.Service.Background;
 using Waffler.Service.Infrastructure;
+using Microsoft.Extensions.Logging;
 
 namespace Waffler.API
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
+            _configuration = configuration;
+        }        
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -36,13 +37,14 @@ namespace Waffler.API
             services.AddMvc().AddJsonOptions(options => {
                 options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
-            services.AddDbContext<WafflerDbContext>(options =>
-                options.UseSqlServer(Configuration["Database:ConnectionString"]));
+            var connectionString = _configuration.GetValue<string>("Database:ConnectionString");
+            services.AddDbContext<WafflerDbContext>(options => options.UseSqlServer(connectionString));
+            services.AddDbContext<BaseDbContext>(options => options.UseSqlServer(connectionString));
             services.AddRouting(options => options.LowercaseUrls = true);
 
             services.AddHttpClient("Bitpanda", _ =>
             {
-                _.BaseAddress = new Uri(Configuration["Bitpanda:BaseUri"]);
+                _.BaseAddress = new Uri(_configuration.GetValue<string>("Bitpanda:BaseUri"));
                 _.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             });
 
@@ -57,6 +59,7 @@ namespace Waffler.API
             services.AddHostedService<BackgroundChartSyncService>();
             services.AddHostedService<BackgroundTradeService>();
             services.AddHostedService<BackgroundTestTradeService>();
+            services.AddHostedService<BackgroundOrderSyncService>();
 
             var mapperConfig = new MapperConfiguration(mc =>
             {
@@ -88,8 +91,6 @@ namespace Waffler.API
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader());
-
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 

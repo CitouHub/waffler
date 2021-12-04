@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,10 +16,10 @@ namespace Waffler.Service.Background
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundTradeService> _logger;
+        private readonly TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
+        private readonly TimeSpan ValidSyncOffser = TimeSpan.FromMinutes(15);
 
         private Timer _timer;
-        private TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
-        private TimeSpan ValidSyncOffser = TimeSpan.FromMinutes(15);
         private bool InProgress = false;
 
         public BackgroundTradeService(
@@ -31,7 +32,8 @@ namespace Waffler.Service.Background
 
         protected override Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _timer = new Timer(async _ => await HandleTradeRules(cancellationToken), null, TimeSpan.Zero, RequestPeriod);
+            var startDelay = Debugger.IsAttached ? 0 : 30;
+            _timer = new Timer(async _ => await HandleTradeRules(cancellationToken), null, TimeSpan.FromSeconds(startDelay), RequestPeriod);
             return Task.CompletedTask;
         }
 
@@ -58,7 +60,7 @@ namespace Waffler.Service.Background
 
                     if (IsDataSynced(lastCandleStick))
                     {
-                        _logger.LogWarning($"- Data synced, last period {lastCandleStick.PeriodDateTime}, analyse trade rules...");
+                        _logger.LogInformation($"- Data synced, last period {lastCandleStick.PeriodDateTime}, analyse trade rules...");
                         var tradeRules = await _tradeRuleService.GetTradeRulesAsync();
 
                         foreach (int tradeRuleId in tradeRules.Where(_ => _.TestTradeInProgress == false).Select(_ => _.Id))
@@ -76,6 +78,8 @@ namespace Waffler.Service.Background
                                     }
                                 }
                             }
+
+                            _timer.Change(RequestPeriod, RequestPeriod);
                         }
                     }
                     else
@@ -94,7 +98,7 @@ namespace Waffler.Service.Background
             } 
             catch(Exception e)
             {
-                _logger.LogError($"Unexpected exception", e);
+                _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
             }
             InProgress = false;
         }

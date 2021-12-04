@@ -64,6 +64,10 @@ const TradeChart = () => {
         getCandleStickSyncStatus();
 
         TradeRuleService.getTradeRules().then((result) => {
+            result.push({
+                id: 0,
+                name: 'Manual'
+            });
             setTradeRules(result);
             setSelectedTradeRules(result);
         });
@@ -131,8 +135,11 @@ const TradeChart = () => {
             syncStatus.firstPeriodDateTime = new Date(syncStatus.firstPeriodDateTime);
             syncStatus.lastPeriodDateTime = new Date(syncStatus.lastPeriodDateTime);
 
-            setSyncStatus(syncStatus);
-            if (syncStatus.progress >= 95) {
+            if (syncActive) {
+                setSyncStatus(syncStatus);
+            }
+
+            if (syncStatus?.finished) {
                 syncActive = false;
             }
 
@@ -143,7 +150,7 @@ const TradeChart = () => {
     }
 
     const updateCandleStickData = () => {
-        if (syncStatus.progress >= 95) {
+        if (syncStatus.finished) {
             setLoading(true);
             let toDate = new Date(filter.toDate);
             toDate.setDate(toDate.getDate() + 1);
@@ -197,9 +204,9 @@ const TradeChart = () => {
 
     return (
         <div className='chart-wrapper' ref={canvasRef}>
-            <LoadingBar active={loading && syncStatus.progress >= 95} />
-            {syncStatus.progress < 95 && <SyncBar currentDate={syncStatus?.lastPeriodDateTime?.toJSON()?.slice(0, 10)} progress={syncStatus.progress} />}
-            {syncStatus.progress >= 95 && dimensions.width > 0 && dimensions.height > 0 &&
+            <LoadingBar active={loading && syncStatus?.finished} />
+            {!syncStatus?.finished && <SyncBar currentDate={syncStatus?.lastPeriodDateTime?.toJSON()?.slice(0, 10)} progress={syncStatus.progress} />}
+            {syncStatus?.finished && dimensions.width > 0 && dimensions.height > 0 &&
                 <div>
                     <ChartFilter
                         filter={filter}

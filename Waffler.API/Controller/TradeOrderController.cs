@@ -23,7 +23,7 @@ namespace Waffler.API.Controller
         [HttpGet]
         public async Task<IEnumerable<TradeOrderDTO>> GetTradeOrdersAsync(DateTime from, DateTime to)
         {
-            return await _tradeOrderService.GetTradeOrders(from, to);
+            return await _tradeOrderService.GetTradeOrdersAsync(from, to);
         }
     }
 }

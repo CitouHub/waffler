@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Logging;
 using Waffler.Data;
 using Waffler.Domain;
 
@@ -30,12 +30,14 @@ namespace Waffler.Service
 
     public class ProfileService : IProfileService
     {
+        private readonly ILogger<ProfileService> _logger;
         private readonly WafflerDbContext _context;
         private readonly IMapper _mapper;
         private readonly IBitpandaService _bitpandaService;
 
-        public ProfileService(WafflerDbContext context, IMapper mapper, IBitpandaService bitpandaService)
+        public ProfileService(ILogger<ProfileService> logger, WafflerDbContext context, IMapper mapper, IBitpandaService bitpandaService)
         {
+            _logger = logger;
             _context = context;
             _mapper = mapper;
             _bitpandaService = bitpandaService;
@@ -49,7 +51,7 @@ namespace Waffler.Service
 
         public async Task<bool> HasProfileAsync()
         {
-            return await _context.WafflerProfile.FirstOrDefaultAsync() != null;
+            return await _context.WafflerProfiles.FirstOrDefaultAsync() != null;
         }
 
         public async Task<bool> CreateProfileAsync(ProfileDTO profile)
@@ -61,7 +63,7 @@ namespace Waffler.Service
                 wafflerProfile.InsertByUser = 1;
                 wafflerProfile.InsertDate = DateTime.UtcNow;
 
-                await _context.WafflerProfile.AddAsync(wafflerProfile);
+                await _context.WafflerProfiles.AddAsync(wafflerProfile);
                 await _context.SaveChangesAsync();
 
                 return true;
@@ -72,19 +74,19 @@ namespace Waffler.Service
 
         public async Task<ProfileDTO> GetProfileAsync()
         {
-            var profile = await _context.WafflerProfile.FirstOrDefaultAsync();
+            var profile = await _context.WafflerProfiles.FirstOrDefaultAsync();
             return _mapper.Map<ProfileDTO>(profile);
         }
 
         public async Task<bool> IsPasswordValidAsync(string password)
         {
-            var passwordHash = (await _context.WafflerProfile.FirstOrDefaultAsync())?.Password;
+            var passwordHash = (await _context.WafflerProfiles.FirstOrDefaultAsync())?.Password;
             return BCrypt.Net.BCrypt.Verify(password, passwordHash);
         }
 
         public async Task<bool> SetPasswordAsync(string newPassword)
         {
-            var profile = await _context.WafflerProfile.FirstOrDefaultAsync();
+            var profile = await _context.WafflerProfiles.FirstOrDefaultAsync();
             if (profile != null)
             {
                 profile.Password = GetHashedPassword(newPassword);
@@ -101,7 +103,7 @@ namespace Waffler.Service
 
         public async Task<bool> UpdateProfileAsync(ProfileDTO profileDto)
         {
-            var profile = await _context.WafflerProfile.FirstOrDefaultAsync();
+            var profile = await _context.WafflerProfiles.FirstOrDefaultAsync();
             if (profile != null)
             {
                 profileDto.Password = profile.Password; //Keep password
@@ -119,13 +121,13 @@ namespace Waffler.Service
 
         public async Task<string> GetBitpandaApiKeyAsync()
         {
-            return (await _context.WafflerProfile.FirstOrDefaultAsync())?.ApiKey;
+            return (await _context.WafflerProfiles.FirstOrDefaultAsync())?.ApiKey;
         }
 
         public async Task<List<BalanceDTO>> GetBalanceAsync()
         {
             var pb_account = await _bitpandaService.GetAccountAsync();
-            return _mapper.Map<List<BalanceDTO>>(pb_account?.balances);
+            return _mapper.Map<List<BalanceDTO>>(pb_account?.Balances);
         }
     }
 }

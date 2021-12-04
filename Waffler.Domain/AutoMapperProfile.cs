@@ -1,5 +1,7 @@
-﻿using AutoMapper;
-using System;
+﻿using System;
+
+using AutoMapper;
+
 using Waffler.Data;
 using Waffler.Data.ComplexModel;
 
@@ -23,6 +25,7 @@ namespace Waffler.Domain
                 .ForMember(dest => dest.TradeRuleConditionSampleDirection, opt => opt.Ignore());
             CreateMap<TradeOrder, TradeOrderDTO>()
                 .ReverseMap()
+                .ForMember(dest => dest.TradeAction, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeOrderStatus, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeRule, opt => opt.Ignore());
             CreateMap<TradeRule, TradeRuleDTO>()
@@ -30,12 +33,12 @@ namespace Waffler.Domain
                 .ForMember(dest => dest.TradeTypeName, opt => opt.MapFrom(src => src.TradeType.Name))
                 .ForMember(dest => dest.TradeConditionOperatorName, opt => opt.MapFrom(src => src.TradeConditionOperator.Name))
                 .ForMember(dest => dest.TradeRuleStatusName, opt => opt.MapFrom(src => src.TradeRuleStatus.Name))
-                .ForMember(dest => dest.TradeRuleConditions, opt => opt.MapFrom(src => src.TradeRuleCondition))
+                .ForMember(dest => dest.TradeRuleConditions, opt => opt.MapFrom(src => src.TradeRuleConditions))
                 .ReverseMap()
                 .ForMember(dest => dest.TradeAction, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeConditionOperator, opt => opt.Ignore())
-                .ForMember(dest => dest.TradeOrder, opt => opt.Ignore())
-                .ForMember(dest => dest.TradeRuleCondition, opt => opt.Ignore())
+                .ForMember(dest => dest.TradeOrders, opt => opt.Ignore())
+                .ForMember(dest => dest.TradeRuleConditions, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeRuleStatus, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeType, opt => opt.Ignore());
 
@@ -56,9 +59,9 @@ namespace Waffler.Domain
         private void SetupBitpandaMaps()
         {
             CreateMap<Bitpanda.Private.Balance.BalanceDTO, BalanceDTO>()
-                .ForMember(dest => dest.CurrencyCode, opt => opt.MapFrom(src => Common.Bitpanda.GetCurrentCode(src.currency_code)))
-                .ForMember(dest => dest.Available, opt => opt.MapFrom(src => Math.Round(src.available, 4)))
-                .ForMember(dest => dest.TradeLocked, opt => opt.MapFrom(src => Math.Round(src.locked, 4)));
+                .ForMember(dest => dest.CurrencyCode, opt => opt.MapFrom(src => Common.Bitpanda.GetCurrentCode(src.Currency_code)))
+                .ForMember(dest => dest.Available, opt => opt.MapFrom(src => Math.Round(src.Available, 4)))
+                .ForMember(dest => dest.TradeLocked, opt => opt.MapFrom(src => Math.Round(src.Locked, 4)));
 
             CreateMap<Bitpanda.Public.CandleStickDTO, CandleStickDTO>()
                 .ForMember(dest => dest.TradeTypeId, opt => opt.MapFrom(src => (short)Common.Bitpanda.GetTradeType(src.Instrument_Code)))
@@ -70,6 +73,16 @@ namespace Waffler.Domain
                 .ForMember(dest => dest.AvgOpenClosePrice, opt => opt.MapFrom(src => (src.Open + src.Close) / 2))
                 .ForMember(dest => dest.PeriodDateTime, opt => opt.MapFrom(src => src.Time))
                 .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.Total_Amount));
+
+            CreateMap<Bitpanda.Private.Order.OrderDTO, TradeOrderDTO>()
+                .ForMember(dest => dest.TradeActionId, opt => opt.MapFrom(src => (short)Common.Bitpanda.GetTradeAction(src.Side)))
+                .ForMember(dest => dest.TradeOrderStatusId, opt => opt.MapFrom(src => (short)Common.Bitpanda.GetTradeOrderStatus(src.Status)))
+                .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.Order_id))
+                .ForMember(dest => dest.OrderDateTime, opt => opt.MapFrom(src => src.Time))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
+                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+                .ForMember(dest => dest.FilledAmount, opt => opt.MapFrom(src => src.Filled_amount))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Common.Bitpanda.GetTradeOrderActive(src.Status)));
         }
     }
 }

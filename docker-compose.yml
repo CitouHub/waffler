@@ -1,39 +1,52 @@
 version: "3"
 
-volumes:
-  wafflerdb:
-
 services:
-  api:
+  web:
     build:
-      context: ./Waffler.API
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: ./Waffler.Web/Dockerfile
       args:
         build_id: 1
+    image: waffler-web
+    depends_on:
+      - api
+    ports:
+      - 8080:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - API__BaseUrl=http://localhost:5005/
+      - API__Version=v1
+    volumes:
+      - ./https:/https:ro
+  api:
+    build:
+      context: ./
+      dockerfile: ./Waffler.API/Dockerfile
+      args:
+        build_id: 1
+    image: waffler-api
     depends_on:
       - db
-    image: waffler-api
     ports:
       - 5005:80
     environment:
-      - ASPNETCORE_ENVIRONMENT=Staging
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DbDefaultConnection=Server=db;Database=db_waffler;User=WAFAdmin;Password=pAssword1234
+      - Database__ConnectionString=Server=db;Initial Catalog=Waffler;User ID=sa;Password=pAssword1234
     volumes:
       - ./https:/https:ro
   db:
     build:
       context: ./Waffler.Data
-      dockerfile: ./Docker/Dockerfile
+      dockerfile: ./Db/Dockerfile
       args:
-        RS_DATABASE_NAME: db_waffler
+        RS_DATABASE_NAME: Waffler
+    image: waffler-db
     environment:
-      - ACCEPT_EULA=Y
-      - DB_USER=WAFAdmin
-      - SA_PASSWORD=pAssword1234
-      - MSSQL_PID=Developer
-      - MSSQL_COLLATION=SQL_Latin1_General_CP1_CI_AS
+      ACCEPT_EULA: Y
+      SA_PASSWORD: pAssword1234
+      MSSQL_PID: Developer
+      MSSQL_COLLATION: SQL_Latin1_General_CP1_CI_AS
     ports:
       - 1433:1433
-    volumes:
-      - wafflerdb:/var/opt/mssql/

@@ -13,6 +13,8 @@ using AutoMapper;
 using Waffler.Common;
 using Waffler.Domain;
 using static Waffler.Common.Variable;
+using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 
 namespace Waffler.Service.Background
 {
@@ -36,7 +38,8 @@ namespace Waffler.Service.Background
 
         protected override Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _timer = new Timer(async _ => await FetchCandleStickDataAsync(cancellationToken), null, TimeSpan.Zero, RequestPeriod);
+            var startDelay = Debugger.IsAttached ? 0 : 30;
+            _timer = new Timer(async _ => await FetchCandleStickDataAsync(cancellationToken), null, TimeSpan.FromSeconds(startDelay), RequestPeriod);
             return Task.CompletedTask;
         }
 
@@ -116,7 +119,7 @@ namespace Waffler.Service.Background
             }
             catch (Exception e)
             {
-                _logger.LogError($"Unexpected exception", e);
+                _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
             }
             InProgress = false;
         }

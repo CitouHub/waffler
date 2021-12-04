@@ -1,14 +1,18 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
+using Newtonsoft.Json;
+
+using Waffler.Common;
 using Waffler.Data;
 using Waffler.Domain.Bitpanda.Private;
 using Waffler.Domain.Bitpanda.Private.Balance;
@@ -22,11 +26,13 @@ namespace Waffler.Service
         Task<AccountDTO> GetAccountAsync();
         Task<List<CandleStickDTO>> GetCandleSticks(string instrumentCode, string unit, short period, DateTime from, DateTime to);
         Task<OrderSubmittedDTO> CreateOrderAsync(CreateOrderDTO createOrder);
-        Task GetOrderAsync();
+        Task<List<OrderDTO>> GetOrdersAsync(string instrumentCode, DateTime from, DateTime to);
+        Task<OrderDTO> GetOrderAsync(Guid orderId);
     }
 
     public class BitpandaService : IBitpandaService
     {
+        private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
 
@@ -51,10 +57,15 @@ namespace Waffler.Service
             }
         }
 
-        public BitpandaService(WafflerDbContext context, IHttpClientFactory httpClientFactory)
+        public BitpandaService(
+            IConfiguration configuration, 
+            ILogger<BitpandaService> logger, 
+            WafflerDbContext context, 
+            IHttpClientFactory httpClientFactory)
         {
+            _configuration = configuration;
             _httpClient = httpClientFactory.CreateClient("Bitpanda");
-            _apiKey = context.WafflerProfile.FirstOrDefault()?.ApiKey;
+            _apiKey = context.WafflerProfiles.FirstOrDefault()?.ApiKey;
         }
 
         public async Task<AccountDTO> GetAccountAsync()
@@ -96,22 +107,96 @@ namespace Waffler.Service
             }
         }
 
-        public async Task<OrderSubmittedDTO> CreateOrderAsync(CreateOrderDTO createOrder)
+        public async Task<OrderSubmittedDTO> CreateOrderAsync(CreateOrderDTO order)
         {
-            var requestContent = new StringContent(JsonConvert.SerializeObject(createOrder), Encoding.UTF8, "application/json");
-            var result = await PublicHttpClient.SendAsync(new HttpRequestMessage()
+            if(PrivateHttpClient != null && 
+                (order.Side == Bitpanda.Side.BUY && _configuration.GetValue<bool>("Bitpanda:OrderFeature:Buy") == true) ||
+                (order.Side == Bitpanda.Side.SELL && _configuration.GetValue<bool>("Bitpanda:OrderFeature:Sell") == true))
             {
-                RequestUri = new Uri($"account/orders"),
-                Method = HttpMethod.Post,
-                Content = requestContent,
-            });
-            var content = await result.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<OrderSubmittedDTO>(content);
+                    var requestContent = new StringContent(JsonConvert.SerializeObject(order), Encoding.UTF8, "application/json");
+                    var result = await PublicHttpClient.SendAsync(new HttpRequestMessage()
+                    {
+                        RequestUri = new Uri($"account/orders"),
+                        Method = HttpMethod.Post,
+                        Content = requestContent,
+                    });
+                    var content = await result.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<OrderSubmittedDTO>(content);                
+            }
+
+            return null;
         }
 
-        public Task GetOrderAsync()
+        public async Task<List<OrderDTO>> GetOrdersAsync(string instrumentCode, DateTime from, DateTime to)
         {
-            throw new NotImplementedException();
+            if (PrivateHttpClient != null)
+            {
+                var fromString = HttpUtility.UrlEncode(from.ToString("o"));
+                var toString = HttpUtility.UrlEncode(to.ToString("o"));
+
+                //TODO: WHY is the Z included in some cases and in some not?!
+                //This fix solves the problem for now...
+                fromString = fromString.EndsWith("Z") ? fromString : fromString + "Z";
+                toString = toString.EndsWith("Z") ? toString : toString + "Z";
+
+                var activeOrders = await PrivateHttpClient.GetAsync($"account/orders/?" +
+                    $"from={fromString}&" +
+                    $"to={toString}&" +
+                    $"instrumentCode={instrumentCode}");
+                var finishedOrder = await PrivateHttpClient.GetAsync($"account/orders/?" +
+                    $"from={fromString}&" +
+                    $"to={toString}&" +
+                    $"instrumentCode={instrumentCode}&" +
+                    $"with_just_filled_inactive=true");
+                var aborterOrder = await PrivateHttpClient.GetAsync($"account/orders/?" +
+                    $"from={fromString}&" +
+                    $"to={toString}&" +
+                    $"instrumentCode={instrumentCode}&" +
+                    $"with_cancelled_and_rejected=true");
+
+                var orders = new List<OrderDTO>();
+
+                if (activeOrders.IsSuccessStatusCode)
+                {
+                    var content = await activeOrders.Content.ReadAsStringAsync();
+                    var orderHistory = JsonConvert.DeserializeObject<OrderHistoryDTO>(content);
+                    orders.AddRange(orderHistory?.Order_history?.Select(_ => _.Order));
+                }
+
+                if (finishedOrder.IsSuccessStatusCode)
+                {
+                    var content = await finishedOrder.Content.ReadAsStringAsync();
+                    var orderHistory = JsonConvert.DeserializeObject<OrderHistoryDTO>(content);
+                    orders.AddRange(orderHistory?.Order_history?.Select(_ => _.Order).Where(_ => orders.Any(o => o.Order_id == _.Order_id) == false));
+                }
+
+                if (aborterOrder.IsSuccessStatusCode)
+                {
+                    var content = await aborterOrder.Content.ReadAsStringAsync();
+                    var orderHistory = JsonConvert.DeserializeObject<OrderHistoryDTO>(content);
+                    orders.AddRange(orderHistory?.Order_history?.Select(_ => _.Order).Where(_ => orders.Any(o => o.Order_id == _.Order_id) == false));
+                }
+
+                return orders;
+            }
+
+            return null;
+        }
+
+        public async Task<OrderDTO> GetOrderAsync(Guid orderId)
+        {
+            if (PrivateHttpClient != null)
+            {
+                var result = await PrivateHttpClient.GetAsync($"account/orders/{orderId}");
+
+                if (result.IsSuccessStatusCode)
+                {
+                    var content = await result.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<OrderHistoryEntityDTO>(content)?.Order;
+                }
+            }
+
+            return null;
         }
     }
 }

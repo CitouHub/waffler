@@ -54,7 +54,7 @@ namespace Waffler.Service
                 TradeMinIntervalMinutes = (int)TimeSpan.FromDays(1).TotalMinutes
             };
 
-            await _context.TradeRule.AddAsync(newTradeRule);
+            await _context.TradeRules.AddAsync(newTradeRule);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<TradeRuleDTO>(newTradeRule);
@@ -62,12 +62,12 @@ namespace Waffler.Service
 
         public async Task<List<TradeRuleDTO>> GetTradeRulesAsync()
         {
-            var tradeRules = await _context.TradeRule
+            var tradeRules = await _context.TradeRules
                 .Include(_ => _.TradeAction)
                 .Include(_ => _.TradeType)
                 .Include(_ => _.TradeConditionOperator)
                 .Include(_ => _.TradeRuleStatus)
-                .Include(_ => _.TradeRuleCondition)
+                .Include(_ => _.TradeRuleConditions)
                 .ToListAsync();
             return _mapper.Map<List<TradeRuleDTO>>(tradeRules);
         }
@@ -78,38 +78,38 @@ namespace Waffler.Service
             {
                 {
                     nameof(TradeAction),
-                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeAction.ToArrayAsync())
+                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeActions.ToArrayAsync())
                 },
                                 {
                     nameof(TradeType),
-                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeType.ToArrayAsync())
+                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeTypes.ToArrayAsync())
                 },
                                                 {
                     nameof(TradeConditionOperator),
-                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeConditionOperator.ToArrayAsync())
+                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeConditionOperators.ToArrayAsync())
                 },
                                                 {
                     nameof(TradeRuleStatus),
-                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeRuleStatus.ToArrayAsync())
+                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeRuleStatuses.ToArrayAsync())
                 }
             };
         }
 
         public async Task<TradeRuleDTO> GetTradeRuleAsync(int tradeRuleId)
         {
-            var tradeRule = await _context.TradeRule
+            var tradeRule = await _context.TradeRules
                 .Include(_ => _.TradeAction)
                 .Include(_ => _.TradeType)
                 .Include(_ => _.TradeConditionOperator)
                 .Include(_ => _.TradeRuleStatus)
-                .Include(_ => _.TradeRuleCondition)
+                .Include(_ => _.TradeRuleConditions)
                 .FirstOrDefaultAsync(_ => _.Id == tradeRuleId);
             return _mapper.Map<TradeRuleDTO>(tradeRule);
         }
 
         public async Task<bool> SetupTradeRuleTestAsync(int tradeRuleId)
         {
-            var tradeRule = await _context.TradeRule.FindAsync(tradeRuleId);
+            var tradeRule = await _context.TradeRules.FindAsync(tradeRuleId);
             if (tradeRule != null)
             {
                 tradeRule.LastTrigger = DateTime.MinValue;
@@ -128,7 +128,7 @@ namespace Waffler.Service
 
         public async Task<bool> UpdateTradeRuleAsync(TradeRuleDTO tradeRuleDTO)
         {
-            var tradeRule = await _context.TradeRule.FindAsync(tradeRuleDTO.Id);
+            var tradeRule = await _context.TradeRules.FindAsync(tradeRuleDTO.Id);
             if (tradeRule != null)
             {
                 _mapper.Map(tradeRuleDTO, tradeRule);
@@ -145,10 +145,10 @@ namespace Waffler.Service
 
         public async Task<bool> DeleteTradeRuleAsync(int tradeRuleId)
         {
-            var tradeRule = await _context.TradeRule.FindAsync(tradeRuleId);
+            var tradeRule = await _context.TradeRules.FindAsync(tradeRuleId);
             if(tradeRule != null)
             {
-                _context.TradeRule.Remove(tradeRule);
+                _context.TradeRules.Remove(tradeRule);
                 await _context.SaveChangesAsync();
 
                 return true;

@@ -4,7 +4,7 @@ namespace Waffler.Domain.Bitpanda.Private.Balance
 {
     public class AccountDTO
     {
-        public string account_id { get; set; }
-        public List<BalanceDTO> balances { get; set; }
+        public string Account_id { get; set; }
+        public List<BalanceDTO> Balances { get; set; }
     }
 }

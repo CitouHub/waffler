@@ -1,7 +1,8 @@
 # Inspired by sample in https://github.com/twright-msft/mssql-node-docker-demo-app
-FROM mcr.microsoft.com/mssql/server:latest
+FROM mcr.microsoft.com/mssql/server:2019-latest
+EXPOSE 1433
 
-ARG RS_DATABASE_NAME=db_waffler
+ARG RS_DATABASE_NAME=Waffler
 ENV RS_DATABASE_NAME $RS_DATABASE_NAME
 
 # Switch to root user for access to apt-get install
@@ -14,7 +15,8 @@ RUN mkdir -p /usr/src/db
 WORKDIR /usr/src/db
 
 # Bundle app source
-COPY . /usr/src/db
+COPY ./Db /usr/src/db
+COPY ./Master /usr/src/db
 
 RUN dos2unix *
 RUN apt-get --purge remove -y dos2unix

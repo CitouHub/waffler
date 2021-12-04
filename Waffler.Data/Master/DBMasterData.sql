@@ -1,4 +1,7 @@
-﻿DELETE CandleStick
+﻿USE [Waffler]
+GO
+
+DELETE CandleStick
 DELETE TradeOrder
 DELETE TradeRuleCondition
 DELETE TradeRule

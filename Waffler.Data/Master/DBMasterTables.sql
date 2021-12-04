@@ -1,4 +1,7 @@
-﻿-- Scaffold-DbContext "Server=localhost\SQLEXPRESS02;Initial Catalog=db_waffler;persist security info=True;Integrated Security=SSPI;MultipleActiveResultSets=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir . -Context BaseDbContext -Force
+﻿USE [Waffler]
+GO
+
+-- Scaffold-DbContext "Server=localhost\SQLEXPRESS02;Initial Catalog=Waffler;persist security info=True;Integrated Security=SSPI;MultipleActiveResultSets=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir . -Context BaseDbContext -Force
 -- =====================================================================
 IF OBJECTPROPERTY(object_id('dbo.CandleStick'), N'IsTable') = 1 DROP TABLE [dbo].[CandleStick]
 GO
@@ -72,7 +75,7 @@ GO
 CREATE UNIQUE NONCLUSTERED INDEX [IdxCandleStick_PeriodDateTime] ON [dbo].[CandleStick]
 (
     [PeriodDateTime] ASC
-) INCLUDE ([ID]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 GO
 
 CREATE TABLE [dbo].[TradeAction](
@@ -256,22 +259,34 @@ CREATE TABLE [dbo].[TradeOrder](
 	[InsertByUser] [int] NOT NULL DEFAULT(1),
 	[UpdateDate] [datetime2](7) NULL,
 	[UpdateByUser] [int] NULL,
-	[TradeRuleId] [int] NOT NULL,
+	[TradeActionId] [smallint] NULL,
 	[TradeOrderStatusId] [smallint] NOT NULL DEFAULT(1),
+	[TradeRuleId] [int] NULL,
 	[OrderId] [UNIQUEIDENTIFIER] NOT NULL,
 	[OrderDateTime] [datetime2](0) NOT NULL,
 	[Price] [decimal](10,2) NOT NULL,
 	[Amount] [decimal](10,8) NOT NULL,
 	[FilledAmount] [decimal](10,8) NOT NULL DEFAULT(0.0),
-	[IsTestOrder] [bit] NOT NULL DEFAULT(0)
+	[IsTestOrder] [bit] NOT NULL DEFAULT(0),
+	[IsActive] [bit] NOT NULL DEFAULT(1)
  CONSTRAINT [TradeOrder_PK] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 )
 
+ALTER TABLE [dbo].[TradeOrder] WITH CHECK ADD CONSTRAINT [TradeOrder_TradeActionFK] FOREIGN KEY([TradeActionId]) REFERENCES [dbo].[TradeAction] ([Id])
+GO
+ALTER TABLE [dbo].[TradeOrder] WITH CHECK ADD CONSTRAINT [TradeOrder_TradeOrderStatusFK] FOREIGN KEY([TradeOrderStatusId]) REFERENCES [dbo].[TradeOrderStatus] ([ID])
+GO
 ALTER TABLE [dbo].[TradeOrder] WITH CHECK ADD CONSTRAINT [TradeOrder_TradeRuleFK] FOREIGN KEY([TradeRuleId]) REFERENCES [dbo].[TradeRule] ([ID])
 ON DELETE CASCADE
 GO
-ALTER TABLE [dbo].[TradeOrder] WITH CHECK ADD CONSTRAINT [TradeOrder_TradeOrderStatusFK] FOREIGN KEY([TradeOrderStatusId]) REFERENCES [dbo].[TradeOrderStatus] ([ID])
+
+IF EXISTS (SELECT name FROM sys.indexes WHERE name = 'IdxTradeOrder_OrderId')DROP INDEX [IdxTradeOrder_OrderId] ON [dbo].[TradeOrder]
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [IdxTradeOrder_OrderId] ON [dbo].[TradeOrder]
+(
+    [OrderId] ASC
+) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 GO

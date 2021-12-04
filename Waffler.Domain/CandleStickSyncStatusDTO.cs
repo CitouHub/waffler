@@ -7,6 +7,19 @@ namespace Waffler.Domain
         public DateTime? FirstPeriodDateTime { get; set; }
         public DateTime? LastPeriodDateTime { get; set; }
 
+        public bool Finished
+        {
+            get
+            {
+                if (LastPeriodDateTime == null)
+                {
+                    return false;
+                }
+
+                return LastPeriodDateTime.Value.Hour >= DateTime.UtcNow.Hour - 1;
+            }
+        }
+
         public decimal Progress
         {
             get

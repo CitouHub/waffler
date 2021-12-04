@@ -23,8 +23,8 @@ const Balance = () => {
             <LoadingBar active={loading} />
             <ul>
                 <li>Balance</li>
-                <li>BTC: {btc?.available ?? '-'} / {btc?.tradeLocked ?? '-'}</li>
-                <li>EUR: {eur?.available ?? '-'} / {eur?.tradeLocked ?? '-'}</li>
+                <li>BTC: {btc?.available ?? '-'}</li>
+                <li>EUR: {eur?.available ?? '-'}</li>
             </ul>
         </div>
     );

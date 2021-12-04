@@ -1,4 +1,7 @@
-﻿IF OBJECTPROPERTY(object_id('dbo.sp_getCandleSticks'), N'IsProcedure') = 1 DROP PROCEDURE [dbo].[sp_getCandleSticks]
+﻿USE [Waffler]
+GO
+
+IF OBJECTPROPERTY(object_id('dbo.sp_getCandleSticks'), N'IsProcedure') = 1 DROP PROCEDURE [dbo].[sp_getCandleSticks]
 GO
 SET ANSI_NULLS ON
 GO
@@ -18,6 +21,17 @@ AS
 BEGIN
 	SET NOCOUNT ON
 
+	DECLARE @CandleSticks TABLE(
+		HighPrice DECIMAL(10,2) NOT NULL,
+		LowPrice DECIMAL(10,2) NOT NULL,
+		OpenPrice DECIMAL(10,2) NOT NULL,
+		ClosePrice DECIMAL(10,2) NOT NULL,
+		AvgHighLowPrice DECIMAL(10,2) NOT NULL,
+		AvgOpenClosePrice DECIMAL(10,2) NOT NULL,
+		Volume DECIMAL(10,2) NOT NULL,
+		PeriodDateTime DATETIME2(0) NOT NULL)
+
+	INSERT INTO @CandleSticks
 	SELECT MAX(HighPrice),
 		MIN(LowPrice),
 		(SELECT AVG(OpenPrice) FROM CandleStick AS CS WHERE CS.PeriodDateTime = MIN(CandleStick.PeriodDateTime)),
@@ -57,8 +71,8 @@ BEGIN
 
 	SELECT 
 		TradeOrder.Id AS Id,
-		TradeRule.Id AS TradeRuleId,
-		TradeRule.Name AS TradeRuleName,
+		ISNULL(TradeRule.Id, 0) AS TradeRuleId,
+		ISNULL(TradeRule.Name, 'Manual') AS TradeRuleName,
 		TradeAction.Id AS TradeActionId,
 		TradeAction.Name AS TradeActionName,
 		TradeOrderStatus.Id AS TradeOrderStatusId,
@@ -70,8 +84,8 @@ BEGIN
 		TradeOrder.FilledAmount AS FilledAmount,
 		TradeOrder.IsTestOrder AS IsTestOrder
 	FROM TradeOrder
-		INNER JOIN TradeRule ON TradeOrder.TradeRuleId = TradeRule.Id
-		INNER JOIN TradeAction ON TradeRule.TradeActionId = TradeAction.Id
+		LEFT JOIN TradeRule ON TradeOrder.TradeRuleId = TradeRule.Id
+		INNER JOIN TradeAction ON TradeOrder.TradeActionId = TradeAction.Id
 		INNER JOIN TradeOrderStatus ON TradeOrder.TradeOrderStatusId = TradeOrderStatus.Id
 	WHERE TradeOrder.OrderDateTime >= @FromPeriodDateTime
 		AND TradeOrder.OrderDateTime <= @ToPeriodDateTime

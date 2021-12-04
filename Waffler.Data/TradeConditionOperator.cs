@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-// Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
-// If you have enabled NRTs for your project, then un-comment the following line:
-// #nullable disable
+#nullable disable
 
 namespace Waffler.Data
 {
@@ -11,7 +9,7 @@ namespace Waffler.Data
     {
         public TradeConditionOperator()
         {
-            TradeRule = new HashSet<TradeRule>();
+            TradeRules = new HashSet<TradeRule>();
         }
 
         public short Id { get; set; }
@@ -22,6 +20,6 @@ namespace Waffler.Data
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public virtual ICollection<TradeRule> TradeRule { get; set; }
+        public virtual ICollection<TradeRule> TradeRules { get; set; }
     }
 }

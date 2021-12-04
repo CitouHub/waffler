@@ -97,14 +97,15 @@ namespace Waffler.Service
                                 //orderId = await _bitpandaService.CreateOrderAsync(new CreateOrderDTO(){});
                             }
 
-                            await _tradeOrderService.CreateTradeOrder(new TradeOrderDTO()
+                            await _tradeOrderService.AddTradeOrderAsync(new TradeOrderDTO()
                             {
+                                TradeActionId = (short)TradeAction.Buy,
+                                TradeOrderStatusId = (short)TradeOrderStatus.Open,
+                                TradeRuleId = tradeRule.Id,
                                 Amount = tradeRule.Amount,
                                 OrderDateTime = currentPeriodDateTime,
                                 Price = candleStick.HighPrice,
-                                TradeRuleId = tradeRule.Id,
                                 OrderId = orderId,
-                                TradeOrderStatusId = (short)TradeOrderStatus.Open,
                                 IsTestOrder = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test
                             });
                             tradeRule.LastTrigger = candleStick.PeriodDateTime;
@@ -136,7 +137,7 @@ namespace Waffler.Service
             var success = await _tradeRuleService.SetupTradeRuleTestAsync(tradeRuleId);
             if(success)
             {
-                await _tradeOrderService.RemoveTestTradeOrders(tradeRuleId);
+                await _tradeOrderService.RemoveTestTradeOrdersAsync(tradeRuleId);
             }
 
             return success;
