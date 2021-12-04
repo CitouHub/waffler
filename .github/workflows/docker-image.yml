@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the api image
-      run: docker build ./Waffler.API --file Waffler.API/Dockerfile --tag waffler-api:$(date +%s)
+      run: docker build . --file Waffler.API/Dockerfile --tag waffler-api:$(date +%s)
