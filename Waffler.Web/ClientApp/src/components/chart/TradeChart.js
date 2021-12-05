@@ -43,6 +43,8 @@ const TradeChart = () => {
     const [tradeOrders, setTradeOrders] = useState([]);
     const [tradeRules, setTradeRules] = useState([]);
     const [selectedTradeRules, setSelectedTradeRules] = useState([]);
+    const [tradeOrderStatuses, setTradeOrderStatuses] = useState([]);
+    const [selectedTradeOrderStatuses, setSelectedTradeOrderStatuses] = useState([]);
     const [filter, setFilter] = useState({
         fromDate: fromDate,
         toDate: toDate
@@ -72,6 +74,11 @@ const TradeChart = () => {
             setSelectedTradeRules(result);
         });
 
+        TradeOrderService.getTradeOrderStatuses().then((result) => {
+            setTradeOrderStatuses(result);
+            setSelectedTradeOrderStatuses(result);
+        });
+
         return () => {
             syncActive = false;
         }
@@ -79,7 +86,7 @@ const TradeChart = () => {
 
     useEffect(() => {
         if (loading === false) {
-            getCandleStickSyncStatus();
+            getCandleStickSyncStatus(); 
         }
     }, [loading]);
 
@@ -117,7 +124,8 @@ const TradeChart = () => {
                         candleStick = candleSticksUpdate[candleSticksUpdate.length - 1];
                     }
 
-                    if (selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0) {
+                    if (selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0 &&
+                        selectedTradeOrderStatuses.filter(s => s.id === tradeOrder.tradeOrderStatusId).length > 0) {
                         candleStick.tradeOrder = tradeOrder;
                     }
                     else {
@@ -128,7 +136,7 @@ const TradeChart = () => {
 
             setCandleSticksChart(candleSticksUpdate);
         }
-    }, [selectedTradeRules, tradeOrders, candleSticks]);
+    }, [selectedTradeRules, selectedTradeOrderStatuses, tradeOrders, candleSticks]);
 
     const getCandleStickSyncStatus = () => {
         CandleStickService.getCandleSticksSyncStatus().then((syncStatus) => {
@@ -201,7 +209,7 @@ const TradeChart = () => {
     const yExtents = (data) => {
         return [data.high, data.low];
     };
-
+    
     return (
         <div className='chart-wrapper' ref={canvasRef}>
             <LoadingBar active={loading && syncStatus?.finished} />
@@ -210,10 +218,14 @@ const TradeChart = () => {
                 <div>
                     <ChartFilter
                         filter={filter}
+                        updateFilter={(filter) => setFilter(filter)}
                         tradeRules={tradeRules}
                         selectedTradeRules={selectedTradeRules}
                         updateSelectedTradeRules={(selectedTradeRules) => setSelectedTradeRules(selectedTradeRules)}
-                        updateFilter={(filter) => setFilter(filter)} />
+                        tradeOrderStatuses={tradeOrderStatuses}
+                        selectedTradeOrderStatuses={selectedTradeOrderStatuses}
+                        updateSelectedTradeStatuses={(selectedTradeOrderStatuses) => setSelectedTradeOrderStatuses(selectedTradeOrderStatuses)}
+                    />
                     {candleSticksChart && candleSticksChart.length > 0 && <ChartCanvas
                         height={dimensions.height - 100}
                         ratio={1}

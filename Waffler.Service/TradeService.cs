@@ -100,13 +100,12 @@ namespace Waffler.Service
                             await _tradeOrderService.AddTradeOrderAsync(new TradeOrderDTO()
                             {
                                 TradeActionId = (short)TradeAction.Buy,
-                                TradeOrderStatusId = (short)TradeOrderStatus.Open,
+                                TradeOrderStatusId = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test ? (short)TradeOrderStatus.Test : (short)TradeOrderStatus.Open,
                                 TradeRuleId = tradeRule.Id,
                                 Amount = tradeRule.Amount,
                                 OrderDateTime = currentPeriodDateTime,
                                 Price = candleStick.HighPrice,
-                                OrderId = orderId,
-                                IsTestOrder = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test
+                                OrderId = orderId
                             });
                             tradeRule.LastTrigger = candleStick.PeriodDateTime;
                             await _tradeRuleService.UpdateTradeRuleAsync(tradeRule);

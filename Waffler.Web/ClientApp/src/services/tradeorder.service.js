@@ -7,4 +7,10 @@ export default {
     }).then((response) => {
         return Request.handleResponse(response)
     }),
+    getTradeOrderStatuses: async () => await Request.send({
+        url: `/tradeorder/status`,
+        method: 'GET'
+    }).then((response) => {
+        return Request.handleResponse(response)
+    }),
 }

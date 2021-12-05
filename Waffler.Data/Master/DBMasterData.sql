@@ -83,6 +83,7 @@ INSERT INTO TradeOrderStatus (ID, Name) VALUES (6, 'FilledRejected')
 INSERT INTO TradeOrderStatus (ID, Name) VALUES (7, 'Rejected')
 INSERT INTO TradeOrderStatus (ID, Name) VALUES (8, 'Closed')
 INSERT INTO TradeOrderStatus (ID, Name) VALUES (9, 'Failed')
+INSERT INTO TradeOrderStatus (ID, Name) VALUES (10, 'Test')
 SET IDENTITY_INSERT TradeOrderStatus OFF
 GO
 

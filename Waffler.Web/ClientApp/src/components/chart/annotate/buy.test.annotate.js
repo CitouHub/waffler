@@ -6,7 +6,7 @@ const BuyTestAnnotate = () => {
     const whenBuy = (data) => {
         return data.tradeOrder !== undefined &&
             data.tradeOrder.tradeActionId === 1 &&
-            data.tradeOrder.isTestOrder === true;
+            data.tradeOrder.tradeOrderStatusId === 10; //Test trade order
     }
 
     const btc = {

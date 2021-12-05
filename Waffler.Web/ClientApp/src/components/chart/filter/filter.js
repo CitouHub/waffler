@@ -1,10 +1,16 @@
 ﻿import React from 'react';
 import TextField from '@mui/material/TextField';
-import MultiSelect from './multiselect';
+import TradeRuleMultiSelect from './traderule.multiselect';
+import TradeOrderStatusMultiSelect from './tradeorderstatus.multiselect';
 
 import './filter.css';
 
-const ChartFilter = ({ updateFilter, filter, tradeRules, selectedTradeRules, updateSelectedTradeRules }) => {
+const ChartFilter = ({
+    updateFilter,
+    filter,
+    tradeRules, selectedTradeRules, updateSelectedTradeRules,
+    tradeOrderStatuses, selectedTradeOrderStatuses, updateSelectedTradeStatuses
+}) => {
     return (
         <div className="filter-wrapper">
             <div className="m-2">
@@ -34,7 +40,10 @@ const ChartFilter = ({ updateFilter, filter, tradeRules, selectedTradeRules, upd
                 />
             </div>
             <div className="m-2">
-                <MultiSelect tradeRules={tradeRules} selectedTradeRules={selectedTradeRules} updateSelectedTradeRules={updateSelectedTradeRules}/>
+                <TradeRuleMultiSelect tradeRules={tradeRules} selectedTradeRules={selectedTradeRules} updateSelectedTradeRules={updateSelectedTradeRules}/>
+            </div>
+            <div className="m-2">
+                <TradeOrderStatusMultiSelect tradeOrderStatuses={tradeOrderStatuses} selectedTradeOrderStatuses={selectedTradeOrderStatuses} updateSelectedTradeStatuses={updateSelectedTradeStatuses} />
             </div>
         </div>
     )

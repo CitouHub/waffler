@@ -6,7 +6,7 @@ const SellTestAnnotate = () => {
     const whenSell = (data) => {
         return data.tradeOrder !== undefined &&
             data.tradeOrder.tradeActionId === 2 &&
-            data.tradeOrder.isTestOrder === true;
+            data.tradeOrder.tradeOrderStatusId === 10; //Test trade order
     }
 
     const brokenHeart = {

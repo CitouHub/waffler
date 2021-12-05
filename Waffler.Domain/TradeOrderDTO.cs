@@ -16,7 +16,6 @@ namespace Waffler.Domain
 		public decimal Price { get; set; }
 		public decimal Amount { get; set; }
 		public decimal FilledAmount { get; set; }
-		public bool IsTestOrder { get; set; }
 		public bool IsActive { get; set; }
 
 		public override string ToString()

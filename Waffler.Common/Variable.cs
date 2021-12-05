@@ -69,7 +69,8 @@
             FilledRejected = 6,
             Rejected = 7,
             Closed = 8,
-            Failed = 9
+            Failed = 9,
+            Test = 10
         }
 
         public enum TimeUnit

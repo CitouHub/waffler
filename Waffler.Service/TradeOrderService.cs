@@ -10,6 +10,7 @@ using AutoMapper;
 using Waffler.Data;
 using Waffler.Domain;
 using Waffler.Data.Extensions;
+using Waffler.Common;
 
 namespace Waffler.Service
 {
@@ -21,6 +22,7 @@ namespace Waffler.Service
         Task RemoveTestTradeOrdersAsync(int tradeRuleId);
         Task<TradeOrderDTO> GetLastTradeOrderAsync(DateTime toPeriodDateTime);
         Task<bool> UpdateTradeOrderAsync(TradeOrderDTO tradeOrdersDTO);
+        Task<IEnumerable<CommonAttributeDTO>> GetTradeOrderStatusesAsync();
     }
 
     public class TradeOrderService : ITradeOrderService
@@ -42,7 +44,9 @@ namespace Waffler.Service
 
         public async Task<List<TradeOrderDTO>> GetActiveTradeOrdersAsync()
         {
-            var tradeOrders = await _context.TradeOrders.Where(_ => _.IsTestOrder == false && _.IsActive == true).ToListAsync();
+            var tradeOrders = await _context.TradeOrders.Where(_ => 
+                _.TradeOrderStatusId != (short)Variable.TradeOrderStatus.Test && 
+                _.IsActive == true).ToListAsync();
             return _mapper.Map<List<TradeOrderDTO>>(tradeOrders);
         }
 
@@ -58,14 +62,18 @@ namespace Waffler.Service
 
         public async Task RemoveTestTradeOrdersAsync(int tradeRuleId)
         {
-            var tradeOrders = await _context.TradeOrders.Where(_ => _.TradeRuleId == tradeRuleId && _.IsTestOrder == true).ToArrayAsync();
+            var tradeOrders = await _context.TradeOrders.Where(_ => 
+                _.TradeRuleId == tradeRuleId &&
+                _.TradeOrderStatusId == (short)Variable.TradeOrderStatus.Test).ToArrayAsync();
             _context.TradeOrders.RemoveRange(tradeOrders);
             await _context.SaveChangesAsync();
         }
 
         public async Task<TradeOrderDTO> GetLastTradeOrderAsync(DateTime toOrderDateTime)
         {
-            var tradeOrder = await _context.TradeOrders.Where(_ => _.OrderDateTime <= toOrderDateTime && _.IsTestOrder == false)
+            var tradeOrder = await _context.TradeOrders.Where(_ => 
+                _.OrderDateTime <= toOrderDateTime &&
+                _.TradeOrderStatusId != (short)Variable.TradeOrderStatus.Test)
                 .OrderByDescending(_ => _.OrderDateTime).FirstOrDefaultAsync();
             return _mapper.Map<TradeOrderDTO>(tradeOrder);
         }
@@ -85,6 +93,12 @@ namespace Waffler.Service
             }
 
             return false;
+        }
+
+        public async Task<IEnumerable<CommonAttributeDTO>> GetTradeOrderStatusesAsync()
+        {
+            var tradeOrderStatuses = await _context.TradeOrderStatuses.ToArrayAsync();
+            return _mapper.Map<List<CommonAttributeDTO>>(tradeOrderStatuses);
         }
     }
 }

@@ -267,7 +267,6 @@ CREATE TABLE [dbo].[TradeOrder](
 	[Price] [decimal](10,2) NOT NULL,
 	[Amount] [decimal](10,8) NOT NULL,
 	[FilledAmount] [decimal](10,8) NOT NULL DEFAULT(0.0),
-	[IsTestOrder] [bit] NOT NULL DEFAULT(0),
 	[IsActive] [bit] NOT NULL DEFAULT(1)
  CONSTRAINT [TradeOrder_PK] PRIMARY KEY CLUSTERED 
 (

@@ -25,5 +25,12 @@ namespace Waffler.API.Controller
         {
             return await _tradeOrderService.GetTradeOrdersAsync(from, to);
         }
+
+        [HttpGet]
+        [Route("status")]
+        public async Task<IEnumerable<CommonAttributeDTO>> GetTradeOrderStatusesAsync()
+        {
+            return await _tradeOrderService.GetTradeOrderStatusesAsync();
+        }
     }
 }

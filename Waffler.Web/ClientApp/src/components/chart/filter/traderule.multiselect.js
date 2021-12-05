@@ -16,7 +16,7 @@ const MenuProps = {
     },
 };
 
-export default function MultipleSelect({ tradeRules, selectedTradeRules, updateSelectedTradeRules }) {
+const TradeRuleMultiSelect = ({ tradeRules, selectedTradeRules, updateSelectedTradeRules }) => {
     if (tradeRules !== undefined && tradeRules.length > 0) {
         return (
             <div>
@@ -48,3 +48,5 @@ export default function MultipleSelect({ tradeRules, selectedTradeRules, updateS
         return null
     }
 }
+
+export default TradeRuleMultiSelect;
