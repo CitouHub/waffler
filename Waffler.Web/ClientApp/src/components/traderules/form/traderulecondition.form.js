@@ -53,9 +53,9 @@ const TradeRuleConditionForm = ({ data, tradeRuleConditionAttributes, updateTrad
     if (tradeRuleCondition !== undefined) {
         return (
             <div>
-                <div className='table-form'>
-                    <div className='trc-form'>
-                        <div className='trc-section'>
+                <div className='d-flex'>
+                    <div className='table-form'>
+                        <div className='table-form-section'>
                             <TextField sx={{ width: '80%' }} id="trc-description" label="Description" variant="outlined" value={tradeRuleCondition.description}
                                 onChange={e => setTradeRuleCondition({ ...tradeRuleCondition, description: e.target.value })}
                             />
@@ -69,7 +69,7 @@ const TradeRuleConditionForm = ({ data, tradeRuleConditionAttributes, updateTrad
                                 </Select>
                             </FormControl>
                         </div>
-                        <div className='trc-section'>
+                        <div className='table-form-section'>
                             <h5>Time span</h5>
                             <FormControl sx={{ width: '20%' }}>
                                 <InputLabel id="trc-spanTimeUnit-label">Time span unit</InputLabel>
@@ -106,7 +106,7 @@ const TradeRuleConditionForm = ({ data, tradeRuleConditionAttributes, updateTrad
                                     endAdornment: <InputAdornment position="end">%</InputAdornment>,
                                 }} />
                         </div>
-                        <div className='trc-section'>
+                        <div className='table-form-section'>
                             <h5>Sampling</h5>
                             <FormControl sx={{ width: '20%' }}>
                                 <InputLabel id="trc-sampleTimeUnit-label">Sample unit</InputLabel>

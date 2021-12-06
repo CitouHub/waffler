@@ -33,6 +33,7 @@ namespace Waffler.Domain
                 .ForMember(dest => dest.TradeTypeName, opt => opt.MapFrom(src => src.TradeType.Name))
                 .ForMember(dest => dest.TradeConditionOperatorName, opt => opt.MapFrom(src => src.TradeConditionOperator.Name))
                 .ForMember(dest => dest.TradeRuleStatusName, opt => opt.MapFrom(src => src.TradeRuleStatus.Name))
+                .ForMember(dest => dest.CandleStickValueTypeName, opt => opt.MapFrom(src => src.CandleStickValueType.Name))
                 .ForMember(dest => dest.TradeRuleConditions, opt => opt.MapFrom(src => src.TradeRuleConditions))
                 .ReverseMap()
                 .ForMember(dest => dest.TradeAction, opt => opt.Ignore())
@@ -40,7 +41,8 @@ namespace Waffler.Domain
                 .ForMember(dest => dest.TradeOrders, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeRuleConditions, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeRuleStatus, opt => opt.Ignore())
-                .ForMember(dest => dest.TradeType, opt => opt.Ignore());
+                .ForMember(dest => dest.TradeType, opt => opt.Ignore())
+                .ForMember(dest => dest.CandleStickValueType, opt => opt.Ignore());
 
             CreateMap<TradeAction, CommonAttributeDTO>();
             CreateMap<CandleStickValueType, CommonAttributeDTO>();

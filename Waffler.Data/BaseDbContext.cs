@@ -199,7 +199,15 @@ namespace Waffler.Data
                     .IsRequired()
                     .HasMaxLength(50);
 
+                entity.Property(e => e.PriceDeltaPercent).HasColumnType("decimal(6, 4)");
+
                 entity.Property(e => e.TradeRuleStatusId).HasDefaultValueSql("((1))");
+
+                entity.HasOne(d => d.CandleStickValueType)
+                    .WithMany(p => p.TradeRules)
+                    .HasForeignKey(d => d.CandleStickValueTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("TradeRule_CandleStickValueTypeFK");
 
                 entity.HasOne(d => d.TradeAction)
                     .WithMany(p => p.TradeRules)

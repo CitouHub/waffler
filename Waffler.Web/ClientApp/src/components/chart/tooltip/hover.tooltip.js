@@ -10,20 +10,20 @@ export default {
             x: dateFormat(xAccessor(currentItem)),
             y: [
                 {
-                    label: "open",
-                    value: currentItem.open && numberFormat(currentItem.open),
-                },
-                {
                     label: "high",
                     value: currentItem.high && numberFormat(currentItem.high),
                 },
                 {
-                    label: "low",
-                    value: currentItem.low && numberFormat(currentItem.low),
+                    label: "open",
+                    value: currentItem.open && numberFormat(currentItem.open),
                 },
                 {
                     label: "close",
                     value: currentItem.close && numberFormat(currentItem.close),
+                },
+                {
+                    label: "low",
+                    value: currentItem.low && numberFormat(currentItem.low),
                 },
             ]
         }
@@ -57,6 +57,10 @@ export default {
                 {
                     label: "filled",
                     value: currentItem.tradeOrder.filledAmount
+                },
+                {
+                    label: "status",
+                    value: currentItem.tradeOrder.tradeOrderStatusName
                 }
             );
         }

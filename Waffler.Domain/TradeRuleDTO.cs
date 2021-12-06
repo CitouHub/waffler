@@ -16,9 +16,13 @@ namespace Waffler.Domain
         public string TradeConditionOperatorName { get; set; }
         public short TradeRuleStatusId { get; set; }
         public string TradeRuleStatusName { get; set; }
+        public short CandleStickValueTypeId { get; set; }
+        public string CandleStickValueTypeName { get; set; }
         public string Name { get; set; }
         public decimal Amount { get; set; }
+        public decimal PriceDeltaPercent { get; set; }
         public int TradeMinIntervalMinutes { get; set; }
+        public int TradeOrderExpirationMinutes { get; set; }
         public DateTime LastTrigger { get; set; }
         public bool TestTradeInProgress { get; set; }
 
@@ -27,5 +31,7 @@ namespace Waffler.Domain
         //Consolidation of time interval 
         public Variable.TimeUnit IntervalTimeUnit { get { return TimeUnitManager.GetTimeUnit(TradeMinIntervalMinutes); } }
         public int TradeMinInterval { get { return TimeUnitManager.GetTimeValue(IntervalTimeUnit, TradeMinIntervalMinutes); } }
+        public Variable.TimeUnit OrderExpirationTimeUnit { get { return TimeUnitManager.GetTimeUnit(TradeOrderExpirationMinutes); } }
+        public int OrderExpiration { get { return TimeUnitManager.GetTimeValue(OrderExpirationTimeUnit, TradeOrderExpirationMinutes); } }
     }
 }

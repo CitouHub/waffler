@@ -22,12 +22,16 @@ namespace Waffler.Data
         public short TradeTypeId { get; set; }
         public short TradeConditionOperatorId { get; set; }
         public short TradeRuleStatusId { get; set; }
+        public short CandleStickValueTypeId { get; set; }
         public string Name { get; set; }
         public decimal Amount { get; set; }
+        public decimal PriceDeltaPercent { get; set; }
         public int TradeMinIntervalMinutes { get; set; }
+        public int TradeOrderExpirationMinutes { get; set; }
         public DateTime LastTrigger { get; set; }
         public bool TestTradeInProgress { get; set; }
 
+        public virtual CandleStickValueType CandleStickValueType { get; set; }
         public virtual TradeAction TradeAction { get; set; }
         public virtual TradeConditionOperator TradeConditionOperator { get; set; }
         public virtual TradeRuleStatus TradeRuleStatus { get; set; }

@@ -92,6 +92,8 @@ namespace Waffler.Service
                     {
                         case TradeAction.Buy:
                             var orderId = Guid.NewGuid();
+                            var price = GetPrice(tradeRule.CandleStickValueTypeId, candleStick, tradeRule.PriceDeltaPercent);
+                            var amount = Math.Round(tradeRule.Amount / price, 8);
                             if (tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Active)
                             {
                                 //orderId = await _bitpandaService.CreateOrderAsync(new CreateOrderDTO(){});
@@ -102,9 +104,9 @@ namespace Waffler.Service
                                 TradeActionId = (short)TradeAction.Buy,
                                 TradeOrderStatusId = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test ? (short)TradeOrderStatus.Test : (short)TradeOrderStatus.Open,
                                 TradeRuleId = tradeRule.Id,
-                                Amount = tradeRule.Amount,
+                                Amount = amount,
                                 OrderDateTime = currentPeriodDateTime,
-                                Price = candleStick.HighPrice,
+                                Price = price,
                                 OrderId = orderId
                             });
                             tradeRule.LastTrigger = candleStick.PeriodDateTime;
@@ -206,6 +208,42 @@ namespace Waffler.Service
             }
 
             return default;
+        }
+
+        public static decimal GetPrice(short candleStickValueTypeId, CandleStickDTO candleStick, decimal priceDeltaPercent)
+        {
+            decimal basePrice = 0;
+            switch ((CandleStickValueType)candleStickValueTypeId)
+            {
+                case CandleStickValueType.HighPrice:
+                    basePrice = candleStick.HighPrice;
+                    break;
+                case CandleStickValueType.LowPrice:
+                    basePrice = candleStick.LowPrice;
+                    break;
+                case CandleStickValueType.OpenPrice:
+                    basePrice = candleStick.OpenPrice;
+                    break;
+                case CandleStickValueType.ClosePrice:
+                    basePrice = candleStick.ClosePrice;
+                    break;
+                case CandleStickValueType.HighLowPrice:
+                    basePrice = ((candleStick.HighPrice + candleStick.LowPrice) / (decimal)2.0);
+                    break;
+                case CandleStickValueType.OpenClosePrice:
+                    basePrice = ((candleStick.OpenPrice + candleStick.ClosePrice) / (decimal)2.0);
+                    break;
+                case CandleStickValueType.AvgHighLowPrice:
+                    basePrice = ((candleStick.HighPrice + candleStick.LowPrice) / (decimal)2.0);
+                    break;
+                case CandleStickValueType.AvgOpenClosePrice:
+                    basePrice = ((candleStick.OpenPrice + candleStick.ClosePrice) / (decimal)2.0);
+                    break;
+                default:
+                    break;
+            }
+
+            return basePrice + basePrice * (priceDeltaPercent / (decimal)100.0);
         }
     }
 }

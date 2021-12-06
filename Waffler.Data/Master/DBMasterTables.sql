@@ -120,6 +120,21 @@ CREATE TABLE [dbo].[TradeRuleStatus](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 )
 
+CREATE TABLE [dbo].[CandleStickValueType](
+	[Id] [smallint] IDENTITY(1,1) NOT NULL,
+	[InsertDate] [datetime2](7) NOT NULL DEFAULT(GETUTCDATE()),
+	[InsertByUser] [int] NOT NULL DEFAULT(1),
+	[UpdateDate] [datetime2](7) NULL,
+	[UpdateByUser] [int] NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Description] [nvarchar](200) NULL
+ CONSTRAINT [CandleStickValueType_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)
+
+
 CREATE TABLE [dbo].[TradeRule](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[InsertDate] [datetime2](7) NOT NULL DEFAULT(GETUTCDATE()),
@@ -130,9 +145,12 @@ CREATE TABLE [dbo].[TradeRule](
 	[TradeTypeId] [smallint] NOT NULL,
 	[TradeConditionOperatorId] [smallint] NOT NULL,
 	[TradeRuleStatusId] [smallint] DEFAULT(1) NOT NULL,
+	[CandleStickValueTypeId] [smallint] NOT NULL,
 	[Name] [nvarchar](50) NOT NULL,
 	[Amount] [decimal](10,8) NOT NULL,
+	[PriceDeltaPercent] [decimal](6,4) NOT NULL DEFAULT(0.0),
 	[TradeMinIntervalMinutes] [int] NOT NULL,
+	[TradeOrderExpirationMinutes] [int] NOT NULL,
 	[LastTrigger] [datetime2](0) NOT NULL DEFAULT('1900-01-01'),
 	[TestTradeInProgress] [bit] NOT NULL DEFAULT(0)
  CONSTRAINT [TradeRule_PK] PRIMARY KEY CLUSTERED 
@@ -149,20 +167,8 @@ ALTER TABLE [dbo].[TradeRule] WITH CHECK ADD CONSTRAINT [TradeRule_TradeConditio
 GO
 ALTER TABLE [dbo].[TradeRule] WITH CHECK ADD CONSTRAINT [TradeRule_TradeRuleStatusFK] FOREIGN KEY([TradeRuleStatusId]) REFERENCES [dbo].[TradeRuleStatus] ([Id])
 GO
-
-CREATE TABLE [dbo].[CandleStickValueType](
-	[Id] [smallint] IDENTITY(1,1) NOT NULL,
-	[InsertDate] [datetime2](7) NOT NULL DEFAULT(GETUTCDATE()),
-	[InsertByUser] [int] NOT NULL DEFAULT(1),
-	[UpdateDate] [datetime2](7) NULL,
-	[UpdateByUser] [int] NULL,
-	[Name] [nvarchar](50) NOT NULL,
-	[Description] [nvarchar](200) NULL
- CONSTRAINT [CandleStickValueType_PK] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
-)
+ALTER TABLE [dbo].[TradeRule] WITH CHECK ADD CONSTRAINT [TradeRule_CandleStickValueTypeFK] FOREIGN KEY([CandleStickValueTypeId]) REFERENCES [dbo].[CandleStickValueType] ([Id])
+GO
 
 CREATE TABLE [dbo].[TradeRuleConditionComparator](
 	[Id] [smallint] IDENTITY(1,1) NOT NULL,

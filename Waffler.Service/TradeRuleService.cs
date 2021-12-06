@@ -49,6 +49,7 @@ namespace Waffler.Service
                 TradeActionId = (short)Variable.TradeAction.Buy,
                 TradeTypeId = (short)Variable.TradeType.BTC_EUR,
                 TradeConditionOperatorId = (short)Variable.TradeConditionOperator.AND,
+                CandleStickValueTypeId = (short)Variable.CandleStickValueType.AvgOpenClosePrice,
                 Name = "New trade rule",
                 Amount = 0,
                 TradeMinIntervalMinutes = (int)TimeSpan.FromDays(1).TotalMinutes
@@ -68,6 +69,7 @@ namespace Waffler.Service
                 .Include(_ => _.TradeConditionOperator)
                 .Include(_ => _.TradeRuleStatus)
                 .Include(_ => _.TradeRuleConditions)
+                .Include(_ => _.CandleStickValueType)
                 .ToListAsync();
             return _mapper.Map<List<TradeRuleDTO>>(tradeRules);
         }
@@ -80,17 +82,21 @@ namespace Waffler.Service
                     nameof(TradeAction),
                     _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeActions.ToArrayAsync())
                 },
-                                {
+                {
                     nameof(TradeType),
                     _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeTypes.ToArrayAsync())
                 },
-                                                {
+                {
                     nameof(TradeConditionOperator),
                     _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeConditionOperators.ToArrayAsync())
                 },
-                                                {
+                {
                     nameof(TradeRuleStatus),
                     _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeRuleStatuses.ToArrayAsync())
+                },
+                {
+                    nameof(CandleStickValueType),
+                    _mapper.Map<List<CommonAttributeDTO>>(await _context.CandleStickValueTypes.ToArrayAsync())
                 }
             };
         }
@@ -103,6 +109,7 @@ namespace Waffler.Service
                 .Include(_ => _.TradeConditionOperator)
                 .Include(_ => _.TradeRuleStatus)
                 .Include(_ => _.TradeRuleConditions)
+                .Include(_ => _.CandleStickValueType)
                 .FirstOrDefaultAsync(_ => _.Id == tradeRuleId);
             return _mapper.Map<TradeRuleDTO>(tradeRule);
         }
@@ -146,7 +153,7 @@ namespace Waffler.Service
         public async Task<bool> DeleteTradeRuleAsync(int tradeRuleId)
         {
             var tradeRule = await _context.TradeRules.FindAsync(tradeRuleId);
-            if(tradeRule != null)
+            if (tradeRule != null)
             {
                 _context.TradeRules.Remove(tradeRule);
                 await _context.SaveChangesAsync();

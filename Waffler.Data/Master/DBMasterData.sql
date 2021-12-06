@@ -89,9 +89,9 @@ GO
 
 SET IDENTITY_INSERT TradeRule ON
 GO
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (1, 1, 1, 1, 2, 'Fast drop, small buy', 10, 60*2)
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (2, 1, 1, 1, 2, 'Slow drop, big buy', 40, 60*6)
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [Name], [Amount], [TradeMinIntervalMinutes]) VALUES (3, 1, 1, 2, 2, 'Buy dayly', 20, 24*60)
+INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [CandleStickValueTypeId], [Name], [Amount], [TradeOrderExpirationMinutes], [TradeMinIntervalMinutes]) VALUES (1, 1, 1, 1, 2, 8, 'Fast drop, small buy', 10, 60, 60*2)
+INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [CandleStickValueTypeId], [Name], [Amount], [TradeOrderExpirationMinutes], [TradeMinIntervalMinutes]) VALUES (2, 1, 1, 1, 2, 8, 'Slow drop, big buy', 40, 60, 60*6)
+INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [CandleStickValueTypeId], [Name], [Amount], [TradeOrderExpirationMinutes], [TradeMinIntervalMinutes]) VALUES (3, 1, 1, 2, 2, 8, 'Buy dayly', 20, 60, 24*60)
 SET IDENTITY_INSERT TradeRule OFF
 GO
 

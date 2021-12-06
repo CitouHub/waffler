@@ -1,5 +1,11 @@
 ﻿.table-form {
-    display: flex;
+    width: 90%;
+}
+
+.table-form-section {
+    margin-top: 1rem;
+    width: 100%;
+    text-align: left;
 }
 
 .actions-center {
@@ -21,14 +27,4 @@
     -webkit-transition: all .1s ease-in;
     transition: all .1s ease-in;
     color: #1565c0;
-}
-
-.trc-form {
-    width: 94%;
-}
-
-.trc-section {
-    margin-top: 1rem;
-    width: 100%;
-    text-align: left;
 }
