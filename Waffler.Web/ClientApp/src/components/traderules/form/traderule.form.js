@@ -6,9 +6,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import InputAdornment from '@mui/material/InputAdornment';
 import TimeUnit from './timeunit';
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashAlt, faPlayCircle, faStopCircle, faSave } from "@fortawesome/free-solid-svg-icons";
+import TradeRuleActionMenu from './traderule.action.menu';
 
 import TradeRuleService from '../../../services/traderule.service';
 
@@ -139,11 +137,14 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartT
                                 }} />
                         </div>
                     </div>
-                    <div className="actions-bottom">
-                        {!runningTest && <span className='fa-icon' onClick={saveTradeRule}><FontAwesomeIcon icon={faSave} className="mr-2" /></span>}
-                        {!runningTest && <span className='fa-icon' onClick={deleteTradeRule}><FontAwesomeIcon icon={faTrashAlt} className="mr-2" /></span>}
-                        {!runningTest && <span className='fa-icon' onClick={() => openStartTestDialog()}><FontAwesomeIcon icon={faPlayCircle} className="mr-2" /></span>}
-                        {runningTest && <span className='fa-icon' onClick={() => stopTradeRuleTest()}><FontAwesomeIcon icon={faStopCircle} className="mr-2" /></span>}
+                    <div className="actions-top">
+                        <TradeRuleActionMenu
+                            runningTest={runningTest}
+                            saveTradeRule={saveTradeRule}
+                            deleteTradeRule={deleteTradeRule}
+                            startTradeRuleTest={() => openStartTestDialog()}
+                            stopTradeRuleTest={() => stopTradeRuleTest()}
+                        />
                     </div>
                 </div>
             </div>

@@ -8,9 +8,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import TimeUnit from './timeunit';
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashAlt, faSave } from "@fortawesome/free-solid-svg-icons";
+import TradeRuleConditionActionMenu from './traderulecondition.action.menu';
 
 import TradeRuleConditionService from '../../../services/traderulecondition.service';
 
@@ -151,9 +149,11 @@ const TradeRuleConditionForm = ({ data, tradeRuleConditionAttributes, updateTrad
                             </FormControl>
                         </div>
                     </div>
-                    <div className="actions-bottom">
-                        <span className='fa-icon' onClick={saveTradeRuleCondition}><FontAwesomeIcon icon={faSave} className="mr-2" /></span>
-                        <span className='fa-icon' onClick={deleteTradeRuleCondition}><FontAwesomeIcon icon={faTrashAlt} className="mr-2" /></span>
+                    <div className="actions-top">
+                        <TradeRuleConditionActionMenu
+                            saveTradeRuleCondition={saveTradeRuleCondition}
+                            deleteTradeRuleCondition={deleteTradeRuleCondition}
+                        />
                     </div>
                 </div>
             </div>

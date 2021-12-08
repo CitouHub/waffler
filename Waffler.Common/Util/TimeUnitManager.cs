@@ -16,6 +16,10 @@
 
         public static Variable.TimeUnit GetTimeUnit(int value)
         {
+            if(value == 0)
+            {
+                return Variable.TimeUnit.Minute;
+            } 
             if (value % (7 * 24 * 60) == 0)
             {
                 return Variable.TimeUnit.Week;

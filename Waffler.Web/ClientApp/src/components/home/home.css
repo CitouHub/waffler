@@ -20,4 +20,5 @@
     padding: 0 1rem 1rem 1rem;
     margin-left: 0;
     height: calc(100vh - 84px);
+    overflow-y: scroll;
 }
