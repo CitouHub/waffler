@@ -16,10 +16,6 @@ namespace Waffler.Domain
         [JsonPropertyName("close")]
         public decimal ClosePrice { get; set; }
         [JsonIgnore]
-        public decimal? AvgHighLowPrice { get; set; }
-        [JsonIgnore]
-        public decimal? AvgOpenClosePrice { get; set; }
-        [JsonIgnore]
         public decimal? TotalAmount { get; set; }
         [JsonPropertyName("volume")]
         public decimal Volume { get; set; }

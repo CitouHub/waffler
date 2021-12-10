@@ -36,8 +36,6 @@ namespace Waffler.Data
                 entity.Property(e => e.LowPrice).HasColumnType("decimal(10, 2)");
                 entity.Property(e => e.OpenPrice).HasColumnType("decimal(10, 2)");
                 entity.Property(e => e.ClosePrice).HasColumnType("decimal(10, 2)");
-                entity.Property(e => e.AvgHighLowPrice).HasColumnType("decimal(10, 2)");
-                entity.Property(e => e.AvgOpenClosePrice).HasColumnType("decimal(10, 2)");
                 entity.Property(e => e.Volume).HasColumnType("decimal(10, 2)");
             });
 

@@ -23,7 +23,7 @@ namespace Waffler.Service
         Task<List<CandleStickDTO>> GetCandleSticksAsync(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.TradeType tradeType, short periodMinutes);
         Task<CandleStickDTO> GetLastCandleStickAsync(DateTime toPeriodDateTime);
         Task<CandleStickDTO> GetFirstCandleStickAsync(DateTime toPeriodDateTime);
-        Task<PriceTrendsDTO> GetPriceTrendsAsync(DateTime currentPeriodDateTime, Variable.TradeType tradeType, Variable.TradeRuleConditionSampleDirection sampleDirection, int fromMinutesOffset, int toMinutesOffset, int fromMinutesSample, int toMinutesSample);
+        Task<decimal?> GetPriceTrendAsync(DateTime currentPeriodDateTime, Variable.TradeType tradeType, TradeRuleConditionDTO tradeRuleCondition);
         Task ResetCandleStickSyncAsync();
     }
 
@@ -75,83 +75,91 @@ namespace Waffler.Service
             return _mapper.Map<CandleStickDTO>(candleStick);
         }
 
-        public async Task<PriceTrendsDTO> GetPriceTrendsAsync(DateTime currentPeriodDateTime, 
+        public async Task<decimal?> GetPriceTrendAsync(DateTime currentPeriodDateTime, 
             Variable.TradeType tradeType,
-            Variable.TradeRuleConditionSampleDirection sampleDirection, 
-            int fromMinutesOffset, 
-            int toMinutesOffset, 
-            int fromMinutesSample, 
-            int toMinutesSample)
+            TradeRuleConditionDTO tradeRuleCondition)
         {
-            var fromFromDateTime = currentPeriodDateTime.AddMinutes(fromMinutesOffset);
-            var fromToDateTime = currentPeriodDateTime.AddMinutes(fromMinutesOffset);
-            var toFromDateTime = currentPeriodDateTime.AddMinutes(toMinutesOffset);
-            var toToDateTime = currentPeriodDateTime.AddMinutes(toMinutesOffset);
+            var fromPeriod = GetPeriod((Variable.TradeRuleConditionPeriodDirection)tradeRuleCondition.FromTradeRuleConditionPeriodDirectionId,
+                currentPeriodDateTime.AddMinutes(tradeRuleCondition.FromMinutes), tradeRuleCondition.FromPeriodMinutes);
 
-            switch (sampleDirection)
-            {
-                case Variable.TradeRuleConditionSampleDirection.Centered:
-                    fromFromDateTime = fromFromDateTime.AddMinutes(-1 * fromMinutesSample / 2);
-                    fromToDateTime = fromToDateTime.AddMinutes(fromMinutesSample / 2);
-                    toFromDateTime = toFromDateTime.AddMinutes(-1 * toMinutesSample);
-                    break;
-                case Variable.TradeRuleConditionSampleDirection.RightShift:
-                    fromToDateTime = fromToDateTime.AddMinutes(fromMinutesSample);
-                    toFromDateTime = toFromDateTime.AddMinutes(-1 * toMinutesSample);
-                    break;
-                case Variable.TradeRuleConditionSampleDirection.LeftShift:
-                    fromFromDateTime = fromFromDateTime.AddMinutes(-1 * fromMinutesSample);
-                    toFromDateTime = toFromDateTime.AddMinutes(-1 * toMinutesSample);
-                    break;
-            }
+            var toPeriod = GetPeriod((Variable.TradeRuleConditionPeriodDirection)tradeRuleCondition.ToTradeRuleConditionPeriodDirectionId,
+                currentPeriodDateTime.AddMinutes(tradeRuleCondition.ToMinutes), tradeRuleCondition.ToPeriodMinutes);
+
 
             var candleSticksDTO = _cache.Get<List<CandleStickDTO>, DateTime?>(MethodBase.GetCurrentMethod().Name, out DateTime? cacheFromPeriodDateTime);
-            if (cacheFromPeriodDateTime == null || fromFromDateTime < cacheFromPeriodDateTime)
+            if (cacheFromPeriodDateTime == null || fromPeriod.From < cacheFromPeriodDateTime)
             {
-                candleSticksDTO = await GetCandleSticksAsync(fromFromDateTime, DateTime.UtcNow, Variable.TradeType.BTC_EUR, 1);
-                _cache.Set(MethodBase.GetCurrentMethod().Name, candleSticksDTO, fromFromDateTime);
+                candleSticksDTO = await GetCandleSticksAsync(fromPeriod.From, DateTime.UtcNow, tradeType, 1);
+                _cache.Set(MethodBase.GetCurrentMethod().Name, candleSticksDTO, fromPeriod.From);
             }
 
-            var fromCandleSticks = candleSticksDTO.Where(_ => _.PeriodDateTime >= fromFromDateTime && _.PeriodDateTime <= fromToDateTime)
+            var fromCandleStick = candleSticksDTO.Where(_ => _.PeriodDateTime >= fromPeriod.From && _.PeriodDateTime <= fromPeriod.To)
                 .GroupBy(_ => "From")
-                .Select(_ => new
+                .Select(_ => new CandleStickDTO()
                 {
                     HighPrice = _.Max(p => p.HighPrice),
                     LowPrice = _.Min(p => p.LowPrice),
-                    candleSticksDTO.Where(_ => _.PeriodDateTime >= fromFromDateTime && _.PeriodDateTime <= fromToDateTime).OrderBy(_ => _.PeriodDateTime).FirstOrDefault().OpenPrice,
-                    candleSticksDTO.Where(_ => _.PeriodDateTime >= fromFromDateTime && _.PeriodDateTime <= fromToDateTime).OrderByDescending(_ => _.PeriodDateTime).FirstOrDefault().ClosePrice,
-                    AvgHighLowPrice = _.Average(p => p.AvgHighLowPrice),
-                    AvgOpenClosePrice = _.Average(p => p.AvgOpenClosePrice)
+                    OpenPrice = candleSticksDTO.Where(_ => _.PeriodDateTime >= fromPeriod.From && _.PeriodDateTime <= fromPeriod.To).OrderBy(_ => _.PeriodDateTime).FirstOrDefault().OpenPrice,
+                    ClosePrice = candleSticksDTO.Where(_ => _.PeriodDateTime >= fromPeriod.From && _.PeriodDateTime <= fromPeriod.To).OrderByDescending(_ => _.PeriodDateTime).FirstOrDefault().ClosePrice,
                 }).FirstOrDefault();
 
-            var toCandleSticks = candleSticksDTO.Where(_ => _.PeriodDateTime >= toFromDateTime && _.PeriodDateTime <= toToDateTime)
+            var toCandleStick = candleSticksDTO.Where(_ => _.PeriodDateTime >= toPeriod.From && _.PeriodDateTime <= toPeriod.To)
                 .GroupBy(_ => "To")
-                .Select(_ => new
+                .Select(_ => new CandleStickDTO()
                 {
                     HighPrice = _.Max(p => p.HighPrice),
                     LowPrice = _.Min(p => p.LowPrice),
-                    candleSticksDTO.Where(_ => _.PeriodDateTime >= toFromDateTime && _.PeriodDateTime <= toToDateTime).OrderBy(_ => _.PeriodDateTime).FirstOrDefault().OpenPrice,
-                    candleSticksDTO.Where(_ => _.PeriodDateTime >= toFromDateTime && _.PeriodDateTime <= toToDateTime).OrderByDescending(_ => _.PeriodDateTime).FirstOrDefault().ClosePrice,
-                    AvgHighLowPrice = _.Average(p => p.AvgHighLowPrice),
-                    AvgOpenClosePrice = _.Average(p => p.AvgOpenClosePrice)
+                    OpenPrice = candleSticksDTO.Where(_ => _.PeriodDateTime >= toPeriod.From && _.PeriodDateTime <= toPeriod.To).OrderBy(_ => _.PeriodDateTime).FirstOrDefault().OpenPrice,
+                    ClosePrice = candleSticksDTO.Where(_ => _.PeriodDateTime >= toPeriod.From && _.PeriodDateTime <= toPeriod.To).OrderByDescending(_ => _.PeriodDateTime).FirstOrDefault().ClosePrice,
                 }).FirstOrDefault();
 
-            if(fromCandleSticks != null && toCandleSticks != null)
+            var fromValue = GetValue((Variable.CandleStickValueType)tradeRuleCondition.FromCandleStickValueTypeId, fromCandleStick);
+            var toValue = GetValue((Variable.CandleStickValueType)tradeRuleCondition.ToCandleStickValueTypeId, toCandleStick);
+
+            if(fromValue != null && toValue != null)
             {
-                return new PriceTrendsDTO()
-                {
-                    HighPriceTrend = Math.Round((1 - fromCandleSticks.HighPrice / toCandleSticks.HighPrice) * 100, 4),
-                    LowPriceTrend = Math.Round((1 - fromCandleSticks.LowPrice / toCandleSticks.LowPrice) * 100, 4),
-                    OpenPriceTrend = Math.Round((1 - fromCandleSticks.OpenPrice / toCandleSticks.OpenPrice) * 100, 4),
-                    ClosePriceTrend = Math.Round((1 - fromCandleSticks.ClosePrice / toCandleSticks.ClosePrice) * 100, 4),
-                    HighLowPriceTrend = Math.Round((1 - fromCandleSticks.HighPrice / toCandleSticks.LowPrice) * 100, 4),
-                    OpenClosePriceTrend = Math.Round((1 - fromCandleSticks.OpenPrice / toCandleSticks.ClosePrice) * 100, 4),
-                    AvgHighLowPriceTrend = Math.Round((1 - fromCandleSticks.AvgHighLowPrice.Value / toCandleSticks.AvgHighLowPrice.Value) * 100, 4),
-                    AvgOpenClosePriceTrend = Math.Round((1 - fromCandleSticks.AvgOpenClosePrice.Value / toCandleSticks.AvgOpenClosePrice.Value) * 100, 4),
-                };
+                return Math.Round((1 - fromValue.Value / toValue.Value) * 100, 4);
             }
 
             return null;
+        }
+
+        private PeriodDTO GetPeriod(Variable.TradeRuleConditionPeriodDirection direction, DateTime dateTime, int minutes)
+        {
+            var fromDateTime = dateTime;
+            var toDateTime = dateTime;
+
+            switch (direction)
+            {
+                case Variable.TradeRuleConditionPeriodDirection.Centered:
+                    fromDateTime = fromDateTime.AddMinutes(-1 * minutes / 2);
+                    toDateTime = toDateTime.AddMinutes(minutes / 2);
+                    break;
+                case Variable.TradeRuleConditionPeriodDirection.RightShift:
+                    toDateTime = toDateTime.AddMinutes(minutes);
+                    break;
+                case Variable.TradeRuleConditionPeriodDirection.LeftShift:
+                    fromDateTime = fromDateTime.AddMinutes(-1 * minutes);
+                    break;
+            }
+
+            return new PeriodDTO()
+            {
+                From = fromDateTime,
+                To = toDateTime
+            };
+        }
+
+        private decimal? GetValue(Variable.CandleStickValueType candleStickValueType, CandleStickDTO candleStick)
+        {
+            return candleStickValueType switch
+            {
+                Variable.CandleStickValueType.HighPrice => candleStick?.HighPrice,
+                Variable.CandleStickValueType.LowPrice => candleStick?.LowPrice,
+                Variable.CandleStickValueType.OpenPrice => candleStick?.OpenPrice,
+                Variable.CandleStickValueType.ClosePrice => candleStick?.ClosePrice,
+                _ => default,
+            };
         }
 
         public async Task ResetCandleStickSyncAsync()

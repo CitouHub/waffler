@@ -7,8 +7,27 @@ export default {
     }).then((response) => {
         return Request.handleResponse(response)
     }),
+    copyTradeRule: async (tradeRuleId) => await Request.send({
+        url: `/traderule/copy/${tradeRuleId}`,
+        method: 'POST'
+    }).then((response) => {
+        return Request.handleResponse(response)
+    }),
+    importTradeRule: async (tradeRule) => await Request.send({
+        url: `/traderule/import`,
+        method: 'POST',
+        data: tradeRule
+    }).then((response) => {
+        return Request.handleResponse(response)
+    }),
     getTradeRules: async () => await Request.send({
         url: `/traderule`,
+        method: 'GET'
+    }).then((response) => {
+        return Request.handleResponse(response)
+    }),
+    getTradeRule: async (tradeRuleId) => await Request.send({
+        url: `/traderule/${tradeRuleId}`,
         method: 'GET'
     }).then((response) => {
         return Request.handleResponse(response)

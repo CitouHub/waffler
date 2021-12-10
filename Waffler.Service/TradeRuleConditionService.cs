@@ -44,13 +44,18 @@ namespace Waffler.Service
                 InsertDate = DateTime.UtcNow,
                 InsertByUser = 1,
                 TradeRuleId = tradeRuleId,
-                CandleStickValueTypeId = (short)Variable.CandleStickValueType.HighPrice,
                 TradeRuleConditionComparatorId = (short)Variable.TradeRuleConditionComparator.LessThen,
-                TradeRuleConditionSampleDirectionId = (short)Variable.TradeRuleConditionSampleDirection.Centered,
-                FromMinutesOffset = 0,
-                ToMinutesOffset = 0,
-                FromMinutesSample = 0,
-                ToMinutesSample = 0,
+
+                FromCandleStickValueTypeId = (short)Variable.CandleStickValueType.HighPrice,
+                FromTradeRuleConditionPeriodDirectionId = (short)Variable.TradeRuleConditionPeriodDirection.Centered,
+                FromMinutes = 0,
+                FromPeriodMinutes = 0,
+
+                ToCandleStickValueTypeId = (short)Variable.CandleStickValueType.HighPrice,
+                ToTradeRuleConditionPeriodDirectionId = (short)Variable.TradeRuleConditionPeriodDirection.LeftShift,
+                ToMinutes = 0,
+                ToPeriodMinutes = 0,
+
                 DeltaPercent = 0,
                 Description = "New condition",
                 IsOn = false
@@ -65,9 +70,11 @@ namespace Waffler.Service
         public async Task<List<TradeRuleConditionDTO>> GetTradeRuleConditionsAsync(int tradeRuleId)
         {
             var tradeRuleConditions = await _context.TradeRuleConditions
-                .Include(_ => _.CandleStickValueType)
                 .Include(_ => _.TradeRuleConditionComparator)
-                .Include(_ => _.TradeRuleConditionSampleDirection)
+                .Include(_ => _.FromCandleStickValueType)
+                .Include(_ => _.FromTradeRuleConditionPeriodDirection)
+                .Include(_ => _.ToCandleStickValueType)
+                .Include(_ => _.ToTradeRuleConditionPeriodDirection)
                 .Where(_ => _.TradeRuleId == tradeRuleId)
                 .ToListAsync();
             return _mapper.Map<List<TradeRuleConditionDTO>>(tradeRuleConditions);
@@ -86,8 +93,8 @@ namespace Waffler.Service
                     _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeRuleConditionComparators.ToArrayAsync())
                 },
                 {
-                    nameof(TradeRuleConditionSampleDirection),
-                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeRuleConditionSampleDirections.ToArrayAsync())
+                    nameof(TradeRuleConditionPeriodDirection),
+                    _mapper.Map<List<CommonAttributeDTO>>(await _context.TradeRuleConditionPeriodDirections.ToArrayAsync())
                 }
             };
         }

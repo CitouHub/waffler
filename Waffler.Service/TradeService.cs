@@ -51,29 +51,24 @@ namespace Waffler.Service
                     TradeRuleCondtionEvaluations = new List<TradeRuleConditionEvaluationDTO>()
                 };
 
-                foreach (var condition in tradeRule.TradeRuleConditions.Where(_ => _.IsOn == true))
+                foreach (var tradeRuleCondition in tradeRule.TradeRuleConditions.Where(_ => _.IsOn == true))
                 {
-                    _logger.LogInformation($" - Checking condition \"{condition.Description}\"");
-                    var trends = await _candleStickService.GetPriceTrendsAsync(
+                    _logger.LogInformation($" - Checking condition \"{tradeRuleCondition.Description}\"");
+                    var trend = await _candleStickService.GetPriceTrendAsync(
                         currentPeriodDateTime,
                         (TradeType)tradeRule.TradeTypeId,
-                        (TradeRuleConditionSampleDirection)condition.TradeRuleConditionSampleDirectionId,
-                        condition.FromMinutesOffset,
-                        condition.ToMinutesOffset,
-                        condition.FromMinutesSample,
-                        condition.ToMinutesSample);
-                    _logger.LogInformation($" - Trends {trends}");
+                        tradeRuleCondition);
+
                     var conditionResult = new TradeRuleConditionEvaluationDTO()
                     {
-                        Id = condition.Id,
-                        Description = condition.Description,
+                        Id = tradeRuleCondition.Id,
+                        Description = tradeRuleCondition.Description,
                         IsFullfilled = false
                     };
-
-                    if (trends != null)
+                    if (trend != null)
                     {
-                        var value = GetTargetValue(condition.CandleStickValueTypeId, trends);
-                        conditionResult.IsFullfilled = EvaluateCondition(condition, value);
+                        _logger.LogInformation($" - Trend {trend}");
+                        conditionResult.IsFullfilled = EvaluateCondition(tradeRuleCondition, trend.Value);
                     }
 
                     tradeRuleResult.TradeRuleCondtionEvaluations.Add(conditionResult);
@@ -183,33 +178,6 @@ namespace Waffler.Service
             return false;
         }
 
-        public static decimal GetTargetValue(short candleStickValueTypeId, PriceTrendsDTO trends)
-        {
-            switch ((CandleStickValueType)candleStickValueTypeId)
-            {
-                case CandleStickValueType.HighPrice:
-                    return trends.HighPriceTrend;
-                case CandleStickValueType.LowPrice:
-                    return trends.LowPriceTrend;
-                case CandleStickValueType.OpenPrice:
-                    return trends.OpenPriceTrend;
-                case CandleStickValueType.ClosePrice:
-                    return trends.ClosePriceTrend;
-                case CandleStickValueType.HighLowPrice:
-                    return trends.HighLowPriceTrend;
-                case CandleStickValueType.OpenClosePrice:
-                    return trends.OpenClosePriceTrend;
-                case CandleStickValueType.AvgHighLowPrice:
-                    return trends.AvgHighLowPriceTrend;
-                case CandleStickValueType.AvgOpenClosePrice:
-                    return trends.AvgHighLowPriceTrend;
-                default:
-                    break;
-            }
-
-            return default;
-        }
-
         public static decimal GetPrice(short candleStickValueTypeId, CandleStickDTO candleStick, decimal priceDeltaPercent)
         {
             decimal basePrice = 0;
@@ -226,18 +194,6 @@ namespace Waffler.Service
                     break;
                 case CandleStickValueType.ClosePrice:
                     basePrice = candleStick.ClosePrice;
-                    break;
-                case CandleStickValueType.HighLowPrice:
-                    basePrice = ((candleStick.HighPrice + candleStick.LowPrice) / (decimal)2.0);
-                    break;
-                case CandleStickValueType.OpenClosePrice:
-                    basePrice = ((candleStick.OpenPrice + candleStick.ClosePrice) / (decimal)2.0);
-                    break;
-                case CandleStickValueType.AvgHighLowPrice:
-                    basePrice = ((candleStick.HighPrice + candleStick.LowPrice) / (decimal)2.0);
-                    break;
-                case CandleStickValueType.AvgOpenClosePrice:
-                    basePrice = ((candleStick.OpenPrice + candleStick.ClosePrice) / (decimal)2.0);
                     break;
                 default:
                     break;

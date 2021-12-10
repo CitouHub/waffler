@@ -16,6 +16,10 @@ namespace Waffler.Service
     {
         Task<TradeRuleDTO> NewTradeRuleAsync();
 
+        Task<bool> AddTradeRuleAsync(TradeRuleDTO tradeRule);
+
+        Task<bool> CopyTradeRuleAsync(int tradeRuleId);
+
         Task<List<TradeRuleDTO>> GetTradeRulesAsync();
 
         Task<Dictionary<string, List<CommonAttributeDTO>>> GetTradeRuleAttributesAsync();
@@ -49,7 +53,7 @@ namespace Waffler.Service
                 TradeActionId = (short)Variable.TradeAction.Buy,
                 TradeTypeId = (short)Variable.TradeType.BTC_EUR,
                 TradeConditionOperatorId = (short)Variable.TradeConditionOperator.AND,
-                CandleStickValueTypeId = (short)Variable.CandleStickValueType.AvgOpenClosePrice,
+                CandleStickValueTypeId = (short)Variable.CandleStickValueType.HighPrice,
                 Name = "New trade rule",
                 Amount = 0,
                 TradeMinIntervalMinutes = (int)TimeSpan.FromDays(1).TotalMinutes
@@ -59,6 +63,70 @@ namespace Waffler.Service
             await _context.SaveChangesAsync();
 
             return _mapper.Map<TradeRuleDTO>(newTradeRule);
+        }
+
+        public async Task<bool> AddTradeRuleAsync(TradeRuleDTO tradeRule)
+        {
+            var newTradeRule = _mapper.Map<TradeRule>(tradeRule);
+            newTradeRule.Id = 0;
+            newTradeRule.InsertDate = DateTime.UtcNow;
+            newTradeRule.InsertByUser = 1;
+            newTradeRule.Name = $"{newTradeRule.Name} (Imported)";
+
+            await _context.TradeRules.AddAsync(newTradeRule);
+            await _context.SaveChangesAsync();
+
+            foreach (var tradeRuleCondition in tradeRule.TradeRuleConditions)
+            {
+                var newTradeRuleCondition = _mapper.Map<TradeRuleCondition>(tradeRuleCondition);
+                newTradeRuleCondition.Id = 0;
+                newTradeRuleCondition.InsertDate = DateTime.UtcNow;
+                newTradeRuleCondition.InsertByUser = 1;
+                newTradeRuleCondition.TradeRuleId = newTradeRule.Id;
+
+                await _context.TradeRuleConditions.AddAsync(newTradeRuleCondition);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> CopyTradeRuleAsync(int tradeRuleId)
+        {
+            var tradeRule = await _context.TradeRules
+                .Include(_ => _.TradeRuleConditions)
+                .FirstOrDefaultAsync(_ => _.Id == tradeRuleId);
+            if (tradeRule != null)
+            {
+                var copyTradeRule = _mapper.Map<TradeRuleDTO>(tradeRule);
+                var newTradeRule = _mapper.Map<TradeRule>(copyTradeRule);
+                newTradeRule.Id = 0;
+                newTradeRule.InsertDate = DateTime.UtcNow;
+                newTradeRule.InsertByUser = 1;
+                newTradeRule.Name = $"{newTradeRule.Name} (Copy)";
+
+                await _context.TradeRules.AddAsync(newTradeRule);
+                await _context.SaveChangesAsync();
+
+                foreach (var tradeRuleCondition in tradeRule.TradeRuleConditions)
+                {
+                    var copyTradeRuleCondition = _mapper.Map<TradeRuleConditionDTO>(tradeRuleCondition);
+                    var newTradeRuleCondition = _mapper.Map<TradeRuleCondition>(copyTradeRuleCondition);
+                    newTradeRuleCondition.Id = 0;
+                    newTradeRuleCondition.InsertDate = DateTime.UtcNow;
+                    newTradeRuleCondition.InsertByUser = 1;
+                    newTradeRuleCondition.TradeRuleId = newTradeRule.Id;
+
+                    await _context.TradeRuleConditions.AddAsync(newTradeRuleCondition);
+                }
+
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+
+            return false;
         }
 
         public async Task<List<TradeRuleDTO>> GetTradeRulesAsync()
@@ -104,12 +172,7 @@ namespace Waffler.Service
         public async Task<TradeRuleDTO> GetTradeRuleAsync(int tradeRuleId)
         {
             var tradeRule = await _context.TradeRules
-                .Include(_ => _.TradeAction)
-                .Include(_ => _.TradeType)
-                .Include(_ => _.TradeConditionOperator)
-                .Include(_ => _.TradeRuleStatus)
                 .Include(_ => _.TradeRuleConditions)
-                .Include(_ => _.CandleStickValueType)
                 .FirstOrDefaultAsync(_ => _.Id == tradeRuleId);
             return _mapper.Map<TradeRuleDTO>(tradeRule);
         }

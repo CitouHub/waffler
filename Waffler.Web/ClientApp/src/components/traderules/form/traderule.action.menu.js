@@ -53,7 +53,7 @@ const StyledMenu = styled((props) => (
     },
 }));
 
-const TradeRuleActionMenu = ({ runningTest, saveTradeRule, deleteTradeRule, startTradeRuleTest, stopTradeRuleTest}) => {
+const TradeRuleActionMenu = ({ runningTest, saveTradeRule, copyTradeRule, exportTradeRule, deleteTradeRule, startTradeRuleTest, stopTradeRuleTest}) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
 
@@ -85,11 +85,17 @@ const TradeRuleActionMenu = ({ runningTest, saveTradeRule, deleteTradeRule, star
                     <SaveIcon />
                     Save
                 </MenuItem>
-                <MenuItem onClick={e => setAnchorEl(null)} disableRipple>
+                <MenuItem onClick={e => {
+                    exportTradeRule();
+                    setAnchorEl(null);
+                }} disableRipple>
                     <FileDownloadIcon />
                     Export
                 </MenuItem>
-                <MenuItem onClick={e => setAnchorEl(null)} disableRipple>
+                <MenuItem onClick={e => {
+                    copyTradeRule();
+                    setAnchorEl(null);
+                }} disableRipple>
                     <ContentCopyIcon />
                     Copy
                 </MenuItem>

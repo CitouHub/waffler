@@ -9,7 +9,8 @@ namespace Waffler.Data
     {
         public CandleStickValueType()
         {
-            TradeRuleConditions = new HashSet<TradeRuleCondition>();
+            TradeRuleConditionFromCandleStickValueTypes = new HashSet<TradeRuleCondition>();
+            TradeRuleConditionToCandleStickValueTypes = new HashSet<TradeRuleCondition>();
             TradeRules = new HashSet<TradeRule>();
         }
 
@@ -21,7 +22,8 @@ namespace Waffler.Data
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public virtual ICollection<TradeRuleCondition> TradeRuleConditions { get; set; }
+        public virtual ICollection<TradeRuleCondition> TradeRuleConditionFromCandleStickValueTypes { get; set; }
+        public virtual ICollection<TradeRuleCondition> TradeRuleConditionToCandleStickValueTypes { get; set; }
         public virtual ICollection<TradeRule> TradeRules { get; set; }
     }
 }

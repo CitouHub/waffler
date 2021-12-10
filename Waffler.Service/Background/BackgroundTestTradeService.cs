@@ -54,10 +54,11 @@ namespace Waffler.Service.Background
 
         public async Task RunTradeTest(CancellationToken cancellationToken, TradeRuleTestRequestDTO tradeRuleTestRequest)
         {
+            _logger.LogInformation($"New trade rule test request found {tradeRuleTestRequest}");
+            var currentStatus = _testTradeRuleQueue.InitTradeRuleTestRun(tradeRuleTestRequest);
+
             try
             {
-                _logger.LogInformation($"New trade rule test request found {tradeRuleTestRequest}");
-                var currentStatus = _testTradeRuleQueue.InitTradeRuleTestRun(tradeRuleTestRequest);
                 using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
                     var _tradeRuleService = scope.ServiceProvider.GetRequiredService<ITradeRuleService>();
@@ -122,7 +123,6 @@ namespace Waffler.Service.Background
                     }
                 }
 
-                _testTradeRuleQueue.CloseTest(tradeRuleTestRequest.TradeRuleId);
                 var testStatus = _testTradeRuleQueue.GetTradeRuleTestStatus(tradeRuleTestRequest.TradeRuleId);
 
                 if (cancellationToken.IsCancellationRequested || testStatus.Aborted)
@@ -134,6 +134,8 @@ namespace Waffler.Service.Background
             {
                 _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
             }
+
+            _testTradeRuleQueue.CloseTest(tradeRuleTestRequest.TradeRuleId);
         }
     }
 }

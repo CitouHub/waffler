@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,8 +14,6 @@ using AutoMapper;
 using Waffler.Common;
 using Waffler.Domain;
 using static Waffler.Common.Variable;
-using Microsoft.Extensions.Configuration;
-using System.Diagnostics;
 
 namespace Waffler.Service.Background
 {
@@ -22,8 +21,10 @@ namespace Waffler.Service.Background
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundChartSyncService> _logger;
-        private readonly TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
-        private readonly TimeSpan RequestMinutes = TimeSpan.FromHours(4);
+        private readonly TimeSpan SyncInterval = TimeSpan.FromMinutes(5);
+        private readonly TimeSpan RequestSpanMinutes = TimeSpan.FromHours(6);
+        private readonly int NearEndSaveLimit = 5;
+        private readonly int RequestLimit = 180;
 
         private Timer _timer;
         private bool InProgress = false;
@@ -39,7 +40,7 @@ namespace Waffler.Service.Background
         protected override Task ExecuteAsync(CancellationToken cancellationToken)
         {
             var startDelay = Debugger.IsAttached ? 0 : 30;
-            _timer = new Timer(async _ => await FetchCandleStickDataAsync(cancellationToken), null, TimeSpan.FromSeconds(startDelay), RequestPeriod);
+            _timer = new Timer(async _ => await FetchCandleStickDataAsync(cancellationToken), null, TimeSpan.FromSeconds(startDelay), SyncInterval);
             return Task.CompletedTask;
         }
 
@@ -64,8 +65,6 @@ namespace Waffler.Service.Background
 
                     var syncingData = true;
                     var requestCount = 0;
-                    var requestMinuteLimit = 180; //This limit is related to the throtteling limit at Bitpanda
-                    var saveLimit = 10; //This limit is due to the fact that Bitpanda sometimes return the same candlestick entity when reaching the current time
                     var startTime = DateTime.UtcNow;
                     var profile = await _profileService.GetProfileAsync();
 
@@ -77,17 +76,20 @@ namespace Waffler.Service.Background
                         period = period.AddMilliseconds(1);
 
                         _logger.LogInformation($"- Fetch data from {period} onward");
-                        var bp_cancleSticksDTO = await _bitpandaService.GetCandleSticks(
+                        var bp_candleSticksDTO = await _bitpandaService.GetCandleSticks(
                             Bitpanda.GetInstrumentCode(TradeType.BTC_EUR),
-                            Bitpanda.Period.MINUTES, 1, period, period.AddMinutes(RequestMinutes.TotalMinutes));
+                            Bitpanda.Period.MINUTES, 1, period, period.AddMinutes(RequestSpanMinutes.TotalMinutes));
                         requestCount++;
 
-                        if (bp_cancleSticksDTO != null)
+                        if (bp_candleSticksDTO != null)
                         {
-                            if (bp_cancleSticksDTO.Count() >= saveLimit)
+                            var latestPeriod = bp_candleSticksDTO.OrderByDescending(_ => _.Time).FirstOrDefault();
+                            var saveLimit = latestPeriod == null || (DateTime.UtcNow - latestPeriod.Time).TotalMinutes > 60 ? 0 : NearEndSaveLimit;
+
+                            if (bp_candleSticksDTO.Count() > saveLimit)
                             {
-                                _logger.LogInformation($"- Fetch successfull, {bp_cancleSticksDTO.Count()} new candlesticks found");
-                                var cancleSticksDTO = _mapper.Map<List<CandleStickDTO>>(bp_cancleSticksDTO);
+                                _logger.LogInformation($"- Fetch successfull, {bp_candleSticksDTO.Count()} new candlesticks found");
+                                var cancleSticksDTO = _mapper.Map<List<CandleStickDTO>>(bp_candleSticksDTO);
                                 await _candleStickService.AddCandleSticksAsync(cancleSticksDTO);
                                 _logger.LogInformation($"- Data save successfull");
                             }
@@ -103,7 +105,7 @@ namespace Waffler.Service.Background
                             syncingData = false;
                         }
 
-                        if (requestCount >= requestMinuteLimit)
+                        if (requestCount >= RequestLimit)
                         {
                             var sleepTime = 60 * 1000 - (int)(DateTime.UtcNow - startTime).TotalMilliseconds;
                             _logger.LogInformation($"- Reached request limit, sleep {sleepTime} ms");
@@ -112,7 +114,7 @@ namespace Waffler.Service.Background
                             requestCount = 0;
                         }
 
-                        _timer.Change(RequestPeriod, RequestPeriod);
+                        _timer.Change(SyncInterval, SyncInterval);
                     }
                 }
                 _logger.LogInformation($"Syncing candlestick data finished");

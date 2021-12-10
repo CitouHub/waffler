@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect } from "react";
 import Button from '@mui/material/Button';
+import Files from "react-files";
 
 import LoadingBar from '../../components/utils/loadingbar';
 import TradeRuleTable from './table/traderule.table';
@@ -37,12 +38,43 @@ const TradeRules = () => {
         updateTradeRules();
     }, []);
 
+    let fileReader = new FileReader();
+    fileReader.onload = event => {
+        setLoading(true);
+        let content = JSON.parse(event.target.result);
+        TradeRuleService.importTradeRule(content).then((result) => {
+            if (result === true) {
+                updateTradeRules();
+            } else {
+                setLoading(false);
+            }
+        });
+    };
+
     return (
         <div>
             <LoadingBar active={loading} />
             <div className='mt-3 mb-3 control'>
                 <h4>Rules</h4>
-                <Button variant="contained" onClick={newTradeRule} disabled={loading}>+ Add new trade rule</Button>
+                <div>
+                    <Button variant="text" disabled={loading} className='mr-3'>
+                        <Files
+                            className="import-trade-rule"
+                            disabled={loading}
+                            onChange={file => {
+                                fileReader.readAsText(file[file.length - 1]);
+                            }}
+                            onError={err => console.log(err)}
+                            accepts={[".json"]}
+                            maxFileSize={10000}
+                            minFileSize={0}
+                            clickable
+                        >
+                            + Import trade rule
+                        </Files>
+                    </Button>
+                    <Button variant="contained" onClick={newTradeRule} disabled={loading}>+ Add new trade rule</Button>
+                </div>
             </div>
             {tradeRules.length > 0 && Object.keys(tradeRuleAttributes).length > 0 &&
                 <TradeRuleTable

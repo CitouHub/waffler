@@ -68,16 +68,18 @@ namespace Waffler.Service.Infrastructure
                 _tradeRuleTestRun.Add(tradeRuleTestRequest.TradeRuleId, null);
             }
 
-            _tradeRuleTestRun[tradeRuleTestRequest.TradeRuleId] = new TradeRuleTestRunDTO();
-            _tradeRuleTestRun[tradeRuleTestRequest.TradeRuleId].TradeRuleTestStatus = new TradeRuleTestStatusDTO()
+            _tradeRuleTestRun[tradeRuleTestRequest.TradeRuleId] = new TradeRuleTestRunDTO
             {
-                TradeRuleId = tradeRuleTestRequest.TradeRuleId,
-                FromDate = tradeRuleTestRequest.FromDate,
-                ToDate = tradeRuleTestRequest.ToDate,
-                CurrentPositionDate = tradeRuleTestRequest.FromDate
+                TradeRuleTestStatus = new TradeRuleTestStatusDTO()
+                {
+                    TradeRuleId = tradeRuleTestRequest.TradeRuleId,
+                    FromDate = tradeRuleTestRequest.FromDate,
+                    ToDate = tradeRuleTestRequest.ToDate,
+                    CurrentPositionDate = tradeRuleTestRequest.FromDate
+                },
+                Abort = false,
+                CloseSignal = new SemaphoreSlim(0)
             };
-            _tradeRuleTestRun[tradeRuleTestRequest.TradeRuleId].Abort = false;
-            _tradeRuleTestRun[tradeRuleTestRequest.TradeRuleId].CloseSignal = new SemaphoreSlim(0);
 
             return _tradeRuleTestRun[tradeRuleTestRequest.TradeRuleId].TradeRuleTestStatus;
         }

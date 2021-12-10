@@ -13,3 +13,7 @@
     width: 92%;
     float: right;
 }
+
+.import-trade-rule {
+    cursor: pointer;
+}

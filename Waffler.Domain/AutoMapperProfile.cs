@@ -16,25 +16,29 @@ namespace Waffler.Domain
             CreateMap<ProfileDTO, WafflerProfile>().ReverseMap();
             CreateMap<CandleStickDTO, CandleStick>().ReverseMap();
             CreateMap<TradeRuleCondition, TradeRuleConditionDTO>()
-                .ForMember(dest => dest.CandleStickValueTypeName, opt => opt.MapFrom(src => src.CandleStickValueType.Name))
-                .ForMember(dest => dest.TradeRuleConditionComparatorName, opt => opt.MapFrom(src => src.TradeRuleConditionComparator.Name))
-                .ForMember(dest => dest.TradeRuleConditionSampleDirectionName, opt => opt.MapFrom(src => src.TradeRuleConditionSampleDirection.Name))
+                .ForMember(dest => dest.TradeRuleConditionComparatorName, opt => opt.MapFrom(src => src.TradeRuleConditionComparator != null ? src.TradeRuleConditionComparator.Name : null))
+                .ForMember(dest => dest.FromCandleStickValueTypeName, opt => opt.MapFrom(src => src.FromCandleStickValueType != null ? src.FromCandleStickValueType.Name : null))
+                .ForMember(dest => dest.FromTradeRuleConditionPeriodDirectionName, opt => opt.MapFrom(src => src.FromTradeRuleConditionPeriodDirection != null ? src.FromTradeRuleConditionPeriodDirection.Name : null))
+                .ForMember(dest => dest.ToCandleStickValueTypeName, opt => opt.MapFrom(src => src.ToCandleStickValueType != null ? src.ToCandleStickValueType.Name : null))
+                .ForMember(dest => dest.ToTradeRuleConditionPeriodDirectionName, opt => opt.MapFrom(src => src.ToTradeRuleConditionPeriodDirection != null ? src.ToTradeRuleConditionPeriodDirection.Name : null))
                 .ReverseMap()
-                .ForMember(dest => dest.CandleStickValueType, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeRuleConditionComparator, opt => opt.Ignore())
-                .ForMember(dest => dest.TradeRuleConditionSampleDirection, opt => opt.Ignore());
+                .ForMember(dest => dest.FromCandleStickValueType, opt => opt.Ignore())
+                .ForMember(dest => dest.FromTradeRuleConditionPeriodDirection, opt => opt.Ignore())
+                .ForMember(dest => dest.ToCandleStickValueType, opt => opt.Ignore())
+                .ForMember(dest => dest.ToTradeRuleConditionPeriodDirection, opt => opt.Ignore());
+
             CreateMap<TradeOrder, TradeOrderDTO>()
                 .ReverseMap()
                 .ForMember(dest => dest.TradeAction, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeOrderStatus, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeRule, opt => opt.Ignore());
             CreateMap<TradeRule, TradeRuleDTO>()
-                .ForMember(dest => dest.TradeActionName, opt => opt.MapFrom(src => src.TradeAction.Name))
-                .ForMember(dest => dest.TradeTypeName, opt => opt.MapFrom(src => src.TradeType.Name))
-                .ForMember(dest => dest.TradeConditionOperatorName, opt => opt.MapFrom(src => src.TradeConditionOperator.Name))
-                .ForMember(dest => dest.TradeRuleStatusName, opt => opt.MapFrom(src => src.TradeRuleStatus.Name))
-                .ForMember(dest => dest.CandleStickValueTypeName, opt => opt.MapFrom(src => src.CandleStickValueType.Name))
-                .ForMember(dest => dest.TradeRuleConditions, opt => opt.MapFrom(src => src.TradeRuleConditions))
+                .ForMember(dest => dest.TradeActionName, opt => opt.MapFrom(src => src.TradeAction != null ? src.TradeAction.Name : null))
+                .ForMember(dest => dest.TradeTypeName, opt => opt.MapFrom(src => src.TradeType != null ? src.TradeType.Name : null))
+                .ForMember(dest => dest.TradeConditionOperatorName, opt => opt.MapFrom(src => src.TradeConditionOperator != null ? src.TradeConditionOperator.Name : null))
+                .ForMember(dest => dest.TradeRuleStatusName, opt => opt.MapFrom(src => src.TradeRuleStatus != null ? src.TradeRuleStatus.Name : null))
+                .ForMember(dest => dest.CandleStickValueTypeName, opt => opt.MapFrom(src => src.CandleStickValueType != null ? src.CandleStickValueType.Name : null))
                 .ReverseMap()
                 .ForMember(dest => dest.TradeAction, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeConditionOperator, opt => opt.Ignore())
@@ -51,7 +55,7 @@ namespace Waffler.Domain
             CreateMap<TradeRuleStatus, CommonAttributeDTO>();
             CreateMap<TradeRuleCondition, CommonAttributeDTO>();
             CreateMap<TradeRuleConditionComparator, CommonAttributeDTO>();
-            CreateMap<TradeRuleConditionSampleDirection, CommonAttributeDTO>();
+            CreateMap<TradeRuleConditionPeriodDirection, CommonAttributeDTO>();
             CreateMap<TradeType, CommonAttributeDTO>();
 
             CreateMap<sp_getCandleSticks_Result, CandleStickDTO>();
@@ -71,8 +75,6 @@ namespace Waffler.Domain
                 .ForMember(dest => dest.LowPrice, opt => opt.MapFrom(src => src.Low))
                 .ForMember(dest => dest.OpenPrice, opt => opt.MapFrom(src => src.Open))
                 .ForMember(dest => dest.ClosePrice, opt => opt.MapFrom(src => src.Close))
-                .ForMember(dest => dest.AvgHighLowPrice, opt => opt.MapFrom(src => (src.High + src.Low) / 2))
-                .ForMember(dest => dest.AvgOpenClosePrice, opt => opt.MapFrom(src => (src.Open + src.Close) / 2))
                 .ForMember(dest => dest.PeriodDateTime, opt => opt.MapFrom(src => src.Time))
                 .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.Total_Amount));
 

@@ -26,8 +26,6 @@ BEGIN
 		LowPrice DECIMAL(10,2) NOT NULL,
 		OpenPrice DECIMAL(10,2) NOT NULL,
 		ClosePrice DECIMAL(10,2) NOT NULL,
-		AvgHighLowPrice DECIMAL(10,2) NOT NULL,
-		AvgOpenClosePrice DECIMAL(10,2) NOT NULL,
 		Volume DECIMAL(10,2) NOT NULL,
 		PeriodDateTime DATETIME2(0) NOT NULL)
 
@@ -36,8 +34,6 @@ BEGIN
 		MIN(LowPrice),
 		(SELECT AVG(OpenPrice) FROM CandleStick AS CS WHERE CS.PeriodDateTime = MIN(CandleStick.PeriodDateTime)),
 		(SELECT AVG(ClosePrice) FROM CandleStick AS CS WHERE CS.PeriodDateTime = MAX(CandleStick.PeriodDateTime)),
-		AVG(AvgHighLowPrice),
-		AVG(AvgOpenClosePrice),
 		SUM(Volume),
 		DATEADD(MINUTE, (DATEDIFF(MINUTE, 0, PeriodDateTime) / @PeriodDateTimeGroup + 1) * @PeriodDateTimeGroup, 0) AS PeriodDateTime
 	FROM CandleStick

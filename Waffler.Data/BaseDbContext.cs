@@ -26,7 +26,7 @@ namespace Waffler.Data
         public virtual DbSet<TradeRule> TradeRules { get; set; }
         public virtual DbSet<TradeRuleCondition> TradeRuleConditions { get; set; }
         public virtual DbSet<TradeRuleConditionComparator> TradeRuleConditionComparators { get; set; }
-        public virtual DbSet<TradeRuleConditionSampleDirection> TradeRuleConditionSampleDirections { get; set; }
+        public virtual DbSet<TradeRuleConditionPeriodDirection> TradeRuleConditionPeriodDirections { get; set; }
         public virtual DbSet<TradeRuleStatus> TradeRuleStatuses { get; set; }
         public virtual DbSet<TradeType> TradeTypes { get; set; }
         public virtual DbSet<WafflerProfile> WafflerProfiles { get; set; }
@@ -246,23 +246,35 @@ namespace Waffler.Data
 
                 entity.Property(e => e.InsertDate).HasDefaultValueSql("(getutcdate())");
 
-                entity.HasOne(d => d.CandleStickValueType)
-                    .WithMany(p => p.TradeRuleConditions)
-                    .HasForeignKey(d => d.CandleStickValueTypeId)
+                entity.HasOne(d => d.FromCandleStickValueType)
+                    .WithMany(p => p.TradeRuleConditionFromCandleStickValueTypes)
+                    .HasForeignKey(d => d.FromCandleStickValueTypeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("TradeRuleCondition_CandleStickValueTypeFK");
+                    .HasConstraintName("TradeRuleCondition_FromCandleStickValueTypeFK");
+
+                entity.HasOne(d => d.FromTradeRuleConditionPeriodDirection)
+                    .WithMany(p => p.TradeRuleConditionFromTradeRuleConditionPeriodDirections)
+                    .HasForeignKey(d => d.FromTradeRuleConditionPeriodDirectionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("TradeRuleCondition_FromTradeRuleConditionPeriodDirectionFK");
+
+                entity.HasOne(d => d.ToCandleStickValueType)
+                    .WithMany(p => p.TradeRuleConditionToCandleStickValueTypes)
+                    .HasForeignKey(d => d.ToCandleStickValueTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("TradeRuleCondition_ToCandleStickValueTypeFK");
+
+                entity.HasOne(d => d.ToTradeRuleConditionPeriodDirection)
+                    .WithMany(p => p.TradeRuleConditionToTradeRuleConditionPeriodDirections)
+                    .HasForeignKey(d => d.ToTradeRuleConditionPeriodDirectionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("TradeRuleCondition_ToTradeRuleConditionPeriodDirectionFK");
 
                 entity.HasOne(d => d.TradeRuleConditionComparator)
                     .WithMany(p => p.TradeRuleConditions)
                     .HasForeignKey(d => d.TradeRuleConditionComparatorId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("TradeRuleCondition_TradeRuleConditionComparatorFK");
-
-                entity.HasOne(d => d.TradeRuleConditionSampleDirection)
-                    .WithMany(p => p.TradeRuleConditions)
-                    .HasForeignKey(d => d.TradeRuleConditionSampleDirectionId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("TradeRuleCondition_TradeRuleConditionSampleDirectionFK");
 
                 entity.HasOne(d => d.TradeRule)
                     .WithMany(p => p.TradeRuleConditions)
@@ -286,9 +298,9 @@ namespace Waffler.Data
                     .HasMaxLength(50);
             });
 
-            modelBuilder.Entity<TradeRuleConditionSampleDirection>(entity =>
+            modelBuilder.Entity<TradeRuleConditionPeriodDirection>(entity =>
             {
-                entity.ToTable("TradeRuleConditionSampleDirection");
+                entity.ToTable("TradeRuleConditionPeriodDirection");
 
                 entity.Property(e => e.Description).HasMaxLength(200);
 

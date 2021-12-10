@@ -13,20 +13,24 @@ namespace Waffler.Data
         public DateTime? UpdateDate { get; set; }
         public int? UpdateByUser { get; set; }
         public int TradeRuleId { get; set; }
-        public short CandleStickValueTypeId { get; set; }
         public short TradeRuleConditionComparatorId { get; set; }
-        public short TradeRuleConditionSampleDirectionId { get; set; }
-        public int FromMinutesOffset { get; set; }
-        public int ToMinutesOffset { get; set; }
-        public int FromMinutesSample { get; set; }
-        public int ToMinutesSample { get; set; }
+        public short FromCandleStickValueTypeId { get; set; }
+        public short FromTradeRuleConditionPeriodDirectionId { get; set; }
+        public int FromMinutes { get; set; }
+        public int FromPeriodMinutes { get; set; }
+        public short ToCandleStickValueTypeId { get; set; }
+        public short ToTradeRuleConditionPeriodDirectionId { get; set; }
+        public int ToMinutes { get; set; }
+        public int ToPeriodMinutes { get; set; }
         public decimal DeltaPercent { get; set; }
         public string Description { get; set; }
         public bool IsOn { get; set; }
 
-        public virtual CandleStickValueType CandleStickValueType { get; set; }
+        public virtual CandleStickValueType FromCandleStickValueType { get; set; }
+        public virtual TradeRuleConditionPeriodDirection FromTradeRuleConditionPeriodDirection { get; set; }
+        public virtual CandleStickValueType ToCandleStickValueType { get; set; }
+        public virtual TradeRuleConditionPeriodDirection ToTradeRuleConditionPeriodDirection { get; set; }
         public virtual TradeRule TradeRule { get; set; }
         public virtual TradeRuleConditionComparator TradeRuleConditionComparator { get; set; }
-        public virtual TradeRuleConditionSampleDirection TradeRuleConditionSampleDirection { get; set; }
     }
 }

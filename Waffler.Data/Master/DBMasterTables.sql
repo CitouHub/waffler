@@ -21,7 +21,7 @@ IF OBJECTPROPERTY(object_id('dbo.CandleStickValueType'), N'IsTable') = 1 DROP TA
 GO
 IF OBJECTPROPERTY(object_id('dbo.TradeRuleConditionComparator'), N'IsTable') = 1 DROP TABLE [dbo].[TradeRuleConditionComparator]
 GO
-IF OBJECTPROPERTY(object_id('dbo.TradeRuleConditionSampleDirection'), N'IsTable') = 1 DROP TABLE [dbo].[TradeRuleConditionSampleDirection]
+IF OBJECTPROPERTY(object_id('dbo.TradeRuleConditionPeriodDirection'), N'IsTable') = 1 DROP TABLE [dbo].[TradeRuleConditionPeriodDirection]
 GO
 IF OBJECTPROPERTY(object_id('dbo.WafflerProfile'), N'IsTable') = 1 DROP TABLE [dbo].[WafflerProfile]
 GO
@@ -184,7 +184,7 @@ CREATE TABLE [dbo].[TradeRuleConditionComparator](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 )
 
-CREATE TABLE [dbo].[TradeRuleConditionSampleDirection](
+CREATE TABLE [dbo].[TradeRuleConditionPeriodDirection](
 	[Id] [smallint] IDENTITY(1,1) NOT NULL,
 	[InsertDate] [datetime2](7) NOT NULL DEFAULT(GETUTCDATE()),
 	[InsertByUser] [int] NOT NULL DEFAULT(1),
@@ -192,7 +192,7 @@ CREATE TABLE [dbo].[TradeRuleConditionSampleDirection](
 	[UpdateByUser] [int] NULL,
 	[Name] [nvarchar](50) NOT NULL,
 	[Description] [nvarchar](200) NULL
- CONSTRAINT [TradeRuleConditionSampleDirection_PK] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [TradeRuleConditionPriodDirection_PK] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
@@ -205,13 +205,18 @@ CREATE TABLE [dbo].[TradeRuleCondition](
 	[UpdateDate] [datetime2](7) NULL,
 	[UpdateByUser] [int] NULL,
 	[TradeRuleId] [int] NOT NULL,
-	[CandleStickValueTypeId] [smallint] NOT NULL,
 	[TradeRuleConditionComparatorId] [smallint] NOT NULL,
-	[TradeRuleConditionSampleDirectionId] [smallint] NOT NULL,
-	[FromMinutesOffset] [int] NOT NULL,
-	[ToMinutesOffset] [int] NOT NULL,
-	[FromMinutesSample] [int] NOT NULL,
-	[ToMinutesSample] [int] NOT NULL,
+
+	[FromCandleStickValueTypeId] [smallint] NOT NULL,
+	[FromTradeRuleConditionPeriodDirectionId] [smallint] NOT NULL,
+	[FromMinutes] [int] NOT NULL,
+	[FromPeriodMinutes] [int] NOT NULL,
+
+	[ToCandleStickValueTypeId] [smallint] NOT NULL,
+	[ToTradeRuleConditionPeriodDirectionId] [smallint] NOT NULL,
+	[ToMinutes] [int] NOT NULL,
+	[ToPeriodMinutes] [int] NOT NULL,
+
 	[DeltaPercent] [decimal](6,4) NOT NULL,
 	[Description] [nvarchar](200) NULL,
 	[IsOn] [bit] NOT NULL DEFAULT(0)
@@ -222,12 +227,17 @@ CREATE TABLE [dbo].[TradeRuleCondition](
 )
 
 ALTER TABLE [dbo].[TradeRuleCondition] WITH CHECK ADD CONSTRAINT [TradeRuleCondition_TradeRuleFK] FOREIGN KEY([TradeRuleId]) REFERENCES [dbo].[TradeRule] ([ID])
-GO
-ALTER TABLE [dbo].[TradeRuleCondition] WITH CHECK ADD CONSTRAINT [TradeRuleCondition_CandleStickValueTypeFK] FOREIGN KEY([CandleStickValueTypeId]) REFERENCES [dbo].[CandleStickValueType] ([ID])
+ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[TradeRuleCondition] WITH CHECK ADD CONSTRAINT [TradeRuleCondition_TradeRuleConditionComparatorFK] FOREIGN KEY([TradeRuleConditionComparatorId]) REFERENCES [dbo].[TradeRuleConditionComparator] ([ID])
 GO
-ALTER TABLE [dbo].[TradeRuleCondition] WITH CHECK ADD CONSTRAINT [TradeRuleCondition_TradeRuleConditionSampleDirectionFK] FOREIGN KEY(TradeRuleConditionSampleDirectionId) REFERENCES [dbo].[TradeRuleConditionSampleDirection] ([ID])
+ALTER TABLE [dbo].[TradeRuleCondition] WITH CHECK ADD CONSTRAINT [TradeRuleCondition_FromTradeRuleConditionPeriodDirectionFK] FOREIGN KEY(FromTradeRuleConditionPeriodDirectionId) REFERENCES [dbo].[TradeRuleConditionPeriodDirection] ([ID])
+GO
+ALTER TABLE [dbo].[TradeRuleCondition] WITH CHECK ADD CONSTRAINT [TradeRuleCondition_FromCandleStickValueTypeFK] FOREIGN KEY([FromCandleStickValueTypeId]) REFERENCES [dbo].[CandleStickValueType] ([ID])
+GO
+ALTER TABLE [dbo].[TradeRuleCondition] WITH CHECK ADD CONSTRAINT [TradeRuleCondition_ToTradeRuleConditionPeriodDirectionFK] FOREIGN KEY(ToTradeRuleConditionPeriodDirectionId) REFERENCES [dbo].[TradeRuleConditionPeriodDirection] ([ID])
+GO
+ALTER TABLE [dbo].[TradeRuleCondition] WITH CHECK ADD CONSTRAINT [TradeRuleCondition_ToCandleStickValueTypeFK] FOREIGN KEY([ToCandleStickValueTypeId]) REFERENCES [dbo].[CandleStickValueType] ([ID])
 GO
 
 CREATE TABLE [dbo].[WafflerProfile](

@@ -1,8 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
-
+using Newtonsoft.Json;
 using Waffler.Domain;
 using Waffler.Domain.Message;
 using Waffler.Service;
@@ -31,10 +35,31 @@ namespace Waffler.API.Controller
             return await _tradeRuleService.NewTradeRuleAsync();
         }
 
+        [HttpPost]
+        [Route("copy/{tradeRuleId}")]
+        public async Task<bool> CopyTradeRuleAsync(int tradeRuleId)
+        {
+            return await _tradeRuleService.CopyTradeRuleAsync(tradeRuleId);
+        }
+
         [HttpGet]
         public async Task<IEnumerable<TradeRuleDTO>> GetTradeRulesAsync()
         {
             return await _tradeRuleService.GetTradeRulesAsync();
+        }
+
+        [HttpGet]
+        [Route("{tradeRuleId}")]
+        public async Task<TradeRuleDTO> GetTradeRule(int tradeRuleId)
+        {
+            return await _tradeRuleService.GetTradeRuleAsync(tradeRuleId);
+        }
+
+        [HttpPost]
+        [Route("import")]
+        public async Task<bool> ImportTradeRule([FromBody] TradeRuleDTO tradeRule)
+        {
+            return await _tradeRuleService.AddTradeRuleAsync(tradeRule);
         }
 
         [HttpGet]

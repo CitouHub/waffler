@@ -44,6 +44,42 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartT
         }
     }
 
+    const copyTradeRule = () => {
+        if (loading === false) {
+            setLoading(true);
+
+            TradeRuleService.copyTradeRule(tradeRule.id).then((result) => {
+                if (result === true) {
+                    updateTradeRules();
+                }
+                setLoading(false);
+            });
+        }
+    }
+
+    const exportTradeRule = () => {
+        if (loading === false) {
+            setLoading(true);
+
+            TradeRuleService.getTradeRule(tradeRule.id).then((result) => {
+                exportFile(result);
+                setLoading(false);
+            });
+        }
+    }
+
+    const exportFile = async (exportTradeRule) => {
+        const json = JSON.stringify(exportTradeRule, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const href = await URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = href;
+        link.download = `${tradeRule.name}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
     if (tradeRule !== undefined) {
         return (
             <div>
@@ -141,6 +177,8 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartT
                         <TradeRuleActionMenu
                             runningTest={runningTest}
                             saveTradeRule={saveTradeRule}
+                            copyTradeRule={copyTradeRule}
+                            exportTradeRule={exportTradeRule}
                             deleteTradeRule={deleteTradeRule}
                             startTradeRuleTest={() => openStartTestDialog()}
                             stopTradeRuleTest={() => stopTradeRuleTest()}
