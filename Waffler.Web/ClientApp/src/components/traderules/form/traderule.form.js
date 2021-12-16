@@ -7,6 +7,8 @@ import Select from '@mui/material/Select';
 import InputAdornment from '@mui/material/InputAdornment';
 import TimeUnit from './timeunit';
 import TradeRuleActionMenu from './traderule.action.menu';
+import LoadingBar from '../../utils/loadingbar';
+import NotificationMessage from '../../utils/notification.message'
 
 import TradeRuleService from '../../../services/traderule.service';
 
@@ -14,6 +16,7 @@ import './form.css';
 
 const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartTestDialog, stopTradeRuleTest, runningTest }) => {
     const [loading, setLoading] = useState(false);
+    const [statusMessage, setStatusMessage] = useState({ open: false, text: '', severity: '' });
     const [tradeRule, setTradeRule] = useState(data);
 
     const deleteTradeRule = () => {
@@ -40,6 +43,11 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartT
 
             TradeRuleService.updateTradeRule(tradeRuleUpdate).then((result) => {
                 setLoading(false);
+                setStatusMessage({
+                    open: true,
+                    text: 'Trade rule saved!',
+                    severity: 'success'
+                });
             });
         }
     }
@@ -185,6 +193,12 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartT
                         />
                     </div>
                 </div>
+                <LoadingBar active={loading} />
+                <NotificationMessage
+                    open={statusMessage.open}
+                    setOpen={open => setStatusMessage({ ...statusMessage, open: open })}
+                    text={statusMessage.text}
+                    severity={statusMessage.severity} />
             </div>
         )
     } else {
