@@ -9,7 +9,7 @@ import Login from './components/login/login'
 import NewProfile from './components/login/newprofile'
 import Home from './components/home/home'
 
-import './App.css';
+import './app.css';
 
 const App = () => {
     const [loading, setLoading] = useState(true);

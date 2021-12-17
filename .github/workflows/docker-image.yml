@@ -67,7 +67,7 @@ jobs:
         password: ${{ env.PASSWORD }}
 
     - name: Build and tag image for Web
-      run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:latest --file Waffler.Web/Dockerfile
+      run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:latest . --file Waffler.Web/Dockerfile
 
     - name: Push image for Web
       run: docker push --all-tags ghcr.io/citou-ab/$WEB_IMAGE_NAME
