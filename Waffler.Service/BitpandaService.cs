@@ -65,7 +65,7 @@ namespace Waffler.Service
         {
             _configuration = configuration;
             _httpClient = httpClientFactory.CreateClient("Bitpanda");
-            _apiKey = context.WafflerProfiles.FirstOrDefault()?.ApiKey;
+            _apiKey = context.WafflerProfiles.OrderBy(_ => _.Id).FirstOrDefault()?.ApiKey;
         }
 
         public async Task<AccountDTO> GetAccountAsync()
