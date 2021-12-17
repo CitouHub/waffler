@@ -38,8 +38,8 @@ services:
       - ./https:/https:ro
   db:
     build:
-      context: ./Waffler.Data
-      dockerfile: ./Db/Dockerfile
+      context: ./
+      dockerfile: ./Waffler.Data/Dockerfile
       args:
         RS_DATABASE_NAME: Waffler
     image: waffler-db

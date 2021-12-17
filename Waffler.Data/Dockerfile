@@ -15,8 +15,8 @@ RUN mkdir -p /usr/src/db
 WORKDIR /usr/src/db
 
 # Bundle app source
-COPY ./Db /usr/src/db
-COPY ./Master /usr/src/db
+COPY ./Waffler.Data/Db /usr/src/db
+COPY ./Waffler.Data/Master /usr/src/db
 
 RUN dos2unix *
 RUN apt-get --purge remove -y dos2unix
