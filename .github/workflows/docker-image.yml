@@ -30,4 +30,4 @@ jobs:
       run: docker build --tag ghcr.io/waffler-api:latest . --file Waffler.API/Dockerfile
 
     - name: Push image for DB
-      run: docker push --all-tags ghcr.io/waffler-api
+      run: docker push --all-tags ghcr.io/citouhub/waffler-api
