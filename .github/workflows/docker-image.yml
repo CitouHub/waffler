@@ -12,22 +12,22 @@ env:
 
 jobs:
 
-  build:
+  - job: build and push DB:
 
-    runs-on: ubuntu-latest
+      runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v2
+      steps:
+      - uses: actions/checkout@v2
     
-    - name: Log in to the Container registry
-      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: CitouHub
-        password: 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
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: CitouHub
+          password: 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
 
-    - name: Build and tag image for DB with `${{ env.RELEASE_TAG_INPUT }}`
-      run: docker build --tag ghcr.io/citou-ab/waffler-api:latest . --file Waffler.API/Dockerfile
+      - name: Build and tag image for DB
+        run: docker build --tag ghcr.io/citou-ab/waffler-db:latest . --file Waffler.Data/Db/Dockerfile
 
-    - name: Push image for DB
-      run: docker push --all-tags ghcr.io/citou-ab/waffler-api
+      - name: Push image for DB
+        run: docker push --all-tags ghcr.io/citou-ab/waffler-api
