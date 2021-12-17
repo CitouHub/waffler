@@ -26,19 +26,8 @@ jobs:
         username: CitouHub
         password: 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
 
-    - name: Extract metadata (tags, labels) for Docker
-      id: meta
-      uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+    - name: Build and tag image for DB with `${{ env.RELEASE_TAG_INPUT }}`
+      run: docker build --tag ghcr.io/waffler-api:latest .
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-      with:
-        context: .
-        file: Waffler.API/Dockerfile
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        
-    - name: Push image
+    - name: Push image for DB
       run: docker push --all-tags ghcr.io/waffler-api
