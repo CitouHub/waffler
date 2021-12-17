@@ -9,7 +9,7 @@ on:
 env:
   REGISTRY: ghcr.io
   USERNAME: CitouHub
-  PASSWORD: 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
+  PASSWORD: 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
   DB_IMAGE_NAME: waffler-db
   API_IMAGE_NAME: waffler-api
   WEB_IMAGE_NAME: waffler-web
