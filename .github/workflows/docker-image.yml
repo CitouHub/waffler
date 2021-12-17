@@ -27,7 +27,7 @@ jobs:
         password: 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
 
     - name: Build and tag image for DB with `${{ env.RELEASE_TAG_INPUT }}`
-      run: docker build --tag ghcr.io/citouhub/waffler-api:latest . --file Waffler.API/Dockerfile
+      run: docker build --tag ghcr.io/waffler-api:latest . --file Waffler.API/Dockerfile
 
     - name: Push image for DB
-      run: docker push --all-tags ghcr.io/citouhub/waffler-api
+      run: docker push --all-tags ghcr.io/waffler-api
