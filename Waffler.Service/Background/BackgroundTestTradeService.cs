@@ -21,19 +21,24 @@ namespace Waffler.Service.Background
         private readonly ILogger<BackgroundTestTradeService> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly TradeRuleTestQueue _testTradeRuleQueue;
+        private readonly DatabaseSetupSignal _databaseSetupSignal;
 
         public BackgroundTestTradeService(
             ILogger<BackgroundTestTradeService> logger,
             IServiceProvider serviceProvider,
-            TradeRuleTestQueue testTradeRuleQueue)
+            TradeRuleTestQueue testTradeRuleQueue,
+            DatabaseSetupSignal databaseSetupSignal)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
             _testTradeRuleQueue = testTradeRuleQueue;
+            _databaseSetupSignal = databaseSetupSignal;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
+            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 _logger.LogInformation($"Waiting for trade rule test request...");

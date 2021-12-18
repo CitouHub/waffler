@@ -14,6 +14,7 @@ using AutoMapper;
 using Waffler.Common;
 using Waffler.Domain;
 using static Waffler.Common.Variable;
+using Waffler.Service.Infrastructure;
 
 namespace Waffler.Service.Background
 {
@@ -21,6 +22,7 @@ namespace Waffler.Service.Background
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundChartSyncService> _logger;
+        private readonly DatabaseSetupSignal _databaseSetupSignal;
         private readonly TimeSpan SyncInterval = TimeSpan.FromMinutes(5);
         private readonly TimeSpan RequestSpanMinutes = TimeSpan.FromHours(6);
         private readonly int NearEndSaveLimit = 5;
@@ -31,17 +33,23 @@ namespace Waffler.Service.Background
 
         public BackgroundChartSyncService(
             IServiceProvider serviceProvider,
-            ILogger<BackgroundChartSyncService> logger)
+            ILogger<BackgroundChartSyncService> logger,
+            DatabaseSetupSignal databaseSetupSignal)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
+            _databaseSetupSignal = databaseSetupSignal;
         }
 
-        protected override Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var startDelay = Debugger.IsAttached ? 0 : 30;
-            _timer = new Timer(async _ => await FetchCandleStickDataAsync(cancellationToken), null, TimeSpan.FromSeconds(startDelay), SyncInterval);
-            return Task.CompletedTask;
+            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
+
+            if(!cancellationToken.IsCancellationRequested)
+            {
+                var startDelay = Debugger.IsAttached ? 0 : 30;
+                _timer = new Timer(async _ => await FetchCandleStickDataAsync(cancellationToken), null, TimeSpan.FromSeconds(startDelay), SyncInterval);
+            }
         }
 
         private async Task FetchCandleStickDataAsync(CancellationToken cancellationToken)

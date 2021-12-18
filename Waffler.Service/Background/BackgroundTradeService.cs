@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using Waffler.Domain;
+using Waffler.Service.Infrastructure;
 
 namespace Waffler.Service.Background
 {
@@ -16,6 +17,7 @@ namespace Waffler.Service.Background
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundTradeService> _logger;
+        private readonly DatabaseSetupSignal _databaseSetupSignal;
         private readonly TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
         private readonly TimeSpan ValidSyncOffser = TimeSpan.FromMinutes(15);
 
@@ -24,17 +26,23 @@ namespace Waffler.Service.Background
 
         public BackgroundTradeService(
             ILogger<BackgroundTradeService> logger,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            DatabaseSetupSignal databaseSetupSignal)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
+            _databaseSetupSignal = databaseSetupSignal;
         }
 
-        protected override Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var startDelay = Debugger.IsAttached ? 0 : 30;
-            _timer = new Timer(async _ => await HandleTradeRules(cancellationToken), null, TimeSpan.FromSeconds(startDelay), RequestPeriod);
-            return Task.CompletedTask;
+            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
+
+            if(!cancellationToken.IsCancellationRequested)
+            {
+                var startDelay = Debugger.IsAttached ? 0 : 30;
+                _timer = new Timer(async _ => await HandleTradeRules(cancellationToken), null, TimeSpan.FromSeconds(startDelay), RequestPeriod);
+            }
         }
 
         private async Task HandleTradeRules(CancellationToken cancellationToken)

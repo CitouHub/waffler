@@ -33,7 +33,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      - Database__ConnectionString=Server=db;Initial Catalog=Waffler;User ID=sa;Password=pAssword1234
+      - Database__Server=db
+      - Database__Catalog=Waffler
+      - Database__Credentials=User ID=sa;Password=pAssword1234
     volumes:
       - ./https:/https:ro
   db:

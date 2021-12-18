@@ -18,7 +18,6 @@ using Waffler.Domain;
 using Waffler.Service;
 using Waffler.Service.Background;
 using Waffler.Service.Infrastructure;
-using Microsoft.Extensions.Logging;
 
 namespace Waffler.API
 {
@@ -37,7 +36,7 @@ namespace Waffler.API
             services.AddMvc().AddJsonOptions(options => {
                 options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
-            var connectionString = _configuration.GetValue<string>("Database:ConnectionString");
+            var connectionString = GetDatabaseConnectionString();
             services.AddDbContext<WafflerDbContext>(options => options.UseSqlServer(connectionString));
             services.AddDbContext<BaseDbContext>(options => options.UseSqlServer(connectionString));
             services.AddRouting(options => options.LowercaseUrls = true);
@@ -56,6 +55,7 @@ namespace Waffler.API
             services.AddScoped<ICandleStickService, CandleStickService>();
             services.AddScoped<ITradeService, TradeService>();
 
+            services.AddHostedService<BackgroundDatabaseMigrationService>();
             services.AddHostedService<BackgroundChartSyncService>();
             services.AddHostedService<BackgroundTradeService>();
             services.AddHostedService<BackgroundTestTradeService>();
@@ -69,6 +69,7 @@ namespace Waffler.API
             services.AddSingleton(mapperConfig.CreateMapper());
             services.AddSingleton(new Cache());
             services.AddSingleton(new TradeRuleTestQueue());
+            services.AddSingleton(new DatabaseSetupSignal());
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -100,6 +101,14 @@ namespace Waffler.API
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private string GetDatabaseConnectionString()
+        {
+            var server = _configuration.GetValue<string>("Database:Server");
+            var database = _configuration.GetValue<string>("Database:Catalog");
+            var credentials = _configuration.GetValue<string>("Database:Credentials");
+            return $"Server={server};Initial Catalog={database};{credentials}";
         }
     }
 }

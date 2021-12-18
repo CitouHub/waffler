@@ -13,6 +13,7 @@ using AutoMapper;
 
 using Waffler.Common;
 using Waffler.Domain;
+using Waffler.Service.Infrastructure;
 using static Waffler.Common.Variable;
 
 namespace Waffler.Service.Background
@@ -21,6 +22,7 @@ namespace Waffler.Service.Background
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundOrderSyncService> _logger;
+        private readonly DatabaseSetupSignal _databaseSetupSignal;
         private readonly TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
 
         private Timer _fetchTimer;
@@ -30,18 +32,24 @@ namespace Waffler.Service.Background
 
         public BackgroundOrderSyncService(
             IServiceProvider serviceProvider,
-            ILogger<BackgroundOrderSyncService> logger)
+            ILogger<BackgroundOrderSyncService> logger,
+            DatabaseSetupSignal databaseSetupSignal)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
+            _databaseSetupSignal = databaseSetupSignal;
         }
 
-        protected override Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var startDelay = Debugger.IsAttached ? 0 : 30;
-            _fetchTimer = new Timer(async _ => await FetchOrderDataAsync(cancellationToken), null, TimeSpan.FromSeconds(startDelay), RequestPeriod);
-            _updateTimer = new Timer(async _ => await UpdateOrderDataAsync(cancellationToken), null, TimeSpan.FromSeconds(startDelay), RequestPeriod);
-            return Task.CompletedTask;
+            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
+
+            if(!cancellationToken.IsCancellationRequested)
+            {
+                var startDelay = Debugger.IsAttached ? 0 : 30;
+                _fetchTimer = new Timer(async _ => await FetchOrderDataAsync(cancellationToken), null, TimeSpan.FromSeconds(startDelay), RequestPeriod);
+                _updateTimer = new Timer(async _ => await UpdateOrderDataAsync(cancellationToken), null, TimeSpan.FromSeconds(startDelay), RequestPeriod);
+            }
         }
 
         private async Task UpdateOrderDataAsync(CancellationToken cancellationToken)
