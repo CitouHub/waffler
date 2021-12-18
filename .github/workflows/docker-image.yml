@@ -36,7 +36,7 @@ jobs:
 
   build_push_api:
     name: Build and push API image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
     
@@ -48,14 +48,14 @@ jobs:
         password: ${{ env.PASSWORD }}
 
     - name: Build and tag image for API
-      run: docker build --tag ghcr.io/citou-ab/$API_IMAGE_NAME:latest . --file Waffler.API/Dockerfile
+      run: docker build --tag ghcr.io/citou-ab/$API_IMAGE_NAME:latest . --file Waffler.API/Dockerfile.arm64 --platform linux/arm/v8
 
     - name: Push image for DB
       run: docker push --all-tags ghcr.io/citou-ab/$API_IMAGE_NAME
 
   build_push_web:
     name: Build and push Web image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
     
@@ -67,7 +67,7 @@ jobs:
         password: ${{ env.PASSWORD }}
 
     - name: Build and tag image for Web
-      run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:latest . --file Waffler.Web/Dockerfile
+      run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:latest . --file Waffler.Web/Dockerfile.arm64 --platform linux/arm/v8
 
     - name: Push image for Web
       run: docker push --all-tags ghcr.io/citou-ab/$WEB_IMAGE_NAME
