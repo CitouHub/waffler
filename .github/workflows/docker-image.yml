@@ -36,11 +36,10 @@ jobs:
 
   build_push_api:
     name: Build and push API image
-    runs-on: buster-slim
+    runs-on: buster-latest
     strategy:
       matrix:
-        arch: [arm64]
-        container: [debian_10]
+        arch: [aarch64]
     steps:
     - uses: actions/checkout@v2
     
