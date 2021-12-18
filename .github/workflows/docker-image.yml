@@ -36,10 +36,11 @@ jobs:
 
   build_push_api:
     name: Build and push API image
-    runs-on: buster-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         arch: [aarch64]
+        distro: [buster]
     steps:
     - uses: actions/checkout@v2
     
