@@ -36,11 +36,7 @@ jobs:
 
   build_push_api:
     name: Build and push API image
-    runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        arch: [arm64]
-        container: [debian_11]
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     
