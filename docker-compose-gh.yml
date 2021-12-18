@@ -6,7 +6,7 @@ services:
     depends_on:
       - api
     ports:
-      - 8080:80
+      - 8088:80
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80

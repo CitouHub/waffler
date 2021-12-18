@@ -1,5 +1,5 @@
 # Inspired by sample in https://github.com/twright-msft/mssql-node-docker-demo-app
-FROM mcr.microsoft.com/mssql/server:2019-latest
+FROM mcr.microsoft.com/azure-sql-edge:latest
 EXPOSE 1433
 
 ARG RS_DATABASE_NAME=Waffler
