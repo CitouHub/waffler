@@ -46,40 +46,23 @@ namespace Waffler.Service.Background
                 var database = _configuration.GetValue<string>("Database:Catalog");
                 var credentials = _configuration.GetValue<string>("Database:Credentials");
 
+                var connectionStringMaster = $"Server={server};Initial Catalog=master;{credentials}";
                 var connectionString = $"Server={server};Initial Catalog={database};{credentials}";
-                var connection = new SqlConnection(connectionString);
-                var databaseExists = false;
-                try
-                {
-                    _logger.LogInformation($"Checking database {database} status");
-                    _logger.LogInformation($"ConnectionString: {connectionString}");
-                    await connection.OpenAsync();
-                    databaseExists = connection.State == ConnectionState.Open;
-                    await connection.CloseAsync();
-                    _logger.LogInformation($"Database {database} exists");
-                } 
-                catch { }
-                
-                if(databaseExists == false)
-                {
-                    _logger.LogInformation($"Database {database} does not exist, creating...");
-                    var connectionStringMaster = $"Server={server};Initial Catalog=master;{credentials}";
-                    _logger.LogInformation($"ConnectionString: {connectionStringMaster}");
-                    var connectionMaster = new SqlConnection(connectionStringMaster);
-                    var createCommand = new SqlCommand($"CREATE DATABASE {database}", connectionMaster);
-                    await connectionMaster.OpenAsync();
-                    await createCommand.ExecuteNonQueryAsync();
-                    if (connectionMaster.State == ConnectionState.Open)
-                    {
-                        await connectionMaster.CloseAsync();
-                        await connection.OpenAsync();
-                    }
 
-                    RunScript(connection, "DBMasterTables.sql");
-                    RunScript(connection, "DBMasterData.sql");
+                await AwaitServerOnline(new SqlConnection(connectionStringMaster));
+                var databaseExists = await DatabaseExists(new SqlConnection(connectionString));
+                
+                if(databaseExists == false && cancellationToken.IsCancellationRequested == false)
+                {
+                    await CreateDatabase(new SqlConnection(connectionStringMaster), database);
+
+                    await AwaitServerOnline(new SqlConnection(connectionString));
+
+                    await RunScript(new SqlConnection(connectionString), "DBMasterTables.sql");
+                    await RunScript(new SqlConnection(connectionString), "DBMasterData.sql");
                 }
 
-                RunScript(connection, "DBMasterStoredProcedure.sql");
+                await RunScript (new SqlConnection(connectionString), "DBMasterStoredProcedure.sql");
 
                 _logger.LogInformation($"Database {database} migration finished");
                 _databaseSetupSignal.SetDatabaseReady();
@@ -90,15 +73,78 @@ namespace Waffler.Service.Background
             }
         }
 
-        private void RunScript(SqlConnection connection, string script)
+        private async Task CreateDatabase(SqlConnection connection, string database)
         {
-            _logger.LogInformation($"Running {script} script: {connection.ConnectionString}");
+            _logger.LogInformation($"Database {database} does not exist, creating...");
+            _logger.LogInformation($"ConnectionString: {connection.ConnectionString}");
+
+            var createCommand = new SqlCommand($"CREATE DATABASE {database}", connection);
+            await connection.OpenAsync();
+            await createCommand.ExecuteNonQueryAsync();
+            await connection.CloseAsync();
+
+            _logger.LogInformation($"Database {database} created");
+        }
+
+        private async Task<bool> DatabaseExists(SqlConnection connection)
+        {
+            try
+            {
+                _logger.LogInformation($"Checking database {connection.Database} status");
+                _logger.LogInformation($"ConnectionString: {connection.ConnectionString}");
+                await connection.OpenAsync();
+                var databaseExists = connection.State == ConnectionState.Open;
+                await connection.CloseAsync();
+
+                return databaseExists;
+            }
+            catch { }
+
+            return false;
+        }
+
+        private async Task AwaitServerOnline(SqlConnection connection)
+        {
+            while (true)
+            {
+                try
+                {
+                    await connection.OpenAsync();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogDebug($"{e.Message} - {e.InnerException?.Message}");
+                }
+
+                if (connection.State != ConnectionState.Open)
+                {
+                    _logger.LogInformation($"Database {connection.Database} not online, waiting...");
+                    Thread.Sleep(2000);
+                }
+                else
+                {
+                    _logger.LogInformation($"Database {connection.Database} online, proceeding with migration");
+                    break;
+                }
+            }
+
+            await connection.CloseAsync();
+        }
+
+        private async Task RunScript(SqlConnection connection, string script)
+        {
+            _logger.LogInformation($"Running {script} script on {connection.Database}");
+            _logger.LogInformation($"ConnectionString: {connection.ConnectionString}");
+            await connection.OpenAsync();
+
             var currentExecutable = Assembly.GetExecutingAssembly().Location;
             var currentFolder = Path.GetDirectoryName(currentExecutable);
             var masterTables = File.ReadAllText($"{currentFolder}{Path.DirectorySeparatorChar}Master{Path.DirectorySeparatorChar}{script}");
 
             var server = new Server(new ServerConnection(connection));
             server.ConnectionContext.ExecuteNonQuery(masterTables);
+
+            await connection.CloseAsync();
         }
     }
 }

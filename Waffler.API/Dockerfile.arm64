@@ -17,7 +17,7 @@ COPY ./Waffler.Data/Master /Master
 RUN dotnet restore "Waffler.API/Waffler.API.csproj"
 COPY . .
 WORKDIR "/src/Waffler.API"
-RUN dotnet build "Waffler.API.csproj" -c Release -o /app/build -a linux-arm64
+RUN dotnet build "Waffler.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
 RUN dotnet publish "Waffler.API.csproj" -c Release -o /app/publish

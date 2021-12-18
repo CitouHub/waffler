@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Diagnostics;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -47,8 +46,7 @@ namespace Waffler.Service.Background
 
             if(!cancellationToken.IsCancellationRequested)
             {
-                var startDelay = Debugger.IsAttached ? 0 : 30;
-                _timer = new Timer(async _ => await FetchCandleStickDataAsync(cancellationToken), null, TimeSpan.FromSeconds(startDelay), SyncInterval);
+                _timer = new Timer(async _ => await FetchCandleStickDataAsync(cancellationToken), null, TimeSpan.FromSeconds(0), SyncInterval);
             }
         }
 

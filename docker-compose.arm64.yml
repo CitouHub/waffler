@@ -4,7 +4,7 @@ services:
   web:
     build:
       context: ./
-      dockerfile: ./Waffler.Web/Dockerfile
+      dockerfile: ./Waffler.Web/Dockerfile.arm64
       args:
         build_id: 1
     image: waffler-web
@@ -22,7 +22,7 @@ services:
   api:
     build:
       context: ./
-      dockerfile: ./Waffler.API/Dockerfile
+      dockerfile: ./Waffler.API/Dockerfile.arm64
       args:
         build_id: 1
     image: waffler-api

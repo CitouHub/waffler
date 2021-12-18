@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,8 +39,7 @@ namespace Waffler.Service.Background
 
             if(!cancellationToken.IsCancellationRequested)
             {
-                var startDelay = Debugger.IsAttached ? 0 : 30;
-                _timer = new Timer(async _ => await HandleTradeRules(cancellationToken), null, TimeSpan.FromSeconds(startDelay), RequestPeriod);
+                _timer = new Timer(async _ => await HandleTradeRules(cancellationToken), null, TimeSpan.FromSeconds(0), RequestPeriod);
             }
         }
 

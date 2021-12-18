@@ -13,7 +13,7 @@ COPY ["Waffler.Web/Waffler.Web.csproj", "Waffler.Web/"]
 RUN dotnet restore "Waffler.Web/Waffler.Web.csproj"
 COPY . .
 WORKDIR "/src/Waffler.Web"
-RUN dotnet build "Waffler.Web.csproj" -c Release -o /app/build -a linux-arm64
+RUN dotnet build "Waffler.Web.csproj" -c Release -o /app/build
 
 FROM build AS publish
 RUN dotnet publish "Waffler.Web.csproj" -c Release -o /app/publish
