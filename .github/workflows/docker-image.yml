@@ -36,7 +36,7 @@ jobs:
 
   build_push_api:
     name: Build and push API image
-    runs-on: buster
+    runs-on: ubuntu20.04
     strategy:
       matrix:
         arch: [aarch64]
