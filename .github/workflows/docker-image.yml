@@ -36,14 +36,13 @@ jobs:
 
   build_push_api:
     name: Build and push API image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        arch: [arm64]
+        container: [debian_11]
     steps:
     - uses: actions/checkout@v2
-    - uses: uraimo/run-on-arch-action@v2.0.5
-      name: Run commands
-      with:
-        arch: aarch64
-        distro: buster
     
     - name: Log in to the Container registry
       uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
