@@ -18,10 +18,6 @@ jobs:
   build_push_db:
     name: Build and push DB image
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [arm64]
-        container: [debian_10]
     steps:
     - uses: actions/checkout@v2
     
@@ -40,7 +36,11 @@ jobs:
 
   build_push_api:
     name: Build and push API image
-    runs-on: ubuntu-latest
+    runs-on: buster-slim
+    strategy:
+      matrix:
+        arch: [arm64]
+        container: [debian_10]
     steps:
     - uses: actions/checkout@v2
     
