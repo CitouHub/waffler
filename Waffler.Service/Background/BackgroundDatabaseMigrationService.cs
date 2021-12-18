@@ -52,6 +52,7 @@ namespace Waffler.Service.Background
                 try
                 {
                     _logger.LogInformation($"Checking database {database} status");
+                    _logger.LogInformation($"ConnectionString: {connectionString}");
                     await connection.OpenAsync();
                     databaseExists = connection.State == ConnectionState.Open;
                     await connection.CloseAsync();
@@ -63,6 +64,7 @@ namespace Waffler.Service.Background
                 {
                     _logger.LogInformation($"Database {database} does not exist, creating...");
                     var connectionStringMaster = $"Server={server};Initial Catalog=master;{credentials}";
+                    _logger.LogInformation($"ConnectionString: {connectionStringMaster}");
                     var connectionMaster = new SqlConnection(connectionStringMaster);
                     var createCommand = new SqlCommand($"CREATE DATABASE {database}", connectionMaster);
                     await connectionMaster.OpenAsync();
@@ -90,7 +92,7 @@ namespace Waffler.Service.Background
 
         private void RunScript(SqlConnection connection, string script)
         {
-            _logger.LogInformation($"Running {script} script");
+            _logger.LogInformation($"Running {script} script: {connection.ConnectionString}");
             var currentExecutable = Assembly.GetExecutingAssembly().Location;
             var currentFolder = Path.GetDirectoryName(currentExecutable);
             var masterTables = File.ReadAllText($"{currentFolder}{Path.DirectorySeparatorChar}Master{Path.DirectorySeparatorChar}{script}");
