@@ -2,9 +2,9 @@ name: Waffler build
 
 on:
   push:
-    branches: [ master_d ]
+    branches: [ master ]
   pull_request:
-    branches: [ master_d ]
+    branches: [ master ]
     
 env:
   REGISTRY: ghcr.io
@@ -13,13 +13,15 @@ env:
   DB_IMAGE_NAME: waffler-db
   API_IMAGE_NAME: waffler-api
   WEB_IMAGE_NAME: waffler-web
+  API_IMAGE_NAME_ARM64: waffler-api-arm64
+  WEB_IMAGE_NAME_ARM64: waffler-web-arm64
 
 jobs:
   build_push_db:
     name: Build and push DB image
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2.1.0
     
     - name: Log in to the Container registry
       uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -50,17 +52,14 @@ jobs:
     - name: Build and tag image for API
       run: docker build --tag ghcr.io/citou-ab/$API_IMAGE_NAME:latest . --file Waffler.API/Dockerfile
 
-    - name: Build and tag image for API (Arm64)
-      run: docker buildx build --platform linux/arm64/v8 --tag ghcr.io/citou-ab/$API_IMAGE_NAME:arm64 . --file Waffler.API/Dockerfile.arm64
-
-    - name: Push image for DB
+    - name: Push image for API
       run: docker push --all-tags ghcr.io/citou-ab/$API_IMAGE_NAME
 
   build_push_web:
     name: Build and push Web image
     runs-on: ubuntu-18.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2.1.0
     
     - name: Log in to the Container registry
       uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -70,10 +69,57 @@ jobs:
         password: ${{ env.PASSWORD }}
       
     - name: Build and tag image for Web
-      run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:arm64 . --file Waffler.Web/Dockerfile
-      
-    - name: Build and tag image for Web (Arm64)
-      run: docker buildx build --platform linux/arm64/v8 --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:arm64 . --file Waffler.Web/Dockerfile.arm64
+      run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64:latest . --file Waffler.Web/Dockerfile
 
     - name: Push image for Web
-      run: docker push --all-tags ghcr.io/citou-ab/$WEB_IMAGE_NAME
+      run: docker push --all-tags ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64
+      
+  build_push_api_armv8:
+    runs-on: ubuntu-18.04
+    name: Build and push API image (arm64)
+    steps:
+      - uses: actions/checkout@v2.1.0
+      - uses: uraimo/run-on-arch-action@v2.0.5
+        name: Run commands
+        id: runcmd
+        with:
+          arch: armv8
+          distro: ubuntu18.04
+          
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.USERNAME }}
+          password: ${{ env.PASSWORD }}
+          
+      - name: Build and tag image for API (Arm64)
+        run: docker build --tag ghcr.io/citou-ab/$API_IMAGE_NAME_ARM64:latest . --file Waffler.API/Dockerfile.arm64
+
+      - name: Push image for API
+        run: docker push --all-tags ghcr.io/citou-ab/$API_IMAGE_NAME_ARM64
+        
+  build_push_web_armv8:
+    runs-on: ubuntu-18.04
+    name: Build and push Web image (arm64)
+    steps:
+      - uses: actions/checkout@v2.1.0
+      - uses: uraimo/run-on-arch-action@v2.0.5
+        name: Run commands
+        id: runcmd
+        with:
+          arch: armv8
+          distro: ubuntu18.04
+          
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.USERNAME }}
+          password: ${{ env.PASSWORD }}
+          
+      - name: Build and tag image for Web (Arm64)
+        run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64:latest . --file Waffler.Web/Dockerfile.arm64
+
+      - name: Push image for Web
+        run: docker push --all-tags ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64
