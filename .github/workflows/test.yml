@@ -37,3 +37,6 @@ jobs:
         # Echo the `uname` output parameter from the `runcmd` step
         run: |
           echo "The uname output was ${{ steps.runcmd.outputs.uname }}"
+          
+      - name: Build and tag image for API (Arm64)
+        run: docker build --tag ghcr.io/citou-ab/$API_IMAGE_NAME:arm64 . --file Waffler.API/Dockerfile.arm64
