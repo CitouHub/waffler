@@ -51,7 +51,7 @@ jobs:
       run: docker build --tag ghcr.io/citou-ab/$API_IMAGE_NAME:latest . --file Waffler.API/Dockerfile
 
     - name: Build and tag image for API (Arm64)
-      run: docker build --platform linux/arm64/v8 --tag ghcr.io/citou-ab/$API_IMAGE_NAME:arm64 . --file Waffler.API/Dockerfile.arm64
+      run: docker buildx build --platform linux/arm64/v8 --tag ghcr.io/citou-ab/$API_IMAGE_NAME:arm64 . --file Waffler.API/Dockerfile.arm64
 
     - name: Push image for DB
       run: docker push --all-tags ghcr.io/citou-ab/$API_IMAGE_NAME
@@ -73,7 +73,7 @@ jobs:
       run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:arm64 . --file Waffler.Web/Dockerfile
       
     - name: Build and tag image for Web (Arm64)
-      run: docker build --platform linux/arm64/v8 --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:arm64 . --file Waffler.Web/Dockerfile.arm64
+      run: docker buildx build --platform linux/arm64/v8 --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:arm64 . --file Waffler.Web/Dockerfile.arm64
 
     - name: Push image for Web
       run: docker push --all-tags ghcr.io/citou-ab/$WEB_IMAGE_NAME
