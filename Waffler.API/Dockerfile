@@ -11,8 +11,8 @@ COPY ["Waffler.Service/Waffler.Service.csproj", "Waffler.Service/"]
 COPY ["Waffler.Data/Waffler.Data.csproj", "Waffler.Data/"]
 COPY ["Waffler.Domain/Waffler.Domain.csproj", "Waffler.Domain/"]
 
-#RUN mkdir -p /Master
-#COPY ./Waffler.Data/Master /Master
+RUN mkdir -p /Master
+COPY ./Waffler.Data/Master /Master
 
 RUN dotnet restore "Waffler.API/Waffler.API.csproj"
 COPY . .
