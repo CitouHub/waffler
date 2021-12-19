@@ -28,10 +28,10 @@ jobs:
         password: ${{ env.PASSWORD }}
 
     - name: Build and tag image for DB
-      run: docker build --tag ghcr.io/citou-ab/$DB_IMAGE_NAME:latest . --file Waffler.Data/Dockerfile
+      run: docker build --tag ghcr.io/citou-ab/$IMAGE_NAME:latest . --file Waffler.Data/Dockerfile
 
     - name: Push image for DB
-      run: docker push --all-tags ghcr.io/citou-ab/$DB_IMAGE_NAME
+      run: docker push --all-tags ghcr.io/citou-ab/$IMAGE_NAME
       
   build_push_db_armv7:
     runs-on: ubuntu-18.04
@@ -59,7 +59,7 @@ jobs:
           password: ${{ env.PASSWORD }}
           
       - name: Build and tag image for DB
-        run: docker buildx build --platform linux/arm64 --tag ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:latest . --file Waffler.Data/Dockerfile
+        run: docker buildx build --platform linux/arm64 --tag ghcr.io/citou-ab/$IMAGE_NAME_ARM64:latest . --file Waffler.Data/Dockerfile
 
       - name: Push image for DB
-        run: docker push --all-tags ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64
+        run: docker push --all-tags ghcr.io/citou-ab/$IMAGE_NAME_ARM64
