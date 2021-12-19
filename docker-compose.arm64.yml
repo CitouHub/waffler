@@ -36,6 +36,10 @@ services:
       - Database__Server=db
       - Database__Catalog=Waffler
       - Database__Credentials=User ID=sa;Password=pAssword1234
+      - Profile__DefaultCandleStickSyncOffsetDays=90
+      - Bitpanda__BaseUri=https://api.exchange.bitpanda.com/public/v1/
+      - Bitpanda__OrderFeature__Buy=false
+      - Bitpanda__OrderFeature__Sell=
     volumes:
       - ./https:/https:ro
   db:
