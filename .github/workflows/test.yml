@@ -1,4 +1,4 @@
-name: Waffler build
+name: Testing arm64
 
 on:
   push:
