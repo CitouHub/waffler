@@ -2,7 +2,7 @@ version: "3"
 
 services:
   web:
-    image: ghcr.io/citou-ab/waffler-web
+    image: ghcr.io/citou-ab/waffler-web-arm64
     depends_on:
       - api
     ports:
@@ -15,7 +15,7 @@ services:
     volumes:
       - ./https:/https:ro
   api:
-    image: ghcr.io/citou-ab/waffler-api
+    image: ghcr.io/citou-ab/waffler-api-arm64
     depends_on:
       - db
     ports:
@@ -23,11 +23,17 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      - Database__ConnectionString=Server=db;Initial Catalog=Waffler;User ID=sa;Password=pAssword1234
+      - Database__Server=db
+      - Database__Catalog=Waffler
+      - Database__Credentials=User ID=sa;Password=pAssword1234
+      - Profile__DefaultCandleStickSyncOffsetDays=90
+      - Bitpanda__BaseUri=https://api.exchange.bitpanda.com/public/v1/
+      - Bitpanda__OrderFeature__Buy=false
+      - Bitpanda__OrderFeature__Sell=false
     volumes:
       - ./https:/https:ro
   db:
-    image: ghcr.io/citou-ab/waffler-db
+    image: ghcr.io/citou-ab/waffler-db-arm64
     environment:
       ACCEPT_EULA: Y
       SA_PASSWORD: pAssword1234

@@ -15,7 +15,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
-      - API__BaseUrl=http://localhost:5005/
+      - API__BaseUrl=http://waffler.local:5005/
       - API__Version=v1
     volumes:
       - ./https:/https:ro
@@ -39,7 +39,7 @@ services:
       - Profile__DefaultCandleStickSyncOffsetDays=90
       - Bitpanda__BaseUri=https://api.exchange.bitpanda.com/public/v1/
       - Bitpanda__OrderFeature__Buy=false
-      - Bitpanda__OrderFeature__Sell=
+      - Bitpanda__OrderFeature__Sell=false
     volumes:
       - ./https:/https:ro
   db:
