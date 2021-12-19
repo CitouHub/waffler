@@ -1,4 +1,4 @@
-name: Waffler build
+name: Waffler build DB
 
 on:
   push:
