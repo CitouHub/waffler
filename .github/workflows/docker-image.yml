@@ -74,7 +74,7 @@ jobs:
     - name: Push image for Web
       run: docker push --all-tags ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64
       
-  build_push_api_armv8:
+  build_push_api_armv7:
     runs-on: ubuntu-18.04
     name: Build and push API image (arm64)
     steps:
@@ -83,7 +83,7 @@ jobs:
         name: Run commands
         id: runcmd
         with:
-          arch: armv8
+          arch: armv7
           distro: ubuntu18.04
           
       - name: Log in to the Container registry
@@ -99,7 +99,7 @@ jobs:
       - name: Push image for API
         run: docker push --all-tags ghcr.io/citou-ab/$API_IMAGE_NAME_ARM64
         
-  build_push_web_armv8:
+  build_push_web_armv7:
     runs-on: ubuntu-18.04
     name: Build and push Web image (arm64)
     steps:
@@ -108,7 +108,7 @@ jobs:
         name: Run commands
         id: runcmd
         with:
-          arch: armv8
+          arch: armv7
           distro: ubuntu18.04
           
       - name: Log in to the Container registry
