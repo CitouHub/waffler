@@ -10,7 +10,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
-      - API__BaseUrl=http://localhost:5005/
+      - API__BaseUrl=http://waffler.local:5005/
       - API__Version=v1
     volumes:
       - ./https:/https:ro
