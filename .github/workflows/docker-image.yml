@@ -47,6 +47,15 @@ jobs:
         username: ${{ env.USERNAME }}
         password: ${{ env.PASSWORD }}
 
+    - name: Build test
+      uses: docker/build-push-action@v2
+      with:
+        builder: ${{ steps.buildx.outputs.name }}
+        context: .
+        file: ./Waffler.API/Dockerfile.arm64
+        platforms: linux/arm64
+        tags: ${{ steps.prep.outputs.tags }}
+
     - name: Build and tag image for API
       run: docker build --tag ghcr.io/citou-ab/$API_IMAGE_NAME:latest . --file Waffler.API/Dockerfile
 
