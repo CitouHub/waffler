@@ -2,9 +2,9 @@ name: Waffler build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master_d ]
   pull_request:
-    branches: [ master ]
+    branches: [ master_d ]
     
 env:
   REGISTRY: ghcr.io
