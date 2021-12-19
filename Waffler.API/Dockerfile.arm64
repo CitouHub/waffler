@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim-arm64v8 AS base
 WORKDIR /app
