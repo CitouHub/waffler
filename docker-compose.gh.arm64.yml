@@ -2,7 +2,7 @@ version: "3"
 
 services:
   web:
-    image: ghcr.io/citou-ab/waffler-web:latest
+    image: ghcr.io/citou-ab/waffler-web-arm64
     depends_on:
       - api
     ports:
@@ -10,18 +10,18 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
-      - API__BaseUrl=http://localhost:5005/
+      - API__BaseUrl=http://waffler.local:5005/
       - API__Version=v1
     volumes:
       - ./https:/https:ro
   api:
-    image: ghcr.io/citou-ab/waffler-api:latest
+    image: ghcr.io/citou-ab/waffler-api-arm64
     depends_on:
       - db
     ports:
       - 5005:80
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - Database__Server=db
       - Database__Catalog=Waffler
@@ -33,7 +33,7 @@ services:
     volumes:
       - ./https:/https:ro
   db:
-    image: ghcr.io/citou-ab/waffler-db:latest
+    image: ghcr.io/citou-ab/waffler-db-arm64
     environment:
       ACCEPT_EULA: Y
       SA_PASSWORD: pAssword1234

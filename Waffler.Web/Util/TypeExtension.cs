@@ -41,5 +41,21 @@ namespace Waffler.Web.Util
             var versionInfo = FileVersionInfo.GetVersionInfo(type.Assembly.Location);
             return versionInfo.ProductVersion;
         }
+
+        /// <summary>
+        /// Returns the informal file version, usually not in version (n.n.n.n) format.
+        /// Could contain build date etc.
+        /// </summary>
+        /// <param name="type">Type in an assembly to return version from</param>
+        /// <returns>Build information appended at compile time</returns>
+        public static string GetReleaseTag(this Type type)
+        {
+            var versionInfo = FileVersionInfo.GetVersionInfo(type.Assembly.Location);
+            var productVersion = versionInfo.ProductVersion;
+            var tag = productVersion.Substring(productVersion.IndexOf("Tag:") + "Tag:".Length);
+            tag = tag.Substring(0, tag.IndexOf(" "));
+
+            return tag;
+        }
     }
 }

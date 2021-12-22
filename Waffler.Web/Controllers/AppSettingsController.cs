@@ -22,7 +22,7 @@ namespace Waffler.Web.Controllers
             {
                 { "API:Version", _configuration.GetValue<string>("API:Version") },
                 { "API:BaseURL", _configuration.GetValue<string>("API:BaseURL") },
-                { "Web:Version", typeof(Startup).GetInformalVersion() }
+                { "Web:Version", typeof(Startup).GetReleaseTag() }
             };
 
             return appSettings;
