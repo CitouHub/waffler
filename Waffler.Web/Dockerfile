@@ -7,6 +7,8 @@ ARG build_id=1
 ARG build_tag=(none)
 ARG commit_id=#
 
+RUN echo "Building with build id '$build_id', tag '$build_tag' and commit '$commit_id'"
+
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 
