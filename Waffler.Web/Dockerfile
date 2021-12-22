@@ -1,25 +1,29 @@
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
-WORKDIR /app
-EXPOSE 80
-EXPOSE 443
 
 ARG build_id=1
 ARG build_tag=(none)
 ARG commit_id=#
-
-RUN echo "Building with build id '$build_id', tag '$build_tag' and commit '$commit_id'"
-
 ENV env_build_id=$build_id
 ENV env_build_tag=$build_tag
 ENV env_commit_id=$commit_id
+
+RUN echo "Building with build id '$build_id', tag '$build_tag' and commit '$commit_id'"
+
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
 
 RUN echo "Building with build id '$env_build_id', tag '$env_build_tag' and commit '$env_commit_id'"
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 
+RUN echo "Building with build id '$env_build_id', tag '$env_build_tag' and commit '$env_commit_id'"
+
 RUN curl -sL https://deb.nodesource.com/setup_10.x |  bash -
 RUN apt-get update && apt-get install -y nodejs
+
+RUN echo "Building with build id '$env_build_id', tag '$env_build_tag' and commit '$env_commit_id'"
 
 COPY ["Waffler.Web/Waffler.Web.csproj", "Waffler.Web/"]
 RUN dotnet restore "Waffler.Web/Waffler.Web.csproj"
