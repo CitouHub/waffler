@@ -1,7 +1,7 @@
 ﻿import React, { useState, useEffect } from 'react';
-import LoadingBar from '../../../utils/loadingbar'
+import LoadingBar from '../../../components/utils/loadingbar'
 
-import ProfileService from '../../../../services/profile.service'
+import ProfileService from '../../../services/profile.service'
 
 import './status.css';
 

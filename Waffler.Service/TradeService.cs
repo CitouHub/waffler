@@ -89,7 +89,8 @@ namespace Waffler.Service
                             var orderId = Guid.NewGuid();
                             var price = GetPrice(tradeRule.CandleStickValueTypeId, candleStick, tradeRule.PriceDeltaPercent);
                             var amount = Math.Round(tradeRule.Amount / price, 8);
-                            if (tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Active)
+                            if (tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Active &&
+                                tradeRule.TradeRuleStatusId != (short)TradeRuleStatus.Test)
                             {
                                 //orderId = await _bitpandaService.CreateOrderAsync(new CreateOrderDTO(){});
                             }
@@ -100,6 +101,7 @@ namespace Waffler.Service
                                 TradeOrderStatusId = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test ? (short)TradeOrderStatus.Test : (short)TradeOrderStatus.Open,
                                 TradeRuleId = tradeRule.Id,
                                 Amount = amount,
+                                FilledAmount = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test ? amount : 0,
                                 OrderDateTime = currentPeriodDateTime,
                                 Price = price,
                                 OrderId = orderId

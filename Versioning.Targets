@@ -1,0 +1,74 @@
+<Project>
+  <UsingTask
+    TaskName="CalculateVersion"
+    TaskFactory="RoslynCodeTaskFactory"
+    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll" >
+    <ParameterGroup>
+      <VersionPrefix ParameterType="System.String" Required="true" />
+      <BuildId ParameterType="System.String" Required="true" />
+      <CalculatedVersion ParameterType="System.String" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[  
+if (VersionPrefix.Split('.').Length > 2)
+  throw new ArgumentException("Version should only be set with Major.Minor, rest is generated");
+
+// Return formatted version number [VersionPrefix].[BuildId]
+CalculatedVersion = string.Format("{0}.{1}", VersionPrefix, BuildId);
+]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <UsingTask
+    TaskName="CalculateInformalVersion"
+    TaskFactory="RoslynCodeTaskFactory"
+    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll" >
+    <ParameterGroup>
+      <VersionPrefix ParameterType="System.String" Required="true" />
+      <BuildId ParameterType="System.String" Required="true" />
+      <BuildTag ParameterType="System.String" Required="true" />
+      <CommitId ParameterType="System.String" Required="true" />
+      <CalculatedInformalVersion ParameterType="System.String" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[  
+if (VersionPrefix.Split('.').Length > 2)
+  throw new ArgumentException("Version should only be set with Major.Minor, rest is generated");
+
+// Return formatted version number [VersionPrefix] BuildId:[BuildId] [Year]-[Month]-[Day] [Hour]:[Minute] UTC
+var now = DateTime.UtcNow;
+CalculatedInformalVersion = string.Format("{0} BuildId:{2} Tag:{3} Commit:{4} {1:yyyy-MM-dd HH:mm} UTC", VersionPrefix, now, BuildId, BuildTag, CommitId);
+]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="UpdateVersion" AfterTargets="PrepareForBuild">
+    <PropertyGroup Condition="'$(CalculatedVersion)' == ''">
+      <CalculatedVersion></CalculatedVersion>
+    </PropertyGroup>
+    <CalculateVersion VersionPrefix="$(Version)" BuildId="$(BuildId)" Condition="'$(CalculatedVersion)' == ''">
+      <Output TaskParameter="CalculatedVersion" PropertyName="CalculatedVersion" />
+    </CalculateVersion>
+
+    <PropertyGroup Condition="'$(CalculatedInformalVersion)' == ''">
+      <CalculatedInformalVersion></CalculatedInformalVersion>
+    </PropertyGroup>
+    <CalculateInformalVersion VersionPrefix="$(Version)" BuildId="$(BuildId)" BuildTag="$(BuildTag)" CommitId="$(CommitId)" Condition="'$(CalculatedInformalVersion)' == ''">
+      <Output TaskParameter="CalculatedInformalVersion" PropertyName="CalculatedInformalVersion" />
+    </CalculateInformalVersion>
+    <Message Importance="High" Text="Setting version to '$(CalculatedVersion)' with supplied buildid '$(BuildId)' and tag '$(BuildTag)'" />
+
+    <PropertyGroup>
+      <PackageVersion>$(CalculatedVersion)</PackageVersion>
+      <AssemblyVersion>$(CalculatedVersion)</AssemblyVersion>
+      <FileVersion>$(CalculatedVersion)</FileVersion>
+      <InformationalVersion>$(CalculatedInformalVersion)</InformationalVersion>
+    </PropertyGroup>
+  </Target>
+</Project>

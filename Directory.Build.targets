@@ -1,0 +1,6 @@
+<Project>
+  <!-- 
+  https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2019
+  -->
+  <Import Project="Versioning.Targets"/>
+</Project>

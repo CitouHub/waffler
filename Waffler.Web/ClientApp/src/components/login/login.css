@@ -14,8 +14,8 @@
     align-items: center;
 }
 
-.waffle {
-    width: 200px;
+div.profile img.waffle {
+    width: 100px;
 }
 
 div.profile h1 {

@@ -1,11 +1,4 @@
-﻿body {
-    background-color: #f7f9fb;
-    max-width: 1920px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.home {
+﻿.home {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -20,5 +13,5 @@
     padding: 0 1rem 1rem 1rem;
     margin-left: 0;
     height: calc(100vh - 84px);
-    overflow-y: scroll;
+    overflow-y: auto;
 }

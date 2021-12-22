@@ -1,12 +1,11 @@
 ﻿import React, { useState, useEffect } from "react";
 
-import LoadingBar from '../../components/utils/loadingbar';
+import LoadingBar from '../utils/loadingbar';
 
-const Orders = () => {
+const TradeOrders = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        console.log('Get orders');
         setLoading(false);
     }, []);
 
@@ -20,4 +19,4 @@ const Orders = () => {
     )
 };
 
-export default Orders;
+export default TradeOrders;

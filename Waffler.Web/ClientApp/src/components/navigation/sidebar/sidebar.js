@@ -2,15 +2,14 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChartLine, faRulerCombined, faTools, faSignOutAlt, faTasks } from "@fortawesome/free-solid-svg-icons";
 import { NavItem, NavLink, Nav } from "reactstrap";
-import classNames from "classnames";
 import { Link } from "react-router-dom";
 
-import Balance from "../status/balance";
+import Balance from "../../navigation/status/balance";
 
 import './sidebar.css';
 
-const SideBar = ({ isOpen, toggle }) => (
-    <div className={classNames("sidebar", { "is-open": isOpen })}>
+const SideBar = () => (
+    <div className="sidebar is-open">
         <div className="sidebar-header">
             <Balance/>
         </div>

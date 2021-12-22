@@ -6,4 +6,8 @@
         let appSettings = JSON.parse(localStorage.getItem('appSettings'));
         return '' + appSettings["API:BaseURL"] + appSettings["API:Version"];
     },
+    version: () => {
+        let appSettings = JSON.parse(localStorage.getItem('appSettings'));
+        return '' + appSettings["Web:Version"];
+    }
 }

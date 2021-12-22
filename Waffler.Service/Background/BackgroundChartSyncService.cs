@@ -12,8 +12,8 @@ using AutoMapper;
 
 using Waffler.Common;
 using Waffler.Domain;
-using static Waffler.Common.Variable;
 using Waffler.Service.Infrastructure;
+using static Waffler.Common.Variable;
 
 namespace Waffler.Service.Background
 {

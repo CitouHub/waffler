@@ -55,7 +55,7 @@ const Profile = () => {
                                 onChange={e => setProfile({ ...profile, apiKey: e.target.value })} />
                         </div>
                         <div className='get-api-key'>
-                            <a href="https://exchange.bitpanda.com/account/keys" target="_blank">Get you Api key here</a>
+                            <a href="https://exchange.bitpanda.com/account/keys" target="_blank" rel="noopener noreferrer">Get you Api key here</a>
                         </div>
                     </div>
                     <div className="mt-3 mb-3 sync-control">

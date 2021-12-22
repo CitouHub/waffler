@@ -1,0 +1,20 @@
+<Project>
+  <!-- 
+  https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2019
+  -->
+  <PropertyGroup>
+    <Version>1.0</Version>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(BuildId)' == ''">
+    <BuildId>0</BuildId>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BuildTag)' == ''">
+    <BuildTag>[none]</BuildTag>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(CommitId)' == ''">
+    <CommitId>#</CommitId>
+  </PropertyGroup>
+</Project>
