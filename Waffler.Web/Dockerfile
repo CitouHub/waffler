@@ -1,30 +1,28 @@
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 ARG build_id=1
 ARG build_tag=(none)
 ARG commit_id=#
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+RUN echo "$build_id" >> var_build_id
+RUN echo "$build_tag" >> var_build_tag
+RUN echo "$commit_id" >> var_commit_id
 
-ARG build_id
-ARG build_tag
-ARG commit_id
-ENV env_build_id=$build_id
-ENV env_build_tag=$build_tag
-ENV env_commit_id=$commit_id
+RUN echo "$(<var_build_id )"
+RUN echo "$(<var_build_tag )"
+RUN echo "$(<var_commit_id )"
 
-RUN echo "Building with build id '$build_id', tag '$build_tag' and commit '$commit_id'"
+RUN ls -a
 
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-RUN echo "Building with build id '$env_build_id', tag '$env_build_tag' and commit '$env_commit_id'"
-
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 
-COPY --from=base $env_build_id .
-COPY --from=base $env_build_tag .
-COPY --from=base $env_commit_id .
+COPY --from=base var_build_id .
+COPY --from=base var_build_id .
+COPY --from=base var_build_id .
 
 RUN echo "Building with build id '$env_build_id', tag '$env_build_tag' and commit '$env_commit_id'"
 
