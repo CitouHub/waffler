@@ -26,6 +26,10 @@ RUN cat var_build_id
 RUN cat var_build_tag
 RUN cat var_commit_id
 
+RUN export env_build_id=$(cat var_build_id)
+RUN export env_build_tag=$(cat var_build_tag)
+RUN export env_commit_id=$(cat var_commit_id)
+
 RUN echo "Building with build id '$env_build_id', tag '$env_build_tag' and commit '$env_commit_id'"
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x |  bash -
