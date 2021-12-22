@@ -1,14 +1,13 @@
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
-
 ARG build_id=1
 ARG build_tag=(none)
 ARG commit_id=#
-ENV env_build_id=1
-ENV env_build_tag=(none)
-ENV env_commit_id=#
 ENV env_build_id=$build_id
 ENV env_build_tag=$build_tag
 ENV env_commit_id=$commit_id
+
+RUN echo "Building with build id '$build_id', tag '$build_tag' and commit '$commit_id'"
+
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 
 RUN echo "Building with build id '$build_id', tag '$build_tag' and commit '$commit_id'"
 
