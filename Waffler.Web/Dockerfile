@@ -19,10 +19,9 @@ COPY ["Waffler.Web/Waffler.Web.csproj", "Waffler.Web/"]
 RUN dotnet restore "Waffler.Web/Waffler.Web.csproj"
 COPY . .
 WORKDIR "/src/Waffler.Web"
-RUN dotnet build "Waffler.Web.csproj" -c Release -p:BuildId=${build_id} -p:BuildTag=${build_tag} -p:CommitId=${commit_id} -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Waffler.Web.csproj" -c Release -o -p:BuildId=${build_id} -p:BuildTag=${build_tag} -p:CommitId=${commit_id} /app/publish
+RUN dotnet publish "Waffler.Web.csproj" -c Release -o /app/publish -p:BuildId=${build_id} -p:BuildTag=${build_tag} -p:CommitId=${commit_id}
 
 FROM base AS final
 WORKDIR /app
