@@ -15,7 +15,7 @@ env:
   DB_IMAGE_NAME_ARM64: waffler-db-arm64
   API_IMAGE_NAME_ARM64: waffler-api-arm64
   WEB_IMAGE_NAME_ARM64: waffler-web-arm64
-  RELEASE_TAG_INPUT: ${{ github.event.release.tag_name }}
+  RELEASE_TAG_INPUT: v0.1.0-beta
 
 jobs:
   build_push_db:
