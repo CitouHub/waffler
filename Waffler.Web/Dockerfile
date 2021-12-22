@@ -3,6 +3,10 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+ARG build_id=1
+ARG build_tag=(none)
+ARG commit_id=#
+
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 
@@ -13,10 +17,10 @@ COPY ["Waffler.Web/Waffler.Web.csproj", "Waffler.Web/"]
 RUN dotnet restore "Waffler.Web/Waffler.Web.csproj"
 COPY . .
 WORKDIR "/src/Waffler.Web"
-RUN dotnet build "Waffler.Web.csproj" -c Release -o /app/build
+RUN dotnet build "Waffler.Web.csproj" -c Release -p:BuildId=${build_id} -p:BuildTag=${build_tag} -p:CommitId=${commit_id} -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Waffler.Web.csproj" -c Release -o /app/publish
+RUN dotnet publish "Waffler.Web.csproj" -c Release -o -p:BuildId=${build_id} -p:BuildTag=${build_tag} -p:CommitId=${commit_id} /app/publish
 
 FROM base AS final
 WORKDIR /app
