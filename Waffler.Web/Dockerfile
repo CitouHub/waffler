@@ -22,9 +22,9 @@ ENV BUILD_ID=1
 ENV BUILD_TAG=(none)
 ENV COMMIT_ID=#
 
-RUN BUILD_ID=$(cat var_build_id); 
-    BUILD_TAG=$(cat var_build_tag); 
-    COMMIT_ID=$(cat var_commit_id); 
+RUN BUILD_ID=$(cat var_build_id); \
+    BUILD_TAG=$(cat var_build_tag); \
+    COMMIT_ID=$(cat var_commit_id); \
     echo "Building with build id '$BUILD_ID', tag '$BUILD_TAG' and commit '$COMMIT_ID'"
 
 RUN echo "Building with build id '$BUILD_ID', tag '$BUILD_TAG' and commit '$COMMIT_ID'"
