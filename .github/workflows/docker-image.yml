@@ -15,6 +15,7 @@ env:
   API_IMAGE_NAME_ARM64: waffler-api-arm64
   WEB_IMAGE_NAME_ARM64: waffler-web-arm64
   RELEASE_TAG_INPUT: ${{ github.event.release.tag_name }}
+  BUILD_ID: ${{ github.run_number }}
 
 jobs:
   build_push_db:
@@ -31,7 +32,7 @@ jobs:
         password: ${{ env.PASSWORD }}
 
     - name: Build and tag image for DB
-      run: docker build --tag ghcr.io/citou-ab/$DB_IMAGE_NAME:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Data/Dockerfile
+      run: docker build --tag ghcr.io/citou-ab/$DB_IMAGE_NAME:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Data/Dockerfile
       
     - name: Tag release image for DB as `latest`
       run: docker tag ghcr.io/citou-ab/$DB_IMAGE_NAME:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$DB_IMAGE_NAME:latest
@@ -56,7 +57,7 @@ jobs:
         password: ${{ env.PASSWORD }}
 
     - name: Build and tag image for API
-      run: docker build --tag ghcr.io/citou-ab/$API_IMAGE_NAME:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.API/Dockerfile
+      run: docker build --tag ghcr.io/citou-ab/$API_IMAGE_NAME:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.API/Dockerfile
       
     - name: Tag release image for API as `latest`
       run: docker tag ghcr.io/citou-ab/$API_IMAGE_NAME:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$API_IMAGE_NAME:latest
@@ -81,7 +82,7 @@ jobs:
         password: ${{ env.PASSWORD }}
       
     - name: Build and tag image for Web
-      run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Web/Dockerfile
+      run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Web/Dockerfile
       
     - name: Tag release image for Web as `latest`
       run: docker tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$WEB_IMAGE_NAME:latest
@@ -118,7 +119,7 @@ jobs:
           password: ${{ env.PASSWORD }}
           
       - name: Build and tag image for DB
-        run: docker build --tag ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Data/Dockerfile
+        run: docker build --tag ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Data/Dockerfile
       
       - name: Tag release image for DB as `latest`
         run: docker tag ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:latest
@@ -155,7 +156,7 @@ jobs:
           password: ${{ env.PASSWORD }}
           
       - name: Build and tag image for API
-        run: docker build --tag ghcr.io/citou-ab/$API_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.API/Dockerfile.arm64
+        run: docker build --tag ghcr.io/citou-ab/$API_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.API/Dockerfile.arm64
       
       - name: Tag release image for API as `latest`
         run: docker tag ghcr.io/citou-ab/$API_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$API_IMAGE_NAME:latest
@@ -192,7 +193,7 @@ jobs:
           password: ${{ env.PASSWORD }}
           
       - name: Build and tag image for Web
-        run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Web/Dockerfile
+        run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Web/Dockerfile
       
       - name: Tag release image for Web as `latest`
         run: docker tag ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$WEB_IMAGE_NAME:latest
