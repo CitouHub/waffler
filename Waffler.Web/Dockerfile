@@ -19,8 +19,12 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 
 COPY --from=base var_build_id .
-COPY --from=base var_build_id .
-COPY --from=base var_build_id .
+COPY --from=base var_build_tag .
+COPY --from=base var_commit_id .
+
+RUN cat var_build_id
+RUN cat var_build_tag
+RUN cat var_commit_id
 
 RUN echo "Building with build id '$env_build_id', tag '$env_build_tag' and commit '$env_commit_id'"
 
