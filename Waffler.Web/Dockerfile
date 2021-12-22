@@ -7,11 +7,9 @@ RUN echo "$build_id" >> var_build_id
 RUN echo "$build_tag" >> var_build_tag
 RUN echo "$commit_id" >> var_commit_id
 
-RUN echo "$(<var_build_id )"
-RUN echo "$(<var_build_tag )"
-RUN echo "$(<var_commit_id )"
-
-RUN ls -a
+RUN cat var_build_id
+RUN cat var_build_tag
+RUN cat var_commit_id
 
 WORKDIR /app
 EXPOSE 80
