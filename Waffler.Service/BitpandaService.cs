@@ -14,18 +14,19 @@ using Newtonsoft.Json;
 
 using Waffler.Common;
 using Waffler.Data;
+using Waffler.Domain;
 using Waffler.Domain.Bitpanda.Private;
 using Waffler.Domain.Bitpanda.Private.Balance;
 using Waffler.Domain.Bitpanda.Private.Order;
-using Waffler.Domain.Bitpanda.Public;
+using Waffler.Service.Converter;
 
 namespace Waffler.Service
 {
     public interface IBitpandaService
     {
         Task<AccountDTO> GetAccountAsync();
-        Task<List<CandleStickDTO>> GetCandleSticks(string instrumentCode, string unit, short period, DateTime from, DateTime to);
-        Task<OrderSubmittedDTO> CreateOrderAsync(CreateOrderDTO createOrder);
+        Task<List<Domain.Bitpanda.Public.CandleStickDTO>> GetCandleSticks(string instrumentCode, string unit, short period, DateTime from, DateTime to);
+        Task<OrderSubmittedDTO> PlaceOrderAsync(TradeRuleDTO tradeRule, decimal amount, decimal price);
         Task<List<OrderDTO>> GetOrdersAsync(string instrumentCode, DateTime from, DateTime to);
         Task<OrderDTO> GetOrderAsync(Guid orderId);
     }
@@ -33,19 +34,21 @@ namespace Waffler.Service
     public class BitpandaService : IBitpandaService
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<BitpandaService> _logger;
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
 
-        private HttpClient? PrivateHttpClient 
-        { 
-            get {
-                if(string.IsNullOrEmpty(_apiKey) == false)
+        private HttpClient? PrivateHttpClient
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_apiKey) == false)
                 {
                     _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
                     return _httpClient;
                 }
                 return null;
-            } 
+            }
         }
 
         private HttpClient PublicHttpClient
@@ -58,19 +61,20 @@ namespace Waffler.Service
         }
 
         public BitpandaService(
-            IConfiguration configuration, 
-            ILogger<BitpandaService> logger, 
-            WafflerDbContext context, 
+            IConfiguration configuration,
+            ILogger<BitpandaService> logger,
+            WafflerDbContext context,
             IHttpClientFactory httpClientFactory)
         {
             _configuration = configuration;
+            _logger = logger;
             _httpClient = httpClientFactory.CreateClient("Bitpanda");
             _apiKey = context.WafflerProfiles.OrderBy(_ => _.Id).FirstOrDefault()?.ApiKey;
         }
 
         public async Task<AccountDTO> GetAccountAsync()
         {
-            if(PrivateHttpClient != null)
+            if (PrivateHttpClient != null)
             {
                 var result = await PrivateHttpClient.GetAsync("account/balances");
                 var content = await result.Content.ReadAsStringAsync();
@@ -80,7 +84,7 @@ namespace Waffler.Service
             return null;
         }
 
-        public async Task<List<CandleStickDTO>> GetCandleSticks(string instrumentCode, string unit, short period, DateTime from, DateTime to)
+        public async Task<List<Domain.Bitpanda.Public.CandleStickDTO>> GetCandleSticks(string instrumentCode, string unit, short period, DateTime from, DateTime to)
         {
             var fromString = HttpUtility.UrlEncode(from.ToString("o"));
             var toString = HttpUtility.UrlEncode(to.ToString("o"));
@@ -96,32 +100,65 @@ namespace Waffler.Service
                 $"from={fromString}&" +
                 $"to={toString}");
 
-            if(result.IsSuccessStatusCode)
+            if (result.IsSuccessStatusCode)
             {
                 var content = await result.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<List<CandleStickDTO>>(content);
-            } 
+                return JsonConvert.DeserializeObject<List<Domain.Bitpanda.Public.CandleStickDTO>>(content);
+            }
             else
             {
                 return null;
             }
         }
 
-        public async Task<OrderSubmittedDTO> CreateOrderAsync(CreateOrderDTO order)
+        public async Task<OrderSubmittedDTO> PlaceOrderAsync(TradeRuleDTO tradeRule, decimal amount, decimal price)
         {
-            if(PrivateHttpClient != null && 
-                (order.Side == Bitpanda.Side.BUY && _configuration.GetValue<bool>("Bitpanda:OrderFeature:Buy") == true) ||
-                (order.Side == Bitpanda.Side.SELL && _configuration.GetValue<bool>("Bitpanda:OrderFeature:Sell") == true))
+            if (PrivateHttpClient != null &&
+                (tradeRule.TradeActionId == (short)Variable.TradeAction.Buy && _configuration.GetValue<bool>("Bitpanda:OrderFeature:Buy") == true) ||
+                (tradeRule.TradeActionId == (short)Variable.TradeAction.Sell && _configuration.GetValue<bool>("Bitpanda:OrderFeature:Sell") == true))
             {
-                    var requestContent = new StringContent(JsonConvert.SerializeObject(order), Encoding.UTF8, "application/json");
-                    var result = await PublicHttpClient.SendAsync(new HttpRequestMessage()
+                var balance = await GetAccountAsync();
+                var buyBalance = balance?.Balances?.FirstOrDefault(_ => _.Currency_code == Bitpanda.CurrencyCode.EUR);
+                var sellBalance = balance?.Balances?.FirstOrDefault(_ => _.Currency_code == Bitpanda.CurrencyCode.BTC);
+
+                if ((buyBalance.Available >= amount && tradeRule.TradeActionId == (short)Variable.TradeAction.Buy) ||
+                    (sellBalance.Available >= amount && tradeRule.TradeActionId == (short)Variable.TradeAction.Sell)) 
+                {
+                    var order = new CreateOrderDTO()
                     {
-                        RequestUri = new Uri($"account/orders"),
-                        Method = HttpMethod.Post,
-                        Content = requestContent,
-                    });
-                    var content = await result.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<OrderSubmittedDTO>(content);                
+                        Amount = amount,
+                        Type = Bitpanda.OrderType.LIMIT,
+                        Expire_after = tradeRule.TradeOrderExpirationMinutes != null ? DateTime.UtcNow.AddMinutes((int)tradeRule.TradeOrderExpirationMinutes) : (DateTime?)null,
+                        Instrument_code = Bitpanda.GetInstrumentCode((Variable.TradeType)tradeRule.TradeActionId),
+                        Price = price,
+                        Side = Bitpanda.GetSide((Variable.TradeAction)tradeRule.TradeActionId),
+                        Time_in_force = tradeRule.TradeOrderExpirationMinutes != null ? Bitpanda.TimeInForce.GOOD_TILL_TIME : Bitpanda.TimeInForce.GOOD_TILL_CANCELLED
+                    };
+
+                    var orderJson = JsonConvert.SerializeObject(order, new DecimalStringFormatConverter());
+                    var requestContent = new StringContent(orderJson, Encoding.UTF8, "application/json");
+
+                    var result = await PrivateHttpClient.PostAsync($"account/orders", requestContent);
+
+                    if (result.IsSuccessStatusCode)
+                    {
+                        var content = await result.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<OrderSubmittedDTO>(content);
+                    }
+                    else
+                    {
+                        var error = await result.Content.ReadAsStringAsync();
+                        _logger.LogError($"Unable to place order for rule {tradeRule.Name}, {error}");
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning($"Unable to place order for rule {tradeRule.Name}, insufficient balance, EUR: {buyBalance.Available}, BTC: {sellBalance.Available}");
+                }
+            }
+            else
+            {
+                _logger.LogWarning($"Unable to place order for rule {tradeRule.Name}, trade action is disabled of API-key is missing");
             }
 
             return null;

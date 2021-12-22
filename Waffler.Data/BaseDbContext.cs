@@ -279,7 +279,6 @@ namespace Waffler.Data
                 entity.HasOne(d => d.TradeRule)
                     .WithMany(p => p.TradeRuleConditions)
                     .HasForeignKey(d => d.TradeRuleId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("TradeRuleCondition_TradeRuleFK");
             });
 

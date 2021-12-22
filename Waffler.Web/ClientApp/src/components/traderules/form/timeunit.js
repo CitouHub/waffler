@@ -1,6 +1,7 @@
 ﻿export default {
     getMinutes(timeUnitId, value) {
         switch (timeUnitId) {
+            case 0: return null;
             case 1: return value;
             case 2: return value * 60;
             case 3: return value * 60 * 24;

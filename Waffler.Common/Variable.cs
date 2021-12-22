@@ -20,9 +20,9 @@
 
         public enum TradeRuleStatus
         {
-            Active = 1,
+            Inactive = 1,
             Test = 2,
-            Disabled = 3
+            Active = 3
         }
 
         public enum TradeRuleConditionPeriodDirection
@@ -71,6 +71,7 @@
 
         public enum TimeUnit
         {
+            Other = 0,
             Minute = 1,
             Hour = 2,
             Day = 3,

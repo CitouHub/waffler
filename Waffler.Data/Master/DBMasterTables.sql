@@ -150,7 +150,7 @@ CREATE TABLE [dbo].[TradeRule](
 	[Amount] [decimal](10,8) NOT NULL,
 	[PriceDeltaPercent] [decimal](6,4) NOT NULL DEFAULT(0.0),
 	[TradeMinIntervalMinutes] [int] NOT NULL,
-	[TradeOrderExpirationMinutes] [int] NOT NULL,
+	[TradeOrderExpirationMinutes] [int] NULL,
 	[LastTrigger] [datetime2](0) NOT NULL DEFAULT('1900-01-01'),
 	[TestTradeInProgress] [bit] NOT NULL DEFAULT(0)
  CONSTRAINT [TradeRule_PK] PRIMARY KEY CLUSTERED 

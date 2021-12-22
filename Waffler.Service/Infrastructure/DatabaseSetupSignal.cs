@@ -6,6 +6,7 @@ namespace Waffler.Service.Infrastructure
     public class DatabaseSetupSignal
     {
         private readonly SemaphoreSlim _databaseReadySignal;
+        private readonly object Lock = new object();
 
         private bool DatabaseReady;
         private short Waiting;
@@ -19,17 +20,24 @@ namespace Waffler.Service.Infrastructure
 
         public async Task AwaitDatabaseReadyAsync(CancellationToken cancellationToken)
         {
-            while(DatabaseReady == false)
+
+            while (DatabaseReady == false)
             {
-                Waiting++;
+                lock (Lock)
+                {
+                    Waiting++;
+                }
                 await _databaseReadySignal.WaitAsync(cancellationToken);
             }
         }
 
         public void SetDatabaseReady()
         {
-            DatabaseReady = true;
-            _databaseReadySignal.Release(Waiting);
+            lock (Lock)
+            {
+                DatabaseReady = true;
+                _databaseReadySignal.Release(Waiting);
+            }
         }
     }
 }

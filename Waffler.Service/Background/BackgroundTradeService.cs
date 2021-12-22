@@ -18,6 +18,7 @@ namespace Waffler.Service.Background
         private readonly ILogger<BackgroundTradeService> _logger;
         private readonly DatabaseSetupSignal _databaseSetupSignal;
         private readonly TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
+        private readonly TimeSpan RetryRequestPeriod = TimeSpan.FromMinutes(1);
         private readonly TimeSpan ValidSyncOffser = TimeSpan.FromMinutes(15);
 
         private Timer _timer;
@@ -97,10 +98,11 @@ namespace Waffler.Service.Background
                         else
                         {
                             _logger.LogWarning($"- Data not synced, last period {lastCandleStick.PeriodDateTime}");
+                            _timer.Change(RetryRequestPeriod, RequestPeriod);
                         }
                     }
                 }
-                _logger.LogInformation($"Syncing waffle candle stick data finished");
+                _logger.LogInformation($"Running trade analysis finished");
             } 
             catch(Exception e)
             {

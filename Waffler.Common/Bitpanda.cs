@@ -1,10 +1,11 @@
-﻿using System;
-using static Waffler.Common.Variable;
+﻿using static Waffler.Common.Variable;
 
 namespace Waffler.Common
 {
     public static class Bitpanda
     {
+        public static short DecimalPrecision = 5;
+
         private static class InstrumentCode
         {
             public const string BTC_EUR = "BTC_EUR";
@@ -20,6 +21,21 @@ namespace Waffler.Common
         {
             public const string BTC = "BTC";
             public const string EUR = "EUR";
+        }
+
+        public static class OrderType
+        {
+            public const string LIMIT = "LIMIT";
+            public const string STOP = "STOP";
+            public const string MARKET = "MARKET";
+        }
+
+        public static class TimeInForce
+        {
+            public const string GOOD_TILL_CANCELLED = "GOOD_TILL_CANCELLED";
+            public const string GOOD_TILL_TIME = "GOOD_TILL_TIME";
+            public const string IMMEDIATE_OR_CANCELLED = "IMMEDIATE_OR_CANCELLED";
+            public const string FILL_OR_KILL = "FILL_OR_KILL";
         }
 
         public static class Side
@@ -46,6 +62,16 @@ namespace Waffler.Common
             return tradeType switch
             {
                 TradeType.BTC_EUR => InstrumentCode.BTC_EUR,
+                _ => null,
+            };
+        }
+
+        public static string GetSide(TradeAction tradeAction)
+        {
+            return tradeAction switch
+            {
+                TradeAction.Buy => Side.BUY,
+                TradeAction.Sell => Side.SELL,
                 _ => null,
             };
         }

@@ -27,7 +27,7 @@ namespace Waffler.Data
         public decimal Amount { get; set; }
         public decimal PriceDeltaPercent { get; set; }
         public int TradeMinIntervalMinutes { get; set; }
-        public int TradeOrderExpirationMinutes { get; set; }
+        public int? TradeOrderExpirationMinutes { get; set; }
         public DateTime LastTrigger { get; set; }
         public bool TestTradeInProgress { get; set; }
 

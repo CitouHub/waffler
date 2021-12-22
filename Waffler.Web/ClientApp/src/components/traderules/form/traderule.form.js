@@ -165,20 +165,21 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartT
                                     endAdornment: <InputAdornment position="end">{TimeUnit.getUnit(tradeRule.intervalTimeUnit)}</InputAdornment>,
                                 }} />
                             <FormControl sx={{ width: '20%' }}>
-                                <InputLabel id="tr-orderExpirationTimeUnit-label">Order expiration unit</InputLabel>
-                                <Select labelId="tr-orderExpirationTimeUnit-label" id="tr-orderExpirationTimeUnit-select" value={tradeRule.orderExpirationTimeUnit} label="Order expiration unit"
+                                <InputLabel id="tr-orderExpirationTimeUnit-label">Order expiration after</InputLabel>
+                                <Select labelId="tr-orderExpirationTimeUnit-label" id="tr-orderExpirationTimeUnit-select" value={tradeRule.orderExpirationTimeUnit} label="Order expiration after"
                                     onChange={e => setTradeRule({ ...tradeRule, orderExpirationTimeUnit: e.target.value })} >
+                                    <MenuItem value={0}>No expiration</MenuItem>
                                     <MenuItem value={1}>Minute</MenuItem>
                                     <MenuItem value={2}>Hour</MenuItem>
                                     <MenuItem value={3}>Day</MenuItem>
                                     <MenuItem value={4}>Week</MenuItem>
                                 </Select>
                             </FormControl>
-                            <TextField sx={{ width: '20%' }} id="tr-orderExpiration" label="Order expiration" variant="outlined" type="number" value={tradeRule.orderExpiration}
+                            {tradeRule.orderExpirationTimeUnit !== 0 && <TextField sx={{ width: '20%' }} id="tr-orderExpiration" label="Order expiration after" variant="outlined" type="number" value={tradeRule.orderExpiration}
                                 onChange={e => setTradeRule({ ...tradeRule, orderExpiration: e.target.value })}
                                 InputProps={{
                                     endAdornment: <InputAdornment position="end">{TimeUnit.getUnit(tradeRule.orderExpirationTimeUnit)}</InputAdornment>,
-                                }} />
+                                }} />}
                         </div>
                     </div>
                     <div className="actions-top">

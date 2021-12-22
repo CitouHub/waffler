@@ -1,9 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Microsoft.Extensions.Logging;
+
+using Waffler.Common;
 using Waffler.Domain;
+using Waffler.Domain.Bitpanda.Private;
 using static Waffler.Common.Variable;
 
 namespace Waffler.Service
@@ -21,17 +25,20 @@ namespace Waffler.Service
         private readonly ICandleStickService _candleStickService;
         private readonly ITradeRuleService _tradeRuleService;
         private readonly ITradeOrderService _tradeOrderService;
+        private readonly IBitpandaService _bitpandaService;
 
         public TradeService(
             ILogger<TradeService> logger,
             ICandleStickService candleStickService,
             ITradeRuleService tradeRuleService,
-            ITradeOrderService tradeOrderService)
+            ITradeOrderService tradeOrderService,
+            IBitpandaService bitpandaService)
         {
             _logger = logger;
             _candleStickService = candleStickService;
             _tradeRuleService = tradeRuleService;
             _tradeOrderService = tradeOrderService;
+            _bitpandaService = bitpandaService;
         }
 
         public async Task<TradeRuleEvaluationDTO> HandleTradeRule(int tradeRuleId, DateTime currentPeriodDateTime)
@@ -86,28 +93,34 @@ namespace Waffler.Service
                     switch (tradeAction)
                     {
                         case TradeAction.Buy:
-                            var orderId = Guid.NewGuid();
+                            Guid? orderId = Guid.NewGuid();
                             var price = GetPrice(tradeRule.CandleStickValueTypeId, candleStick, tradeRule.PriceDeltaPercent);
-                            var amount = Math.Round(tradeRule.Amount / price, 8);
-                            if (tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Active &&
-                                tradeRule.TradeRuleStatusId != (short)TradeRuleStatus.Test)
+                            var amount = Math.Round(tradeRule.Amount / price, Bitpanda.DecimalPrecision);
+                            if (tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Active)
                             {
-                                //orderId = await _bitpandaService.CreateOrderAsync(new CreateOrderDTO(){});
+                                var order = await _bitpandaService.PlaceOrderAsync(tradeRule, amount, price);
+                                orderId = order != null ? new Guid(order.Order_id) : (Guid?)null;
                             }
 
-                            await _tradeOrderService.AddTradeOrderAsync(new TradeOrderDTO()
+                            if(orderId != null)
                             {
-                                TradeActionId = (short)TradeAction.Buy,
-                                TradeOrderStatusId = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test ? (short)TradeOrderStatus.Test : (short)TradeOrderStatus.Open,
-                                TradeRuleId = tradeRule.Id,
-                                Amount = amount,
-                                FilledAmount = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test ? amount : 0,
-                                OrderDateTime = currentPeriodDateTime,
-                                Price = price,
-                                OrderId = orderId
-                            });
-                            tradeRule.LastTrigger = candleStick.PeriodDateTime;
-                            await _tradeRuleService.UpdateTradeRuleAsync(tradeRule);
+                                await _tradeOrderService.AddTradeOrderAsync(new TradeOrderDTO()
+                                {
+                                    TradeActionId = (short)TradeAction.Buy,
+                                    TradeOrderStatusId = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test ? (short)TradeOrderStatus.Test : (short)TradeOrderStatus.Open,
+                                    TradeRuleId = tradeRule.Id,
+                                    Amount = amount,
+                                    FilledAmount = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test ? amount : 0,
+                                    OrderDateTime = currentPeriodDateTime,
+                                    Price = price,
+                                    OrderId = orderId.Value,
+                                    IsActive = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Active
+                                });
+
+                                tradeRule.LastTrigger = candleStick.PeriodDateTime;
+                                await _tradeRuleService.UpdateTradeRuleAsync(tradeRule);
+                            }
+                            
                             break;
                         case TradeAction.Sell:
                             throw new NotImplementedException();
@@ -127,7 +140,7 @@ namespace Waffler.Service
         private bool CanHandleTradeRule(TradeRuleDTO tradeRule, DateTime currentPeriodDateTime)
         {
             return tradeRule.LastTrigger < currentPeriodDateTime.AddMinutes(-1 * tradeRule.TradeMinIntervalMinutes) &&
-                tradeRule.TradeRuleStatusId != (short)TradeRuleStatus.Disabled;
+                tradeRule.TradeRuleStatusId != (short)TradeRuleStatus.Inactive;
         }
 
         public async Task<bool> SetupTestTrade(int tradeRuleId)
