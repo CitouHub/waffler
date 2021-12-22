@@ -1,4 +1,12 @@
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim-arm64v8 AS base
+ARG build_id=1
+ARG build_tag=(none)
+ARG commit_id=#
+
+RUN echo "$build_id" >> var_build_id
+RUN echo "$build_tag" >> var_build_tag
+RUN echo "$commit_id" >> var_commit_id
+
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
@@ -13,10 +21,17 @@ COPY ["Waffler.Web/Waffler.Web.csproj", "Waffler.Web/"]
 RUN dotnet restore "Waffler.Web/Waffler.Web.csproj"
 COPY . .
 WORKDIR "/src/Waffler.Web"
-RUN dotnet build "Waffler.Web.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Waffler.Web.csproj" -c Release -o /app/publish
+COPY --from=base var_build_id .
+COPY --from=base var_build_tag .
+COPY --from=base var_commit_id .
+
+RUN BUILD_ID=$(cat var_build_id); \
+    BUILD_TAG=$(cat var_build_tag); \
+    COMMIT_ID=$(cat var_commit_id); \
+    echo "Publish with build id '$BUILD_ID', tag '$BUILD_TAG' and commit '$COMMIT_ID'"; \
+    dotnet publish "Waffler.Web.csproj" -c Release -o /app/publish -p:BuildId=${BUILD_ID} -p:BuildTag=${BUILD_TAG} -p:CommitId=${COMMIT_ID}
 
 FROM base AS final
 WORKDIR /app
