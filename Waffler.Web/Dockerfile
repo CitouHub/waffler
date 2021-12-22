@@ -7,10 +7,6 @@ RUN echo "$build_id" >> var_build_id
 RUN echo "$build_tag" >> var_build_tag
 RUN echo "$commit_id" >> var_commit_id
 
-RUN cat var_build_id
-RUN cat var_build_tag
-RUN cat var_commit_id
-
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
@@ -22,8 +18,11 @@ COPY --from=base var_build_id .
 COPY --from=base var_build_tag .
 COPY --from=base var_commit_id .
 
-RUN echo "Building with build id '$(cat var_build_id)', tag '$(cat var_build_tag)' and commit '$(cat var_commit_id)'"
-RUN echo "Building with build id '$env_build_id', tag '$env_build_tag' and commit '$env_commit_id'"
+ENV BUILD_ID = $(cat var_build_id)
+ENV BUILD_TAG = $(cat var_build_tag)
+ENV COMMIT_ID = $(cat var_commit_id)
+
+RUN echo "Building with build id '$BUILD_ID', tag '$BUILD_TAG' and commit '$COMMIT_ID'"
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x |  bash -
 RUN apt-get update && apt-get install -y nodejs
