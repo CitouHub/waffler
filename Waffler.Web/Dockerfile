@@ -18,11 +18,17 @@ COPY --from=base var_build_id .
 COPY --from=base var_build_tag .
 COPY --from=base var_commit_id .
 
-ENV BUILD_ID = $(cat var_build_id)
-ENV BUILD_TAG = $(cat var_build_tag)
-ENV COMMIT_ID = $(cat var_commit_id)
+ENV BUILD_ID=$(cat var_build_id)
+ENV BUILD_TAG=$(cat var_build_tag)
+ENV COMMIT_ID=$(cat var_commit_id)
 
 RUN echo "Building with build id '$BUILD_ID', tag '$BUILD_TAG' and commit '$COMMIT_ID'"
+
+ENV BUILD_ID2=${cat var_build_id}
+ENV BUILD_TAG2=${cat var_build_tag}
+ENV COMMIT_ID2=${cat var_commit_id}
+
+RUN echo "Building with build id '$BUILD_ID2', tag '$BUILD_TAG2' and commit '$COMMIT_ID2'"
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x |  bash -
 RUN apt-get update && apt-get install -y nodejs
