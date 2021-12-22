@@ -31,7 +31,7 @@ RUN BUILD_ID=$(cat var_build_id); \
     BUILD_TAG=$(cat var_build_tag); \
     COMMIT_ID=$(cat var_commit_id); \
     echo "Publish with build id '$BUILD_ID', tag '$BUILD_TAG' and commit '$COMMIT_ID'"; \
-    dotnet publish "Waffler.Web.csproj" -c Release -o /app/publish -p:BuildId=${BUILD_ID} -p:BuildTag=${BUILD_TAG} -p:CommitId=${COMMIT_ID}
+    dotnet publish "Waffler.API.csproj" -c Release -o /app/publish -p:BuildId=${BUILD_ID} -p:BuildTag=${BUILD_TAG} -p:CommitId=${COMMIT_ID}
 
 FROM base AS final
 WORKDIR /app
