@@ -18,9 +18,13 @@ COPY --from=base var_build_id .
 COPY --from=base var_build_tag .
 COPY --from=base var_commit_id .
 
-ENV BUILD_ID=$(cat var_build_id)
-ENV BUILD_TAG=$(cat var_build_tag)
-ENV COMMIT_ID=$(cat var_commit_id)
+ENV BUILD_ID=1
+ENV BUILD_TAG=(none)
+ENV COMMIT_ID=#
+
+RUN export BUILD_ID="$(cat var_build_id)"
+RUN export BUILD_TAG="$(cat var_build_tag)"
+RUN export COMMIT_ID="$(cat var_commit_id)"
 
 RUN echo "Building with build id '$BUILD_ID', tag '$BUILD_TAG' and commit '$COMMIT_ID'"
 
