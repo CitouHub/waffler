@@ -22,6 +22,10 @@ RUN echo "Building with build id '$env_build_id', tag '$env_build_tag' and commi
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 
+COPY --from=base $env_build_id .
+COPY --from=base $env_build_tag .
+COPY --from=base $env_commit_id .
+
 RUN echo "Building with build id '$env_build_id', tag '$env_build_tag' and commit '$env_commit_id'"
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x |  bash -
