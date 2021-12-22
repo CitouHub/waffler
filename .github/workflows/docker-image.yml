@@ -1,10 +1,8 @@
 name: Waffler build
 
 on:
-  create:
-    tags:
-      - v*
-  workflow_dispatch:
+  release:
+    types: [published]
     
 env:
   REGISTRY: ghcr.io
@@ -16,7 +14,7 @@ env:
   DB_IMAGE_NAME_ARM64: waffler-db-arm64
   API_IMAGE_NAME_ARM64: waffler-api-arm64
   WEB_IMAGE_NAME_ARM64: waffler-web-arm64
-  RELEASE_TAG_INPUT: v0.1.0-beta
+  RELEASE_TAG_INPUT: ${{ github.event.release.tag_name }}
 
 jobs:
   build_push_db:
@@ -120,7 +118,7 @@ jobs:
           password: ${{ env.PASSWORD }}
           
       - name: Build and tag image for DB
-        run: docker build --tag ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Data/Dockerfile
+        run: docker build --tag ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Data/Dockerfile
       
       - name: Tag release image for DB as `latest`
         run: docker tag ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:latest
