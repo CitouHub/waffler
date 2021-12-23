@@ -27,6 +27,7 @@ COPY . .
 WORKDIR "/src/Waffler.API"
 
 FROM build AS publish
+
 COPY --from=base var_build_id .
 COPY --from=base var_build_tag .
 COPY --from=base var_commit_id .
