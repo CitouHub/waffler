@@ -14,9 +14,9 @@ namespace Waffler.Service
 {
     public interface ITradeService
     {
-        Task<TradeRuleEvaluationDTO> HandleTradeRule(int tradeRuleId, DateTime currentPeriodDateTime);
+        Task<TradeRuleEvaluationDTO> HandleTradeRuleAsync(int tradeRuleId, DateTime currentPeriodDateTime);
 
-        Task<bool> SetupTestTrade(int tradeRuleId);
+        Task<bool> SetupTestTradeAsync(int tradeRuleId);
     }
 
     public class TradeService : ITradeService
@@ -41,7 +41,7 @@ namespace Waffler.Service
             _bitpandaService = bitpandaService;
         }
 
-        public async Task<TradeRuleEvaluationDTO> HandleTradeRule(int tradeRuleId, DateTime currentPeriodDateTime)
+        public async Task<TradeRuleEvaluationDTO> HandleTradeRuleAsync(int tradeRuleId, DateTime currentPeriodDateTime)
         {
             _logger.LogInformation($"Handling trade rule");
             var tradeRule = await _tradeRuleService.GetTradeRuleAsync(tradeRuleId);
@@ -140,10 +140,12 @@ namespace Waffler.Service
         private bool CanHandleTradeRule(TradeRuleDTO tradeRule, DateTime currentPeriodDateTime)
         {
             return tradeRule.LastTrigger < currentPeriodDateTime.AddMinutes(-1 * tradeRule.TradeMinIntervalMinutes) &&
-                tradeRule.TradeRuleStatusId != (short)TradeRuleStatus.Inactive;
+                tradeRule.TradeRuleStatusId != (short)TradeRuleStatus.Inactive &&
+                tradeRule.TradeRuleConditions != null &&
+                tradeRule.TradeRuleConditions.Any();
         }
 
-        public async Task<bool> SetupTestTrade(int tradeRuleId)
+        public async Task<bool> SetupTestTradeAsync(int tradeRuleId)
         {
             var success = await _tradeRuleService.SetupTradeRuleTestAsync(tradeRuleId);
             if(success)

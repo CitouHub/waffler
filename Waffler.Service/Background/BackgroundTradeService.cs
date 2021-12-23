@@ -74,7 +74,7 @@ namespace Waffler.Service.Background
                         {
                             if (cancellationToken.IsCancellationRequested == false)
                             {
-                                var result = await _tradeService.HandleTradeRule(tradeRuleId, lastCandleStick.PeriodDateTime);
+                                var result = await _tradeService.HandleTradeRuleAsync(tradeRuleId, lastCandleStick.PeriodDateTime);
                                 
                                 if(result != null)
                                 {

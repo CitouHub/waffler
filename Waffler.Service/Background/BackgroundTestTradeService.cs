@@ -75,7 +75,7 @@ namespace Waffler.Service.Background
                     {
                         var tradeRuleDTO = _mapper.Map<TradeRuleDTO>(tradeRule);
 
-                        var testReady = await _tradeService.SetupTestTrade(tradeRuleDTO.Id);
+                        var testReady = await _tradeService.SetupTestTradeAsync(tradeRuleDTO.Id);
                         if (testReady)
                         {
                             var results = new List<TradeRuleEvaluationDTO>();
@@ -85,7 +85,7 @@ namespace Waffler.Service.Background
                                 !_testTradeRuleQueue.IsTestAborted(tradeRule.Id) &&
                                 currentStatus.CurrentPositionDate < tradeRuleTestRequest.ToDate.AddMinutes(tradeRuleTestRequest.MinuteStep))
                             {
-                                var result = await _tradeService.HandleTradeRule(tradeRuleTestRequest.TradeRuleId, currentStatus.CurrentPositionDate);
+                                var result = await _tradeService.HandleTradeRuleAsync(tradeRuleTestRequest.TradeRuleId, currentStatus.CurrentPositionDate);
                                 if (result != null)
                                 {
                                     results.Add(result);
