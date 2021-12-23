@@ -119,7 +119,7 @@ jobs:
           password: ${{ env.PASSWORD }}
           
       - name: Build and tag image for DB
-        run: docker build --tag ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT . --file Waffler.Data/Dockerfile
+        run: docker buildx build --platform linux/arm64 --tag ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT . --file Waffler.Data/Dockerfile
       
       - name: Tag release image for DB as `latest`
         run: docker tag ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:latest
@@ -156,7 +156,7 @@ jobs:
           password: ${{ env.PASSWORD }}
           
       - name: Build and tag image for API
-        run: docker build --tag ghcr.io/citou-ab/$API_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.API/Dockerfile.arm64
+        run: docker buildx build --platform linux/arm64 --tag ghcr.io/citou-ab/$API_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.API/Dockerfile.arm64
       
       - name: Tag release image for API as `latest`
         run: docker tag ghcr.io/citou-ab/$API_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$API_IMAGE_NAME:latest
@@ -193,7 +193,7 @@ jobs:
           password: ${{ env.PASSWORD }}
           
       - name: Build and tag image for Web
-        run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Web/Dockerfile
+        run: docker buildx build --platform linux/arm64 --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Web/Dockerfile
       
       - name: Tag release image for Web as `latest`
         run: docker tag ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$WEB_IMAGE_NAME:latest
