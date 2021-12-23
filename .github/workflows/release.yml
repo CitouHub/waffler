@@ -1,4 +1,4 @@
-name: Waffler build
+name: Waffler release
 
 on:
   release:
@@ -6,8 +6,7 @@ on:
     
 env:
   REGISTRY: ghcr.io
-  USERNAME: CitouHub
-  PASSWORD: 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
+  OWNER: citou-ab
   DB_IMAGE_NAME: waffler-db
   API_IMAGE_NAME: waffler-api
   WEB_IMAGE_NAME: waffler-web
@@ -16,6 +15,7 @@ env:
   WEB_IMAGE_NAME_ARM64: waffler-web-arm64
   RELEASE_TAG_INPUT: ${{ github.event.release.tag_name }}
   BUILD_ID: ${{ github.run_number }}
+  COMMIT_ID: ${{ github.sha }}
 
 jobs:
   build_push_db:
@@ -28,8 +28,8 @@ jobs:
       uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
       with:
         registry: ${{ env.REGISTRY }}
-        username: ${{ env.USERNAME }}
-        password: ${{ env.PASSWORD }}
+        username: ${{ secrets.GHCR_USERNAME }}
+        password: ${{ secrets.GHCR_PASSWORD }}
 
     - name: Build and tag image for DB
       run: docker build --tag ghcr.io/citou-ab/$DB_IMAGE_NAME:$RELEASE_TAG_INPUT . --file Waffler.Data/Dockerfile
@@ -43,8 +43,6 @@ jobs:
   build_push_api:
     name: Build and push API image
     runs-on: ubuntu-18.04
-    env:
-      COMMIT_ID: ${{ github.sha }}
       
     steps:
     - uses: actions/checkout@v2
@@ -53,23 +51,21 @@ jobs:
       uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
       with:
         registry: ${{ env.REGISTRY }}
-        username: ${{ env.USERNAME }}
-        password: ${{ env.PASSWORD }}
+        username: ${{ secrets.GHCR_USERNAME }}
+        password: ${{ secrets.GHCR_PASSWORD }}
 
     - name: Build and tag image for API
-      run: docker build --tag ghcr.io/citou-ab/$API_IMAGE_NAME:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.API/Dockerfile
+      run: docker build --tag $REGISTRY/$OWNER/$API_IMAGE_NAME:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.API/Dockerfile
       
     - name: Tag release image for API as `latest`
-      run: docker tag ghcr.io/citou-ab/$API_IMAGE_NAME:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$API_IMAGE_NAME:latest
+      run: docker tag $REGISTRY/$OWNER/$API_IMAGE_NAME:$RELEASE_TAG_INPUT $REGISTRY/$OWNER/$API_IMAGE_NAME:latest
 
     - name: Push image for API
-      run: docker push --all-tags ghcr.io/citou-ab/$API_IMAGE_NAME
+      run: docker push --all-tags $REGISTRY/$OWNER/$API_IMAGE_NAME
 
   build_push_web:
     name: Build and push Web image
     runs-on: ubuntu-18.04
-    env:
-      COMMIT_ID: ${{ github.sha }}
       
     steps:
     - uses: actions/checkout@v2.1.0
@@ -78,23 +74,21 @@ jobs:
       uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
       with:
         registry: ${{ env.REGISTRY }}
-        username: ${{ env.USERNAME }}
-        password: ${{ env.PASSWORD }}
+        username: ${{ secrets.GHCR_USERNAME }}
+        password: ${{ secrets.GHCR_PASSWORD }}
       
     - name: Build and tag image for Web
-      run: docker build --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Web/Dockerfile
+      run: docker build --tag $REGISTRY/$OWNER/$WEB_IMAGE_NAME:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Web/Dockerfile
       
     - name: Tag release image for Web as `latest`
-      run: docker tag ghcr.io/citou-ab/$WEB_IMAGE_NAME:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$WEB_IMAGE_NAME:latest
+      run: docker tag $REGISTRY/$OWNER/$WEB_IMAGE_NAME:$RELEASE_TAG_INPUT $REGISTRY/$OWNER/$WEB_IMAGE_NAME:latest
 
     - name: Push image for Web
-      run: docker push --all-tags ghcr.io/citou-ab/$WEB_IMAGE_NAME
+      run: docker push --all-tags $REGISTRY/$OWNER/$WEB_IMAGE_NAME
       
   build_push_db_armv7:
     runs-on: ubuntu-18.04
     name: Build and push DB image (arm64)
-    env:
-      COMMIT_ID: ${{ github.sha }}
       
     steps:
       - uses: actions/checkout@v2.1.0
@@ -115,23 +109,21 @@ jobs:
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ env.USERNAME }}
-          password: ${{ env.PASSWORD }}
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_PASSWORD }}
           
       - name: Build and tag image for DB
-        run: docker buildx build --platform linux/arm64 --tag ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT . --file Waffler.Data/Dockerfile
+        run: docker buildx build --platform linux/arm64 --tag $REGISTRY/$OWNER/$DB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT . --file Waffler.Data/Dockerfile
       
       - name: Tag release image for DB as `latest`
-        run: docker tag ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64:latest
+        run: docker tag $REGISTRY/$OWNER/$DB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT $REGISTRY/$OWNER/$DB_IMAGE_NAME_ARM64:latest
 
       - name: Push image for DB
-        run: docker push --all-tags ghcr.io/citou-ab/$DB_IMAGE_NAME_ARM64
+        run: docker push --all-tags $REGISTRY/$OWNER/$DB_IMAGE_NAME_ARM64
       
   build_push_api_armv7:
     runs-on: ubuntu-18.04
     name: Build and push API image (arm64)
-    env:
-      COMMIT_ID: ${{ github.sha }}
       
     steps:
       - uses: actions/checkout@v2.1.0
@@ -152,14 +144,14 @@ jobs:
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ env.USERNAME }}
-          password: ${{ env.PASSWORD }}
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_PASSWORD }}
           
       - name: Build and tag image for API
-        run: docker buildx build --platform linux/arm64 --tag ghcr.io/citou-ab/$API_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.API/Dockerfile.arm64
+        run: docker buildx build --platform linux/arm64 --tag $REGISTRY/$OWNER/$API_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.API/Dockerfile.arm64
       
       - name: Tag release image for API as `latest`
-        run: docker tag ghcr.io/citou-ab/$API_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$API_IMAGE_NAME:latest
+        run: docker tag $REGISTRY/$OWNER/$API_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT $REGISTRY/$OWNER/$API_IMAGE_NAME_ARM64:latest
 
       - name: Push image for API
         run: docker push --all-tags ghcr.io/citou-ab/$API_IMAGE_NAME_ARM64
@@ -167,8 +159,6 @@ jobs:
   build_push_web_armv7:
     runs-on: ubuntu-18.04
     name: Build and push Web image (arm64)
-    env:
-      COMMIT_ID: ${{ github.sha }}
       
     steps:
       - uses: actions/checkout@v2.1.0
@@ -189,14 +179,14 @@ jobs:
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ env.USERNAME }}
-          password: ${{ env.PASSWORD }}
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_PASSWORD }}
           
       - name: Build and tag image for Web
-        run: docker buildx build --platform linux/arm64 --tag ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Web/Dockerfile
+        run: docker buildx build --platform linux/arm64 --tag $REGISTRY/$OWNER/$WEB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT --build-arg commit_id=$COMMIT_ID --build-arg build_id=$BUILD_ID --build-arg build_tag=$RELEASE_TAG_INPUT . --file Waffler.Web/Dockerfile
       
       - name: Tag release image for Web as `latest`
-        run: docker tag ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT ghcr.io/citou-ab/$WEB_IMAGE_NAME:latest
+        run: docker tag $REGISTRY/$OWNER/$WEB_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT $REGISTRY/$OWNER/$WEB_IMAGE_NAME_ARM64:latest
 
       - name: Push image for Web
-        run: docker push --all-tags ghcr.io/citou-ab/$WEB_IMAGE_NAME_ARM64
+        run: docker push --all-tags $REGISTRY/$OWNER/$WEB_IMAGE_NAME_ARM64

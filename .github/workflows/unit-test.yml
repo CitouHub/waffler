@@ -1,0 +1,15 @@
+name: Waffler unit test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    name: Unit Testing
+    steps:
+      - uses: actions/checkout@v2.1.0
+      - run: dotnet test
