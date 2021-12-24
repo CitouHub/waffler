@@ -9,8 +9,6 @@ namespace Waffler.Domain
         public int TradeRuleId { get; set; }
         public short TradeRuleConditionComparatorId { get; set; }
         public string TradeRuleConditionComparatorName { get; set; }
-        public short TradeRuleConditionSampleDirectionId { get; set; }
-        public string TradeRuleConditionSampleDirectionName { get; set; }
         public short FromCandleStickValueTypeId { get; set; }
         public string FromCandleStickValueTypeName { get; set; }
         public short FromTradeRuleConditionPeriodDirectionId { get; set; }

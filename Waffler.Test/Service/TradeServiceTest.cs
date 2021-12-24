@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Waffler.Common;
 using Waffler.Domain;
@@ -14,7 +16,7 @@ namespace Waffler.Test
     {
         private readonly ICandleStickService _candleStickService = Substitute.For<ICandleStickService>();
         private readonly ITradeRuleService _tradeRuleService = Substitute.For<ITradeRuleService>();
-        private readonly ITradeOrderService _tradeoOrderService = Substitute.For<ITradeOrderService>();
+        private readonly ITradeOrderService _tradeOrderService = Substitute.For<ITradeOrderService>();
         private readonly IBitpandaService _bitpandaService = Substitute.For<IBitpandaService>();
         private readonly TradeService _tradeService;
 
@@ -24,7 +26,7 @@ namespace Waffler.Test
         {
             var logger = Substitute.For<ILogger<TradeService>>();
 
-            _tradeService = new TradeService(logger, _candleStickService, _tradeRuleService, _tradeoOrderService, _bitpandaService);
+            _tradeService = new TradeService(logger, _candleStickService, _tradeRuleService, _tradeOrderService, _bitpandaService);
         }
 
         [Fact]
@@ -80,6 +82,126 @@ namespace Waffler.Test
             //Assert
             Assert.Null(result);
             _ = _candleStickService.DidNotReceive().GetLastCandleStickAsync(Arg.Any<DateTime>());
+        }
+
+        [Fact]
+        public async Task HandleTradeRule_NoTrade_NoTrend()
+        {
+            //Setup
+            var currentPeriodDateTime = DateTime.UtcNow;
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
+            var tradeRule = TradeRuleHelper.GetTradeRule();
+            tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
+            tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
+            var candleStick = CandleStickHelper.GetCandleStick();
+            candleStick.PeriodDateTime = currentPeriodDateTime;
+            _tradeRuleService.GetTradeRuleAsync(Arg.Is(TestTradeRuleId)).Returns(tradeRule);
+            _candleStickService.GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime)).Returns(candleStick);
+
+            //Act
+            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+
+            //Assert
+            Assert.True(result.TradeRuleCondtionEvaluations.All(_ => _.IsFullfilled == false));
+            _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime));
+            _ = _candleStickService.Received().GetPriceTrendAsync(Arg.Is(currentPeriodDateTime), Arg.Any<Variable.TradeType>(), Arg.Is(tradeRuleCondition));
+            _ = _tradeOrderService.DidNotReceive().AddTradeOrderAsync(Arg.Any<TradeOrderDTO>());
+            _ = _bitpandaService.DidNotReceive().PlaceOrderAsync(Arg.Any<TradeRuleDTO>(), Arg.Any<decimal>(), Arg.Any<decimal>());
+            _ = _tradeRuleService.DidNotReceive().UpdateTradeRuleAsync(Arg.Any<TradeRuleDTO>());
+        }
+
+        [Theory]
+        [InlineData((short)Variable.TradeRuleConditionComparator.LessThen, 1.0, 1.1)]
+        [InlineData((short)Variable.TradeRuleConditionComparator.LessThen, -1.0, -0.9)]
+        [InlineData((short)Variable.TradeRuleConditionComparator.MoreThen, 1.0, 0.9)]
+        [InlineData((short)Variable.TradeRuleConditionComparator.MoreThen, -1.0, -1.1)]
+        [InlineData((short)Variable.TradeRuleConditionComparator.AbsLessThen, 1.0, -1.1)]
+        [InlineData((short)Variable.TradeRuleConditionComparator.AbsLessThen, 1.0, 1.1)]
+        [InlineData((short)Variable.TradeRuleConditionComparator.AbsMoreThen, 1.0, -0.9)]
+        [InlineData((short)Variable.TradeRuleConditionComparator.AbsMoreThen, 1.0, 0.9)]
+        public async Task HandleTradeRule_NoTrade_TradeRuleConditionNotFulfilled(short tradeRuleConditionComparatorId, decimal deltaPercent, decimal trend)
+        {
+            //Setup
+            var currentPeriodDateTime = DateTime.UtcNow;
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
+            tradeRuleCondition.TradeRuleConditionComparatorId = tradeRuleConditionComparatorId;
+            var tradeRule = TradeRuleHelper.GetTradeRule();
+            tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
+            tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
+            tradeRuleCondition.DeltaPercent = deltaPercent;
+            var candleStick = CandleStickHelper.GetCandleStick();
+            candleStick.PeriodDateTime = currentPeriodDateTime;
+            _tradeRuleService.GetTradeRuleAsync(Arg.Is(TestTradeRuleId)).Returns(tradeRule);
+            _candleStickService.GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime)).Returns(candleStick);
+            _candleStickService.GetPriceTrendAsync(Arg.Is(currentPeriodDateTime), Arg.Any<Variable.TradeType>(), Arg.Is(tradeRuleCondition)).Returns(trend);
+
+            //Act
+            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+
+            //Assert
+            Assert.True(result.TradeRuleCondtionEvaluations.All(_ => _.IsFullfilled == false));
+            _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime));
+            _ = _candleStickService.Received().GetPriceTrendAsync(Arg.Is(currentPeriodDateTime), Arg.Any<Variable.TradeType>(), Arg.Is(tradeRuleCondition));
+            _ = _tradeOrderService.DidNotReceive().AddTradeOrderAsync(Arg.Any<TradeOrderDTO>());
+            _ = _bitpandaService.DidNotReceive().PlaceOrderAsync(Arg.Any<TradeRuleDTO>(), Arg.Any<decimal>(), Arg.Any<decimal>());
+            _ = _tradeRuleService.DidNotReceive().UpdateTradeRuleAsync(Arg.Any<TradeRuleDTO>());
+        }
+
+        [Theory]
+        [InlineData((short)Variable.TradeRuleStatus.Active, (short)Variable.TradeRuleConditionComparator.LessThen, 1.0, 0.9)]
+        [InlineData((short)Variable.TradeRuleStatus.Active, (short)Variable.TradeRuleConditionComparator.LessThen, -1.0, -1.1)]
+        [InlineData((short)Variable.TradeRuleStatus.Active, (short)Variable.TradeRuleConditionComparator.MoreThen, 1.0, 1.1)]
+        [InlineData((short)Variable.TradeRuleStatus.Active, (short)Variable.TradeRuleConditionComparator.MoreThen, -1.0, -0.9)]
+        [InlineData((short)Variable.TradeRuleStatus.Active, (short)Variable.TradeRuleConditionComparator.AbsLessThen, 1.0, -0.9)]
+        [InlineData((short)Variable.TradeRuleStatus.Active, (short)Variable.TradeRuleConditionComparator.AbsLessThen, 1.0, 0.9)]
+        [InlineData((short)Variable.TradeRuleStatus.Active, (short)Variable.TradeRuleConditionComparator.AbsMoreThen, 1.0, -1.1)]
+        [InlineData((short)Variable.TradeRuleStatus.Active, (short)Variable.TradeRuleConditionComparator.AbsMoreThen, 1.0, 1.1)]
+        [InlineData((short)Variable.TradeRuleStatus.Test, (short)Variable.TradeRuleConditionComparator.LessThen, 1.0, 0.9)]
+        [InlineData((short)Variable.TradeRuleStatus.Test, (short)Variable.TradeRuleConditionComparator.LessThen, -1.0, -1.1)]
+        [InlineData((short)Variable.TradeRuleStatus.Test, (short)Variable.TradeRuleConditionComparator.MoreThen, 1.0, 1.1)]
+        [InlineData((short)Variable.TradeRuleStatus.Test, (short)Variable.TradeRuleConditionComparator.MoreThen, -1.0, -0.9)]
+        [InlineData((short)Variable.TradeRuleStatus.Test, (short)Variable.TradeRuleConditionComparator.AbsLessThen, 1.0, -0.9)]
+        [InlineData((short)Variable.TradeRuleStatus.Test, (short)Variable.TradeRuleConditionComparator.AbsLessThen, 1.0, 0.9)]
+        [InlineData((short)Variable.TradeRuleStatus.Test, (short)Variable.TradeRuleConditionComparator.AbsMoreThen, 1.0, -1.1)]
+        [InlineData((short)Variable.TradeRuleStatus.Test, (short)Variable.TradeRuleConditionComparator.AbsMoreThen, 1.0, 1.1)]
+        public async Task HandleTradeRule_TestTrade_TradeRuleConditionFulfilled(short tradeRuleStatusId, short tradeRuleConditionComparatorId, decimal deltaPercent, decimal trend)
+        {
+            //Setup
+            var currentPeriodDateTime = DateTime.UtcNow;
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
+            tradeRuleCondition.TradeRuleConditionComparatorId = tradeRuleConditionComparatorId;
+            var tradeRule = TradeRuleHelper.GetTradeRule();
+            tradeRule.Amount = (decimal)0.01;
+            tradeRule.TradeRuleStatusId = tradeRuleStatusId;
+            tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
+            tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
+            tradeRuleCondition.DeltaPercent = deltaPercent;
+            var candleStick = CandleStickHelper.GetCandleStick();
+            candleStick.PeriodDateTime = currentPeriodDateTime;
+            var orderSubmitted = BitpandaHelper.GetOrderSubmitted();
+
+            _tradeRuleService.GetTradeRuleAsync(Arg.Is(TestTradeRuleId)).Returns(tradeRule);
+            _candleStickService.GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime)).Returns(candleStick);
+            _candleStickService.GetPriceTrendAsync(Arg.Is(currentPeriodDateTime), Arg.Any<Variable.TradeType>(), Arg.Is(tradeRuleCondition)).Returns(trend);
+            _bitpandaService.PlaceOrderAsync(Arg.Is(tradeRule), Arg.Any<decimal>(), Arg.Any<decimal>()).Returns(orderSubmitted);
+
+            //Act
+            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+
+            //Assert
+            Assert.True(result.TradeRuleCondtionEvaluations.All(_ => _.IsFullfilled == true));
+            _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime));
+            _ = _candleStickService.Received().GetPriceTrendAsync(Arg.Is(currentPeriodDateTime), Arg.Any<Variable.TradeType>(), Arg.Is(tradeRuleCondition));
+            _ = _tradeOrderService.Received().AddTradeOrderAsync(Arg.Any<TradeOrderDTO>());
+            if(tradeRule.TradeRuleStatusId == (short)Variable.TradeRuleStatus.Active)
+            {
+                _ = _bitpandaService.Received().PlaceOrderAsync(Arg.Is(tradeRule), Arg.Any<decimal>(), Arg.Any<decimal>());
+            } 
+            else
+            {
+                _ = _bitpandaService.DidNotReceive().PlaceOrderAsync(Arg.Any<TradeRuleDTO>(), Arg.Any<decimal>(), Arg.Any<decimal>());
+            }
+            _ = _tradeRuleService.Received().UpdateTradeRuleAsync(Arg.Is(tradeRule));
         }
     }
 }

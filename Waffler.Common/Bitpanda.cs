@@ -6,7 +6,7 @@ namespace Waffler.Common
     {
         public static short DecimalPrecision = 5;
 
-        private static class InstrumentCode
+        public static class InstrumentCode
         {
             public const string BTC_EUR = "BTC_EUR";
         }

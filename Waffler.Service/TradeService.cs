@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 
 using Waffler.Common;
 using Waffler.Domain;
-using Waffler.Domain.Bitpanda.Private;
 using static Waffler.Common.Variable;
 
 namespace Waffler.Service
@@ -137,14 +136,6 @@ namespace Waffler.Service
             }
         }
 
-        private bool CanHandleTradeRule(TradeRuleDTO tradeRule, DateTime currentPeriodDateTime)
-        {
-            return tradeRule.LastTrigger < currentPeriodDateTime.AddMinutes(-1 * tradeRule.TradeMinIntervalMinutes) &&
-                tradeRule.TradeRuleStatusId != (short)TradeRuleStatus.Inactive &&
-                tradeRule.TradeRuleConditions != null &&
-                tradeRule.TradeRuleConditions.Any();
-        }
-
         public async Task<bool> SetupTestTradeAsync(int tradeRuleId)
         {
             var success = await _tradeRuleService.SetupTradeRuleTestAsync(tradeRuleId);
@@ -156,7 +147,15 @@ namespace Waffler.Service
             return success;
         }
 
-        public static bool EvaluateRule(List<TradeRuleConditionEvaluationDTO> conditionResult, TradeConditionOperator tradeConditionOperator)
+        private bool CanHandleTradeRule(TradeRuleDTO tradeRule, DateTime currentPeriodDateTime)
+        {
+            return tradeRule.LastTrigger < currentPeriodDateTime.AddMinutes(-1 * tradeRule.TradeMinIntervalMinutes) &&
+                tradeRule.TradeRuleStatusId != (short)TradeRuleStatus.Inactive &&
+                tradeRule.TradeRuleConditions != null &&
+                tradeRule.TradeRuleConditions.Any();
+        }
+
+        private static bool EvaluateRule(List<TradeRuleConditionEvaluationDTO> conditionResult, TradeConditionOperator tradeConditionOperator)
         {
             if (conditionResult.Any() == false)
             {
@@ -176,7 +175,7 @@ namespace Waffler.Service
             return false;
         }
 
-        public static bool EvaluateCondition(TradeRuleConditionDTO condition, decimal value)
+        private static bool EvaluateCondition(TradeRuleConditionDTO condition, decimal value)
         {
             switch ((TradeRuleConditionComparator)condition.TradeRuleConditionComparatorId)
             {
@@ -195,7 +194,7 @@ namespace Waffler.Service
             return false;
         }
 
-        public static decimal GetPrice(short candleStickValueTypeId, CandleStickDTO candleStick, decimal priceDeltaPercent)
+        private static decimal GetPrice(short candleStickValueTypeId, CandleStickDTO candleStick, decimal priceDeltaPercent)
         {
             decimal basePrice = 0;
             switch ((CandleStickValueType)candleStickValueTypeId)
