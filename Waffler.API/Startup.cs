@@ -69,7 +69,7 @@ namespace Waffler.API
             services.AddSingleton(mapperConfig.CreateMapper());
             services.AddSingleton(new Cache());
             services.AddSingleton(new TradeRuleTestQueue());
-            services.AddSingleton(new DatabaseSetupSignal());
+            services.AddSingleton<IDatabaseSetupSignal>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

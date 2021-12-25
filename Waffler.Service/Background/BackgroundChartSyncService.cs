@@ -21,9 +21,11 @@ namespace Waffler.Service.Background
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundChartSyncService> _logger;
-        private readonly DatabaseSetupSignal _databaseSetupSignal;
+        private readonly IDatabaseSetupSignal _databaseSetupSignal;
         private readonly TimeSpan SyncInterval = TimeSpan.FromMinutes(5);
         private readonly TimeSpan RequestSpanMinutes = TimeSpan.FromHours(6);
+        private readonly string Period = Bitpanda.Period.MINUTES;
+        private readonly short PeriodMinutes = 1;
         private readonly int NearEndSaveLimit = 5;
         private readonly int RequestLimit = 180;
 
@@ -33,7 +35,7 @@ namespace Waffler.Service.Background
         public BackgroundChartSyncService(
             IServiceProvider serviceProvider,
             ILogger<BackgroundChartSyncService> logger,
-            DatabaseSetupSignal databaseSetupSignal)
+            IDatabaseSetupSignal databaseSetupSignal)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
@@ -50,7 +52,7 @@ namespace Waffler.Service.Background
             }
         }
 
-        private async Task FetchCandleStickDataAsync(CancellationToken cancellationToken)
+        public async Task FetchCandleStickDataAsync(CancellationToken cancellationToken)
         {
             if (InProgress)
             {
@@ -84,7 +86,7 @@ namespace Waffler.Service.Background
                         _logger.LogInformation($"- Fetch data from {period} onward");
                         var bp_candleSticksDTO = await _bitpandaService.GetCandleSticks(
                             Bitpanda.GetInstrumentCode(TradeType.BTC_EUR),
-                            Bitpanda.Period.MINUTES, 1, period, period.AddMinutes(RequestSpanMinutes.TotalMinutes));
+                            Period, PeriodMinutes, period, period.AddMinutes(RequestSpanMinutes.TotalMinutes));
                         requestCount++;
 
                         if (bp_candleSticksDTO != null)
@@ -120,7 +122,10 @@ namespace Waffler.Service.Background
                             requestCount = 0;
                         }
 
-                        _timer.Change(SyncInterval, SyncInterval);
+                        if(_timer != null)
+                        {
+                            _timer.Change(SyncInterval, SyncInterval);
+                        }
                     }
                 }
                 _logger.LogInformation($"Syncing candlestick data finished");
