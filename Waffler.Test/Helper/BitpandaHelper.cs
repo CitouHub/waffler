@@ -1,7 +1,9 @@
 ﻿using System;
-
+using System.Collections.Generic;
+using System.Linq;
 using Waffler.Common;
 using Waffler.Domain.Bitpanda.Private.Order;
+using Waffler.Domain.Bitpanda.Public;
 
 namespace Waffler.Test.Helper
 {
@@ -22,6 +24,22 @@ namespace Waffler.Test.Helper
                 Time = DateTime.UtcNow,
                 Type = Bitpanda.OrderType.LIMIT
             };
+        }
+
+        public static List<CandleStickDTO> GetCandleSticks()
+        {
+            return Enumerable.Repeat(new CandleStickDTO()
+            {
+                Close = 1000,
+                High = 1000,
+                Instrument_Code = Bitpanda.InstrumentCode.BTC_EUR,
+                Last_Sequence = 0,
+                Low = 1000,
+                Open = 1000,
+                Time = DateTime.UtcNow,
+                Total_Amount = 1000,
+                Volume = 1000
+            }, 30).ToList();
         }
     }
 }

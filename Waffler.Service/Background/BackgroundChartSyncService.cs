@@ -84,7 +84,7 @@ namespace Waffler.Service.Background
                         period = period.AddMilliseconds(1);
 
                         _logger.LogInformation($"- Fetch data from {period} onward");
-                        var bp_candleSticksDTO = await _bitpandaService.GetCandleSticks(
+                        var bp_candleSticksDTO = await _bitpandaService.GetCandleSticksAsync(
                             Bitpanda.GetInstrumentCode(TradeType.BTC_EUR),
                             Period, PeriodMinutes, period, period.AddMinutes(RequestSpanMinutes.TotalMinutes));
                         requestCount++;

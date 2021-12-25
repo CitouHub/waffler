@@ -17,7 +17,6 @@ using Waffler.Service.Background;
 using Waffler.Service.Infrastructure;
 using Waffler.Test.Helper;
 
-
 namespace Waffler.Test.Service.Background
 {
     public class BackgroundChartSyncServiceTest
@@ -28,7 +27,6 @@ namespace Waffler.Test.Service.Background
         private readonly IProfileService _profileService = Substitute.For<IProfileService>();
         private readonly ICandleStickService _candleStickService = Substitute.For<ICandleStickService>();
         private readonly IBitpandaService _bitpandaService = Substitute.For<IBitpandaService>();
-        private readonly IMapper _mapper = Substitute.For<IMapper>();
         private readonly BackgroundChartSyncService _backgroundChartSyncService;
 
         public BackgroundChartSyncServiceTest()
@@ -42,6 +40,12 @@ namespace Waffler.Test.Service.Background
             _serviceProvider.GetRequiredService<IServiceScopeFactory>().Returns(_serviceScopeFactory);
             _serviceProvider.CreateScope().Returns(_serviceScope);
             _serviceScope.ServiceProvider.Returns(_serviceProvider);
+
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new AutoMapperProfile());
+            });
+            var _mapper = mapperConfig.CreateMapper();
 
             _serviceScope.ServiceProvider.GetService<IProfileService>().Returns(_profileService);
             _serviceScope.ServiceProvider.GetService<ICandleStickService>().Returns(_candleStickService);
@@ -71,7 +75,7 @@ namespace Waffler.Test.Service.Background
         {
             //Setup
             var profile = ProfileHelper.GetProfile();
-            _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfile());
+            _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
 
             //Act
             await _backgroundChartSyncService.FetchCandleStickDataAsync(new CancellationToken());
@@ -79,7 +83,7 @@ namespace Waffler.Test.Service.Background
             //Asert
             _ = _profileService.Received().GetProfileAsync();
             _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Any<DateTime>());
-            _ = _bitpandaService.Received().GetCandleSticks(
+            _ = _bitpandaService.Received().GetCandleSticksAsync(
                 Arg.Is(Bitpanda.InstrumentCode.BTC_EUR), Arg.Is(Bitpanda.Period.MINUTES), 1,
                 Arg.Is<DateTime>(_ => _.Date == profile.CandleStickSyncFromDate.Date),
                 Arg.Is<DateTime>(_ => _ > profile.CandleStickSyncFromDate));
@@ -91,7 +95,7 @@ namespace Waffler.Test.Service.Background
         {
             //Setup
             var profile = ProfileHelper.GetProfile();
-            _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfile());
+            _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
             var candleStick = CandleStickHelper.GetCandleStick();
             candleStick.PeriodDateTime = DateTime.UtcNow.AddDays(-10);
             _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(candleStick);
@@ -102,7 +106,7 @@ namespace Waffler.Test.Service.Background
             //Asert
             _ = _profileService.Received().GetProfileAsync();
             _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Any<DateTime>());
-            _ = _bitpandaService.Received().GetCandleSticks(
+            _ = _bitpandaService.Received().GetCandleSticksAsync(
                 Arg.Is(Bitpanda.InstrumentCode.BTC_EUR), Arg.Is(Bitpanda.Period.MINUTES), 1,
                 Arg.Is<DateTime>(_ => _.Date == candleStick.PeriodDateTime.Date),
                 Arg.Is<DateTime>(_ => _ > candleStick.PeriodDateTime));

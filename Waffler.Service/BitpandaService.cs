@@ -25,7 +25,7 @@ namespace Waffler.Service
     public interface IBitpandaService
     {
         Task<AccountDTO> GetAccountAsync();
-        Task<List<Domain.Bitpanda.Public.CandleStickDTO>> GetCandleSticks(string instrumentCode, string unit, short period, DateTime from, DateTime to);
+        Task<List<Domain.Bitpanda.Public.CandleStickDTO>> GetCandleSticksAsync(string instrumentCode, string unit, short period, DateTime from, DateTime to);
         Task<OrderSubmittedDTO> PlaceOrderAsync(TradeRuleDTO tradeRule, decimal amount, decimal price);
         Task<List<OrderDTO>> GetOrdersAsync(string instrumentCode, DateTime from, DateTime to);
         Task<OrderDTO> GetOrderAsync(Guid orderId);
@@ -69,7 +69,7 @@ namespace Waffler.Service
             _configuration = configuration;
             _logger = logger;
             _httpClient = httpClientFactory.CreateClient("Bitpanda");
-            _apiKey = context.WafflerProfiles.OrderBy(_ => _.Id).FirstOrDefault()?.ApiKey;
+            _apiKey = context.WafflerProfiles.OrderBy(_ => _.Id)?.FirstOrDefault()?.ApiKey;
         }
 
         public async Task<AccountDTO> GetAccountAsync()
@@ -84,7 +84,7 @@ namespace Waffler.Service
             return null;
         }
 
-        public async Task<List<Domain.Bitpanda.Public.CandleStickDTO>> GetCandleSticks(string instrumentCode, string unit, short period, DateTime from, DateTime to)
+        public async Task<List<Domain.Bitpanda.Public.CandleStickDTO>> GetCandleSticksAsync(string instrumentCode, string unit, short period, DateTime from, DateTime to)
         {
             var fromString = HttpUtility.UrlEncode(from.ToString("o"));
             var toString = HttpUtility.UrlEncode(to.ToString("o"));
