@@ -9,6 +9,7 @@ using AutoMapper;
 using Waffler.Domain;
 using Waffler.Data;
 using Waffler.Common;
+using Microsoft.Extensions.Logging;
 
 namespace Waffler.Service
 {
@@ -35,13 +36,16 @@ namespace Waffler.Service
 
     public class TradeRuleService : ITradeRuleService
     {
+        private readonly ILogger<TradeRuleService> _logger;
         private readonly WafflerDbContext _context;
         private readonly IMapper _mapper;
 
-        public TradeRuleService(WafflerDbContext context, IMapper mapper)
+        public TradeRuleService(ILogger<TradeRuleService> logger, WafflerDbContext context, IMapper mapper)
         {
+            _logger = logger;
             _context = context;
             _mapper = mapper;
+            _logger.LogDebug("TradeRuleService instantiated");
         }
 
         public async Task<TradeRuleDTO> NewTradeRuleAsync()

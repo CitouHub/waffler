@@ -86,3 +86,44 @@ BEGIN
 		AND TradeOrder.OrderDateTime <= @ToPeriodDateTime
 END
 GO
+
+IF OBJECTPROPERTY(object_id('dbo.sp_getBuyTradeRuleStatistics'), N'IsProcedure') = 1 DROP PROCEDURE [dbo].[sp_getBuyTradeRuleStatistics]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[sp_getBuyTradeRuleStatistics]
+-- =====================================================================
+-- Author:			Rikard Gustafsson
+-- Create date:		2021-12-26
+-- Description:		
+-- =====================================================================
+	@FromPeriodDateTime DATETIME2(0),
+	@ToPeriodDateTime DATETIME2(0)
+AS
+BEGIN
+	SET NOCOUNT ON
+
+	DECLARE @CurrentPrice DECIMAL(10,2)
+	SET @CurrentPrice = (SELECT TOP 1 ClosePrice FROM CandleStick ORDER BY PeriodDateTime DESC)
+
+	SELECT ISNULL(TradeRuleId, 0) AS TradeRuleId,
+		ISNULL(TradeRule.Name, 'Manual') AS TradeRuleName,
+		COUNT(*) AS Orders,
+		ROUND(SUM(TradeOrder.Amount), 8) AS TotalAmount,
+		ROUND(SUM(FilledAmount), 8) AS TotalFilledAmount,
+		CAST(ROUND((SUM(FilledAmount) / SUM(TradeOrder.Amount)) * 100, 2) AS DECIMAL(5,2)) AS FilledPercent,
+		CAST(ROUND(SUM(FilledAmount * Price), 2) AS DECIMAL(10, 2)) AS TotalInvested,
+		CAST(ROUND(SUM(FilledAmount * Price) / SUM(FilledAmount), 2) AS DECIMAL(10,2)) AS AveragePrice,
+		CAST(ROUND((@CurrentPrice / (SUM(FilledAmount * Price) / SUM(FilledAmount)) - 1) * 100, 2) AS DECIMAL(5,2)) AS ValueIncrease
+	FROM TradeOrder 
+		LEFT JOIN TradeRule ON TradeOrder.TradeRuleId = TradeRule.Id
+	WHERE TradeOrder.TradeActionId = 1
+		AND TradeOrder.OrderDateTime >= @FromPeriodDateTime
+		AND TradeOrder.OrderDateTime <= @ToPeriodDateTime 
+	GROUP BY ISNULL(TradeRuleId, 0),
+		ISNULL(TradeRule.Name, 'Manual')
+	ORDER BY ISNULL(TradeRuleId, 0) ASC
+END
+GO

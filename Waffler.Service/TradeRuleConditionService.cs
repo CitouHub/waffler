@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Linq;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using AutoMapper;
 
@@ -28,13 +29,16 @@ namespace Waffler.Service
 
     public class TradeRuleConditionService : ITradeRuleConditionService
     {
+        private readonly ILogger<TradeRuleConditionService> _logger;
         private readonly WafflerDbContext _context;
         private readonly IMapper _mapper;
 
-        public TradeRuleConditionService(WafflerDbContext context, IMapper mapper)
+        public TradeRuleConditionService(ILogger<TradeRuleConditionService> logger, WafflerDbContext context, IMapper mapper)
         {
+            _logger = logger;
             _context = context;
             _mapper = mapper;
+            _logger.LogDebug("TradeRuleConditionService instantiated");
         }
 
         public async Task<TradeRuleConditionDTO> NewTradeRuleConditionAsync(int tradeRuleId)

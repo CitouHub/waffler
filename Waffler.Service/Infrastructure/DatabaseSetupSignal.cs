@@ -3,14 +3,7 @@ using System.Threading.Tasks;
 
 namespace Waffler.Service.Infrastructure
 {
-    public interface IDatabaseSetupSignal
-    {
-        Task AwaitDatabaseReadyAsync(CancellationToken cancellationToken);
-
-        void SetDatabaseReady();
-    }
-
-    public class DatabaseSetupSignal : IDatabaseSetupSignal
+    public class DatabaseSetupSignal
     {
         private readonly SemaphoreSlim _databaseReadySignal;
         private readonly object Lock = new object();

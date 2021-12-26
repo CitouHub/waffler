@@ -4,6 +4,7 @@ using AutoMapper;
 
 using Waffler.Data;
 using Waffler.Data.ComplexModel;
+using Waffler.Domain.Statistics;
 
 namespace Waffler.Domain
 {
@@ -60,6 +61,7 @@ namespace Waffler.Domain
 
             CreateMap<sp_getCandleSticks_Result, CandleStickDTO>();
             CreateMap<sp_getTradeOrders_Result, TradeOrderDTO>();
+            CreateMap<sp_getBuyTradeRuleStatistics_Result, BuyTradeRuleStatisticsDTO>();
         }
 
         private void SetupBitpandaMaps()

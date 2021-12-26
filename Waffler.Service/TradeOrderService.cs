@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using AutoMapper;
 
@@ -27,13 +28,16 @@ namespace Waffler.Service
 
     public class TradeOrderService : ITradeOrderService
     {
+        private readonly ILogger<TradeOrderService> _logger;
         private readonly WafflerDbContext _context;
         private readonly IMapper _mapper;
 
-        public TradeOrderService(WafflerDbContext context, IMapper mapper)
+        public TradeOrderService(ILogger<TradeOrderService> logger, WafflerDbContext context, IMapper mapper)
         {
+            _logger = logger;
             _context = context;
             _mapper = mapper;
+            _logger.LogDebug("TradeOrderService instantiated");
         }
 
         public async Task<List<TradeOrderDTO>> GetTradeOrdersAsync(DateTime from, DateTime to)

@@ -38,6 +38,7 @@ namespace Waffler.Service
             _tradeRuleService = tradeRuleService;
             _tradeOrderService = tradeOrderService;
             _bitpandaService = bitpandaService;
+            _logger.LogDebug("TradeService instantiated");
         }
 
         public async Task<TradeRuleEvaluationDTO> HandleTradeRuleAsync(int tradeRuleId, DateTime currentPeriodDateTime)

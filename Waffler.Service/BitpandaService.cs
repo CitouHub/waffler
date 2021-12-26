@@ -70,6 +70,7 @@ namespace Waffler.Service
             _logger = logger;
             _httpClient = httpClientFactory.CreateClient("Bitpanda");
             _apiKey = context.WafflerProfiles.OrderBy(_ => _.Id)?.FirstOrDefault()?.ApiKey;
+            _logger.LogDebug("BitpandaService instantiated");
         }
 
         public async Task<AccountDTO> GetAccountAsync()
@@ -217,7 +218,7 @@ namespace Waffler.Service
                     orders.AddRange(orderHistory?.Order_history?.Select(_ => _.Order).Where(_ => orders.Any(o => o.Order_id == _.Order_id) == false));
                 }
 
-                if(orders.Any())
+                if(activeOrders.IsSuccessStatusCode || activeOrders.IsSuccessStatusCode || activeOrders.IsSuccessStatusCode)
                 {
                     return orders;
                 }

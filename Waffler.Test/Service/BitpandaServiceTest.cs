@@ -19,6 +19,7 @@ using Waffler.Test.Helper;
 using Waffler.Test.Mock;
 using Xunit;
 
+#pragma warning disable IDE0017 // Simplify object initialization
 namespace Waffler.Test.Service
 {
     public class BitpandaServiceTest

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Waffler.Data.ComplexModel;
 
+#pragma warning disable IDE1006 // Naming Styles
 namespace Waffler.Data.Extensions
 {
     public static class StoredProcedureExtension
@@ -34,6 +35,17 @@ namespace Waffler.Data.Extensions
                 $"'{toPeriodDateTime:yyyy-MM-dd HH:mm:ss}'";
 
             return await context.Set<sp_getTradeOrders_Result>().FromSqlRaw(expr).ToListAsync();
+        }
+
+        public static async Task<List<sp_getBuyTradeRuleStatistics_Result>> sp_getBuyTradeRuleStatistics(this WafflerDbContext context,
+            DateTime fromPeriodDateTime,
+            DateTime toPeriodDateTime)
+        {
+            var expr = $"exec sp_getBuyTradeRuleStatistics " +
+                $"'{fromPeriodDateTime:yyyy-MM-dd HH:mm:ss}', " +
+                $"'{toPeriodDateTime:yyyy-MM-dd HH:mm:ss}'";
+
+            return await context.Set<sp_getBuyTradeRuleStatistics_Result>().FromSqlRaw(expr).ToListAsync();
         }
     }
 }

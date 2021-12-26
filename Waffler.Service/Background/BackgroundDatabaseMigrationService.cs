@@ -23,13 +23,14 @@ namespace Waffler.Service.Background
         private readonly DatabaseSetupSignal _databaseSetupSignal;
 
         public BackgroundDatabaseMigrationService(
-            IConfiguration configuration,
             ILogger<BackgroundDatabaseMigrationService> logger,
+            IConfiguration configuration,
             DatabaseSetupSignal databaseSetupSignal)
         {
-            _configuration = configuration;
             _logger = logger;
+            _configuration = configuration;
             _databaseSetupSignal = databaseSetupSignal;
+            _logger.LogDebug("BackgroundDatabaseMigrationService instantiated");
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)

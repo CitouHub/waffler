@@ -12,6 +12,7 @@ using Waffler.Domain;
 using Waffler.Service;
 using Waffler.Test.Helper;
 
+#pragma warning disable IDE0028 // Simplify collection initialization
 namespace Waffler.Test
 {
     public class TradeServiceTest

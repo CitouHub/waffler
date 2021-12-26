@@ -41,6 +41,7 @@ namespace Waffler.Service
             _context = context;
             _mapper = mapper;
             _bitpandaService = bitpandaService;
+            _logger.LogDebug("ProfileService instantiated");
         }
 
         private string GetHashedPassword(string password)

@@ -30,13 +30,14 @@ namespace Waffler.Service.Background
         private bool UpdateInProgress = false;
 
         public BackgroundOrderSyncService(
-            IServiceProvider serviceProvider,
             ILogger<BackgroundOrderSyncService> logger,
+            IServiceProvider serviceProvider,
             DatabaseSetupSignal databaseSetupSignal)
         {
-            _serviceProvider = serviceProvider;
             _logger = logger;
+            _serviceProvider = serviceProvider;
             _databaseSetupSignal = databaseSetupSignal;
+            _logger.LogDebug("BackgroundOrderSyncService instantiated");
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)

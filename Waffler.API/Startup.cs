@@ -54,6 +54,7 @@ namespace Waffler.API
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<ICandleStickService, CandleStickService>();
             services.AddScoped<ITradeService, TradeService>();
+            services.AddScoped<IStatisticsService, StatisticsService>();
 
             services.AddHostedService<BackgroundDatabaseMigrationService>();
             services.AddHostedService<BackgroundChartSyncService>();
@@ -69,7 +70,7 @@ namespace Waffler.API
             services.AddSingleton(mapperConfig.CreateMapper());
             services.AddSingleton(new Cache());
             services.AddSingleton(new TradeRuleTestQueue());
-            services.AddSingleton<IDatabaseSetupSignal>();
+            services.AddSingleton(new DatabaseSetupSignal());
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

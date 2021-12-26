@@ -1,5 +1,6 @@
 ﻿using System;
 
+#pragma warning disable IDE1006 // Naming Styles
 namespace Waffler.Data.ComplexModel
 {
     public class sp_getTradeOrders_Result

@@ -33,6 +33,7 @@ namespace Waffler.Service.Background
             _serviceProvider = serviceProvider;
             _testTradeRuleQueue = testTradeRuleQueue;
             _databaseSetupSignal = databaseSetupSignal;
+            _logger.LogDebug("BackgroundTestTradeService instantiated");
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)

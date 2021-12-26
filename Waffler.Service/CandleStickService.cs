@@ -40,6 +40,7 @@ namespace Waffler.Service
             _context = context;
             _mapper = mapper;
             _cache = cache;
+            _logger.LogDebug("CandleStickService instantiated");
         }
 
         public async Task AddCandleSticksAsync(List<CandleStickDTO> candleSticks)

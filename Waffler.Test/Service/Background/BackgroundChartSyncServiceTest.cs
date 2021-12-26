@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using AutoMapper;
 using NSubstitute;
+using Moq;
 
 using Waffler.Common;
 using Waffler.Domain;
@@ -32,7 +33,7 @@ namespace Waffler.Test.Service.Background
         public BackgroundChartSyncServiceTest()
         {
             var logger = Substitute.For<ILogger<BackgroundChartSyncService>>();
-            var databaseSetupSignal = Substitute.For<IDatabaseSetupSignal>();
+            var databaseSetupSignal = new Mock<DatabaseSetupSignal>();
 
             _serviceProvider.GetService(typeof(IServiceScopeFactory)).Returns(_serviceScopeFactory);
             _serviceProvider.GetService<IServiceScopeFactory>().Returns(_serviceScopeFactory);
@@ -56,7 +57,7 @@ namespace Waffler.Test.Service.Background
             _serviceScope.ServiceProvider.GetRequiredService<IBitpandaService>().Returns(_bitpandaService);
             _serviceScope.ServiceProvider.GetRequiredService<IMapper>().Returns(_mapper);
 
-            _backgroundChartSyncService = new BackgroundChartSyncService(_serviceProvider, logger, databaseSetupSignal);
+            _backgroundChartSyncService = new BackgroundChartSyncService(logger, _serviceProvider, databaseSetupSignal.Object);
         }
 
         [Fact]
