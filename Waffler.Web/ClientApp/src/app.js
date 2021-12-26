@@ -14,6 +14,7 @@ import TradeChart from './components/chart/tradechart'
 import TradeRules from './components/traderules/traderules'
 import TradeOrders from './components/tradeorders/tradeorders'
 import Profile from './components/profile/profile'
+import TradeRuleBuyStatistics from './components/statistics/traderule/buy/traderule.statistics.buy'
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import './app.css';
@@ -38,6 +39,7 @@ const App = () => {
                     <ProtectedRount path="/traderules" exact component={() => { return (<ContentFrame><TradeRules /></ContentFrame>) }} />
                     <ProtectedRount path="/tradeorders" exact component={() => { return (<ContentFrame><TradeOrders /></ContentFrame>) }} />
                     <ProtectedRount path="/profile" exact component={() => { return (<ContentFrame><Profile /></ContentFrame>) }} />
+                    <ProtectedRount path="/statitics/buy" exact component={() => { return (<ContentFrame><TradeRuleBuyStatistics /></ContentFrame>) }} />
 
                     <Route path="/login" exact component={Login} />
                     <Route path="/newprofile" exact component={NewProfile} />
