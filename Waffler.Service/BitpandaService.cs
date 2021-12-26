@@ -77,8 +77,11 @@ namespace Waffler.Service
             if (PrivateHttpClient != null)
             {
                 var result = await PrivateHttpClient.GetAsync("account/balances");
-                var content = await result.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<AccountDTO>(content);
+                if(result.IsSuccessStatusCode)
+                {
+                    var content = await result.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<AccountDTO>(content);
+                }
             }
 
             return null;
@@ -121,8 +124,8 @@ namespace Waffler.Service
                 var buyBalance = balance?.Balances?.FirstOrDefault(_ => _.Currency_code == Bitpanda.CurrencyCode.EUR);
                 var sellBalance = balance?.Balances?.FirstOrDefault(_ => _.Currency_code == Bitpanda.CurrencyCode.BTC);
 
-                if ((buyBalance.Available >= amount && tradeRule.TradeActionId == (short)Variable.TradeAction.Buy) ||
-                    (sellBalance.Available >= amount && tradeRule.TradeActionId == (short)Variable.TradeAction.Sell)) 
+                if ((buyBalance?.Available >= amount*price && tradeRule.TradeActionId == (short)Variable.TradeAction.Buy) ||
+                    (sellBalance?.Available >= amount*price && tradeRule.TradeActionId == (short)Variable.TradeAction.Sell)) 
                 {
                     var order = new CreateOrderDTO()
                     {
@@ -153,7 +156,7 @@ namespace Waffler.Service
                 }
                 else
                 {
-                    _logger.LogWarning($"Unable to place order for rule {tradeRule.Name}, insufficient balance, EUR: {buyBalance.Available}, BTC: {sellBalance.Available}");
+                    _logger.LogWarning($"Unable to place order for rule {tradeRule.Name}, insufficient balance, EUR: {buyBalance?.Available}, BTC: {sellBalance?.Available}");
                 }
             }
             else
@@ -214,7 +217,10 @@ namespace Waffler.Service
                     orders.AddRange(orderHistory?.Order_history?.Select(_ => _.Order).Where(_ => orders.Any(o => o.Order_id == _.Order_id) == false));
                 }
 
-                return orders;
+                if(orders.Any())
+                {
+                    return orders;
+                }
             }
 
             return null;
@@ -225,7 +231,6 @@ namespace Waffler.Service
             if (PrivateHttpClient != null)
             {
                 var result = await PrivateHttpClient.GetAsync($"account/orders/{orderId}");
-
                 if (result.IsSuccessStatusCode)
                 {
                     var content = await result.Content.ReadAsStringAsync();
