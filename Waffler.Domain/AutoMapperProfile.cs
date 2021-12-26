@@ -61,7 +61,7 @@ namespace Waffler.Domain
 
             CreateMap<sp_getCandleSticks_Result, CandleStickDTO>();
             CreateMap<sp_getTradeOrders_Result, TradeOrderDTO>();
-            CreateMap<sp_getBuyTradeRuleStatistics_Result, BuyTradeRuleStatisticsDTO>();
+            CreateMap<sp_getTradeRuleBuyStatistics_Result, TradeRuleBuyStatisticsDTO>();
         }
 
         private void SetupBitpandaMaps()

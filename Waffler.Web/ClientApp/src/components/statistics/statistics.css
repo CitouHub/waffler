@@ -1,0 +1,15 @@
+﻿.stat-table {
+    width: 100%;
+}
+
+    .stat-table th, .stat-table td {
+        font-size: 1.5rem;
+    }
+
+.trend-up {
+    color: #4caf50;
+}
+
+.trend-down {
+    color: #ff9800;
+}

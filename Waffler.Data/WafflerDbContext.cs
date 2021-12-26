@@ -20,7 +20,7 @@ namespace Waffler.Data
 
         public virtual DbSet<sp_getTradeOrders_Result> sp_getTradeOrders_Result { get; set; }
 
-        public virtual DbSet<sp_getBuyTradeRuleStatistics_Result> sp_getBuyTradeRuleStatistics_Result { get; set; }
+        public virtual DbSet<sp_getTradeRuleBuyStatistics_Result> sp_getTradeRuleBuyStatistics_Result { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -51,7 +51,7 @@ namespace Waffler.Data
                 entity.Property(e => e.FilledAmount).HasColumnType("decimal(10, 8)");
             });
 
-            modelBuilder.Entity<sp_getBuyTradeRuleStatistics_Result>(entity =>
+            modelBuilder.Entity<sp_getTradeRuleBuyStatistics_Result>(entity =>
             {
                 entity.HasNoKey();
 

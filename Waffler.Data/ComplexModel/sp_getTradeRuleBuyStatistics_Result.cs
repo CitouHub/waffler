@@ -1,7 +1,8 @@
-﻿namespace Waffler.Domain.Statistics
+﻿#pragma warning disable IDE1006 // Naming Styles
+namespace Waffler.Data.ComplexModel
 {
-    public class BuyTradeRuleStatisticsDTO
-    {
+    public class sp_getTradeRuleBuyStatistics_Result
+	{
 		public int TradeRuleId { get; set; }
 		public string TradeRuleName { get; set; }
 		public decimal TotalAmount { get; set; }

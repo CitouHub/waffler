@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
-
+using Waffler.Common;
 using Waffler.Domain.Statistics;
 using Waffler.Service;
 
@@ -21,10 +21,10 @@ namespace Waffler.API.Controller
         }
 
         [HttpGet]
-        [Route("buy/{fromPeriodDateTime}/{toPeriodDateTime}")]
-        public async Task<List<BuyTradeRuleStatisticsDTO>> GetBuyTradeRuleStatistics(DateTime fromPeriodDateTime, DateTime toPeriodDateTime)
+        [Route("buy/{fromPeriodDateTime}/{toPeriodDateTime}/{statisticsMode}")]
+        public async Task<List<TradeRuleBuyStatisticsDTO>> GetTradeRuleBuyStatistics(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.StatisticsMode statisticsMode)
         {
-            return await _statisticsService.GetBuyTradeRuleStatistics(fromPeriodDateTime, toPeriodDateTime);
+            return await _statisticsService.GetTradeRuleBuyStatistics(fromPeriodDateTime, toPeriodDateTime, statisticsMode);
         }
     }
 }

@@ -87,26 +87,40 @@ BEGIN
 END
 GO
 
-IF OBJECTPROPERTY(object_id('dbo.sp_getBuyTradeRuleStatistics'), N'IsProcedure') = 1 DROP PROCEDURE [dbo].[sp_getBuyTradeRuleStatistics]
+IF OBJECTPROPERTY(object_id('dbo.sp_getTradeRuleBuyStatistics'), N'IsProcedure') = 1 DROP PROCEDURE [dbo].[sp_getTradeRuleBuyStatistics]
 GO
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE PROCEDURE [dbo].[sp_getBuyTradeRuleStatistics]
+CREATE PROCEDURE [dbo].[sp_getTradeRuleBuyStatistics]
 -- =====================================================================
 -- Author:			Rikard Gustafsson
 -- Create date:		2021-12-26
 -- Description:		
 -- =====================================================================
 	@FromPeriodDateTime DATETIME2(0),
-	@ToPeriodDateTime DATETIME2(0)
+	@ToPeriodDateTime DATETIME2(0),
+	@StatisticsMode SMALLINT
 AS
 BEGIN
 	SET NOCOUNT ON
 
 	DECLARE @CurrentPrice DECIMAL(10,2)
 	SET @CurrentPrice = (SELECT TOP 1 ClosePrice FROM CandleStick ORDER BY PeriodDateTime DESC)
+
+	DECLARE @IncludedStatuses TABLE(TradeOrderStatusId SMALLINT NOT NULL)
+
+	IF(@StatisticsMode = 1 OR @StatisticsMode = 3) 
+	BEGIN
+		INSERT INTO @IncludedStatuses SELECT Id FROM TradeOrderStatus
+		WHERE Id <= 6
+	END
+
+	IF(@StatisticsMode = 2 OR @StatisticsMode = 3) 
+	BEGIN
+		INSERT INTO @IncludedStatuses VALUES(10)
+	END
 
 	SELECT ISNULL(TradeRuleId, 0) AS TradeRuleId,
 		ISNULL(TradeRule.Name, 'Manual') AS TradeRuleName,
@@ -119,6 +133,7 @@ BEGIN
 		CAST(ROUND((@CurrentPrice / (SUM(FilledAmount * Price) / SUM(FilledAmount)) - 1) * 100, 2) AS DECIMAL(5,2)) AS ValueIncrease
 	FROM TradeOrder 
 		LEFT JOIN TradeRule ON TradeOrder.TradeRuleId = TradeRule.Id
+		INNER JOIN @IncludedStatuses AS IncludedStatus ON TradeOrder.TradeOrderStatusId = IncludedStatus.TradeOrderStatusId
 	WHERE TradeOrder.TradeActionId = 1
 		AND TradeOrder.OrderDateTime >= @FromPeriodDateTime
 		AND TradeOrder.OrderDateTime <= @ToPeriodDateTime 

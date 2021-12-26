@@ -1,14 +1,11 @@
 ﻿import React from 'react';
 import TextField from '@mui/material/TextField';
-import TradeRuleMultiSelect from './traderule.multiselect';
-import TradeOrderStatusMultiSelect from './tradeorderstatus.multiselect';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 
-const ChartFilter = ({
-    updateFilter,
-    filter,
-    tradeRules, selectedTradeRules, updateSelectedTradeRules,
-    tradeOrderStatuses, selectedTradeOrderStatuses, updateSelectedTradeStatuses
-}) => {
+const StatisticsFilter = ({ updateFilter, filter }) => {
     return (
         <div className="d-flex">
             <div className="m-2">
@@ -38,13 +35,18 @@ const ChartFilter = ({
                 />
             </div>
             <div className="m-2">
-                <TradeRuleMultiSelect tradeRules={tradeRules} selectedTradeRules={selectedTradeRules} updateSelectedTradeRules={updateSelectedTradeRules}/>
-            </div>
-            <div className="m-2">
-                <TradeOrderStatusMultiSelect tradeOrderStatuses={tradeOrderStatuses} selectedTradeOrderStatuses={selectedTradeOrderStatuses} updateSelectedTradeStatuses={updateSelectedTradeStatuses} />
+                <FormControl>
+                    <InputLabel id="filter-statisticsMode-label">Include</InputLabel>
+                    <Select sx={{ width: 220 }} labelId="filter-statisticsMode-label" id="filter-statisticsMode-select" value={filter.statisticsMode} label="Include"
+                        onChange={e => updateFilter({ ...filter, statisticsMode: e.target.value })} >
+                        <MenuItem value={1}>Live orders</MenuItem>
+                        <MenuItem value={2}>Test orders</MenuItem>
+                        <MenuItem value={3}>Both</MenuItem>
+                    </Select>
+                </FormControl>
             </div>
         </div>
     )
 };
 
-export default ChartFilter;
+export default StatisticsFilter;

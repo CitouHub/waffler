@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using AutoMapper;
 using Microsoft.Extensions.Logging;
-
+using Waffler.Common;
 using Waffler.Data;
 using Waffler.Data.Extensions;
 using Waffler.Domain.Statistics;
@@ -13,7 +13,7 @@ namespace Waffler.Service
 {
     public interface IStatisticsService
     {
-        Task<List<BuyTradeRuleStatisticsDTO>> GetBuyTradeRuleStatistics(DateTime fromPeriodDateTime, DateTime toPeriodDateTime);
+        Task<List<TradeRuleBuyStatisticsDTO>> GetTradeRuleBuyStatistics(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.StatisticsMode statisticsMode);
     }
 
     public class StatisticsService : IStatisticsService
@@ -30,10 +30,10 @@ namespace Waffler.Service
             _logger.LogDebug("StatisticsService instantiated");
         }
 
-        public async Task<List<BuyTradeRuleStatisticsDTO>> GetBuyTradeRuleStatistics(DateTime fromPeriodDateTime, DateTime toPeriodDateTime)
+        public async Task<List<TradeRuleBuyStatisticsDTO>> GetTradeRuleBuyStatistics(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.StatisticsMode statisticsMode)
         {
-            var statistics = await _context.sp_getBuyTradeRuleStatistics(fromPeriodDateTime, toPeriodDateTime);
-            return _mapper.Map<List<BuyTradeRuleStatisticsDTO>>(statistics);
+            var statistics = await _context.sp_getTradeRuleBuyStatistics(fromPeriodDateTime, toPeriodDateTime, (short)statisticsMode);
+            return _mapper.Map<List<TradeRuleBuyStatisticsDTO>>(statistics);
         }
     }
 }

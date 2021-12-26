@@ -77,5 +77,12 @@
             Day = 3,
             Week = 4
         }
+
+        public enum StatisticsMode
+        {
+            LiveOrders = 1,
+            TestOrders = 2,
+            Both = 3
+        }
     }
 }

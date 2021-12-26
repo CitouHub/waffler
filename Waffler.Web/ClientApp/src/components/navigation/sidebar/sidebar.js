@@ -22,21 +22,9 @@ const SideBar = () => (
                     </NavLink>
                 </NavItem>
                 <NavItem>
-                    <NavLink tag={Link} to={"/tradeorders"}>
-                        <FontAwesomeIcon icon={faTasks} className="mr-2" />
-                        Orders
-                    </NavLink>
-                </NavItem>
-                <NavItem>
                     <NavLink tag={Link} to={"/traderules"}>
                         <FontAwesomeIcon icon={faRulerCombined} className="mr-2" />
                         Rules
-                    </NavLink>
-                </NavItem>
-                <NavItem>
-                    <NavLink tag={Link} to={"/profile"}>
-                        <FontAwesomeIcon icon={faTools} className="mr-2" />
-                        Profile
                     </NavLink>
                 </NavItem>
                 <NavItem>
@@ -45,6 +33,19 @@ const SideBar = () => (
                         Statistics
                     </NavLink>
                 </NavItem>
+                <NavItem>
+                    <NavLink tag={Link} to={"/tradeorders"}>
+                        <FontAwesomeIcon icon={faTasks} className="mr-2" />
+                        Orders
+                    </NavLink>
+                </NavItem>
+                <NavItem>
+                    <NavLink tag={Link} to={"/profile"}>
+                        <FontAwesomeIcon icon={faTools} className="mr-2" />
+                        Profile
+                    </NavLink>
+                </NavItem>
+
                 <NavItem className="logout">
                     <NavLink tag={Link} to={"/logout"}>
                         <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />

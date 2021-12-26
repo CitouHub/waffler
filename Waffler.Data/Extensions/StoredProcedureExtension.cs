@@ -37,15 +37,17 @@ namespace Waffler.Data.Extensions
             return await context.Set<sp_getTradeOrders_Result>().FromSqlRaw(expr).ToListAsync();
         }
 
-        public static async Task<List<sp_getBuyTradeRuleStatistics_Result>> sp_getBuyTradeRuleStatistics(this WafflerDbContext context,
+        public static async Task<List<sp_getTradeRuleBuyStatistics_Result>> sp_getTradeRuleBuyStatistics(this WafflerDbContext context,
             DateTime fromPeriodDateTime,
-            DateTime toPeriodDateTime)
+            DateTime toPeriodDateTime,
+            short statisticsMode)
         {
-            var expr = $"exec sp_getBuyTradeRuleStatistics " +
+            var expr = $"exec sp_getTradeRuleBuyStatistics " +
                 $"'{fromPeriodDateTime:yyyy-MM-dd HH:mm:ss}', " +
-                $"'{toPeriodDateTime:yyyy-MM-dd HH:mm:ss}'";
+                $"'{toPeriodDateTime:yyyy-MM-dd HH:mm:ss}', " +
+                $"{statisticsMode}";
 
-            return await context.Set<sp_getBuyTradeRuleStatistics_Result>().FromSqlRaw(expr).ToListAsync();
+            return await context.Set<sp_getTradeRuleBuyStatistics_Result>().FromSqlRaw(expr).ToListAsync();
         }
     }
 }
