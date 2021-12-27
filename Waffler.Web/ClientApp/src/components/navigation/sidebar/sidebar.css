@@ -81,6 +81,10 @@ li a.dropdown-toggle::after {
     bottom: 1rem;
 }
 
+.route-active {
+    background-color: #f7f9fb;
+}
+
 /* ---------------------------------------------------
     CONTENT STYLE
 ----------------------------------------------------- */

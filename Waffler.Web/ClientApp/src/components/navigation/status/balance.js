@@ -5,15 +5,23 @@ import ProfileService from '../../../services/profile.service'
 
 import './status.css';
 
+let unmount = false;
+
 const Balance = () => {
     const [loading, setLoading] = useState(true);
     const [balance, setBalance] = useState([]);
 
     useEffect(() => {
+        unmount = false;
         ProfileService.getBalance().then((value) => {
-            setBalance(value);
-            setLoading(false);
+            if (unmount == false) {
+                setBalance(value);
+                setLoading(false);
+            }
         });
+        return () => {
+            unmount = true;
+        }
     }, []);
 
     let btc = balance.find(({ currencyCode }) => currencyCode === 1);

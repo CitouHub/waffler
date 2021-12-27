@@ -82,32 +82,3 @@ INSERT INTO TradeOrderStatus (ID, Name) VALUES (9, 'Failed')
 INSERT INTO TradeOrderStatus (ID, Name) VALUES (10, 'Test')
 SET IDENTITY_INSERT TradeOrderStatus OFF
 GO
-
-SET IDENTITY_INSERT TradeRule ON
-GO
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [CandleStickValueTypeId], [Name], [Amount], [TradeOrderExpirationMinutes], [TradeMinIntervalMinutes]) VALUES (1, 1, 1, 1, 2, 4, 'Fast drop, small buy', 10, 60, 60*2)
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [CandleStickValueTypeId], [Name], [Amount], [TradeOrderExpirationMinutes], [TradeMinIntervalMinutes]) VALUES (2, 1, 1, 1, 2, 4, 'Slow drop, big buy', 40, 60, 60*6)
-INSERT INTO TradeRule([Id], [TradeActionId], [TradeTypeId], [TradeConditionOperatorId], [TradeRuleStatusId], [CandleStickValueTypeId], [Name], [Amount], [TradeOrderExpirationMinutes], [TradeMinIntervalMinutes]) VALUES (3, 1, 1, 2, 2, 4, 'Buy weekly', 20, 60, 7*24*60)
-SET IDENTITY_INSERT TradeRule OFF
-GO
-
-INSERT INTO TradeRuleCondition([TradeRuleId], [TradeRuleConditionComparatorId], [DeltaPercent], [Description], [IsOn],
-    [FromCandleStickValueTypeId], [FromTradeRuleConditionPeriodDirectionId], [FromMinutes], [FromPeriodMinutes],
-    [ToCandleStickValueTypeId], [ToTradeRuleConditionPeriodDirectionId], [ToMinutes], [ToPeriodMinutes]) 
-VALUES (1, 1, -3, 'A drop of over 3% now', 1,
-	3, 2, -3*60, 60, 
-	4, 2, 0, 60)
-
-INSERT INTO TradeRuleCondition([TradeRuleId], [TradeRuleConditionComparatorId], [DeltaPercent], [Description], [IsOn],
-    [FromCandleStickValueTypeId], [FromTradeRuleConditionPeriodDirectionId], [FromMinutes], [FromPeriodMinutes],
-    [ToCandleStickValueTypeId], [ToTradeRuleConditionPeriodDirectionId], [ToMinutes], [ToPeriodMinutes]) 
-VALUES (2, 1, -3, 'A drop of over 6% over 4 days ago', 1,
-	3, 1, -4*24*60, 6*60, 
-	4, 2, 0, 6*60)
-
-INSERT INTO TradeRuleCondition([TradeRuleId], [TradeRuleConditionComparatorId], [DeltaPercent], [Description], [IsOn],
-    [FromCandleStickValueTypeId], [FromTradeRuleConditionPeriodDirectionId], [FromMinutes], [FromPeriodMinutes],
-    [ToCandleStickValueTypeId], [ToTradeRuleConditionPeriodDirectionId], [ToMinutes], [ToPeriodMinutes]) 
-VALUES (3, 4, -1, 'Any change', 1,
-	1, 1, -60, 30, 
-	1, 2, 0, 30)

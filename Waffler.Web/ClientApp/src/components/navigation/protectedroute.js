@@ -6,6 +6,10 @@ import Cache from '../../util/cache'
 function ProtectedRoute({ component: Component, ...restOfProps }) {
     const isAuthenticated = Cache.get("isAuthenticated");
 
+    if (isAuthenticated === true) {
+        Cache.set("isAuthenticated", true);
+    }
+
     return (
         <Route
             {...restOfProps}

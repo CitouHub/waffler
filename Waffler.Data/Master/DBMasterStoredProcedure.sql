@@ -129,8 +129,8 @@ BEGIN
 		ROUND(SUM(FilledAmount), 8) AS TotalFilledAmount,
 		CAST(ROUND((SUM(FilledAmount) / SUM(TradeOrder.Amount)) * 100, 2) AS DECIMAL(5,2)) AS FilledPercent,
 		CAST(ROUND(SUM(FilledAmount * Price), 2) AS DECIMAL(10, 2)) AS TotalInvested,
-		CAST(ROUND(SUM(FilledAmount * Price) / SUM(FilledAmount), 2) AS DECIMAL(10,2)) AS AveragePrice,
-		CAST(ROUND((@CurrentPrice / (SUM(FilledAmount * Price) / SUM(FilledAmount)) - 1) * 100, 2) AS DECIMAL(5,2)) AS ValueIncrease
+		CAST(ROUND(SUM(FilledAmount * Price) / (CASE WHEN SUM(FilledAmount) > 0 THEN SUM(FilledAmount) ELSE CAST(COUNT(*) AS DECIMAL(10,2)) END) , 2) AS DECIMAL(10,2)) AS AveragePrice,
+		CASE WHEN SUM(FilledAmount) > 0 THEN CAST(ROUND((@CurrentPrice / (SUM(FilledAmount * Price) / SUM(FilledAmount)) - 1) * 100, 2) AS DECIMAL(5,2)) ELSE 0 END AS ValueIncrease
 	FROM TradeOrder 
 		LEFT JOIN TradeRule ON TradeOrder.TradeRuleId = TradeRule.Id
 		INNER JOIN @IncludedStatuses AS IncludedStatus ON TradeOrder.TradeOrderStatusId = IncludedStatus.TradeOrderStatusId

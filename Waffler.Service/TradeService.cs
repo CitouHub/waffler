@@ -45,7 +45,7 @@ namespace Waffler.Service
         {
             _logger.LogInformation($"Handling trade rule");
             var tradeRule = await _tradeRuleService.GetTradeRuleAsync(tradeRuleId);
-            
+
             if (CanHandleTradeRule(tradeRule, currentPeriodDateTime))
             {
                 var candleStick = await _candleStickService.GetLastCandleStickAsync(currentPeriodDateTime);
@@ -57,7 +57,6 @@ namespace Waffler.Service
                     Name = tradeRule.Name,
                     TradeRuleCondtionEvaluations = new List<TradeRuleConditionEvaluationDTO>()
                 };
-
                 foreach (var tradeRuleCondition in tradeRule.TradeRuleConditions.Where(_ => _.IsOn == true))
                 {
                     _logger.LogInformation($" - Checking condition \"{tradeRuleCondition.Description}\"");
@@ -102,7 +101,7 @@ namespace Waffler.Service
                                 orderId = order != null ? new Guid(order.Order_id) : (Guid?)null;
                             }
 
-                            if(orderId != null)
+                            if (orderId != null)
                             {
                                 await _tradeOrderService.AddTradeOrderAsync(new TradeOrderDTO()
                                 {
@@ -110,7 +109,7 @@ namespace Waffler.Service
                                     TradeOrderStatusId = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test ? (short)TradeOrderStatus.Test : (short)TradeOrderStatus.Open,
                                     TradeRuleId = tradeRule.Id,
                                     Amount = amount,
-                                    FilledAmount = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test ? amount : 0,
+                                    FilledAmount = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test && await IsTestOrderFilled(price, currentPeriodDateTime, tradeRule.TradeOrderExpirationMinutes) ? amount : 0,
                                     OrderDateTime = currentPeriodDateTime,
                                     Price = price,
                                     OrderId = orderId.Value,
@@ -120,7 +119,7 @@ namespace Waffler.Service
                                 tradeRule.LastTrigger = candleStick.PeriodDateTime;
                                 await _tradeRuleService.UpdateTradeRuleAsync(tradeRule);
                             }
-                            
+
                             break;
                         case TradeAction.Sell:
                             throw new NotImplementedException();
@@ -129,7 +128,7 @@ namespace Waffler.Service
                 }
 
                 return tradeRuleResult;
-            } 
+            }
             else
             {
                 _logger.LogInformation($"Trade rule skipped");
@@ -137,10 +136,18 @@ namespace Waffler.Service
             }
         }
 
+        public async Task<bool> IsTestOrderFilled(decimal price, DateTime currentPeriodDateTime, int? tradeOrderExpirationMinutes)
+        {
+            var toDate = tradeOrderExpirationMinutes != null ? currentPeriodDateTime.AddMinutes(tradeOrderExpirationMinutes.Value) : DateTime.UtcNow;
+            var candleSticks = await _candleStickService.GetCandleSticksAsync(currentPeriodDateTime, toDate, TradeType.BTC_EUR, 1);
+            var priceValid = candleSticks.Any(_ => _.LowPrice <= price);
+            return priceValid;
+        }
+
         public async Task<bool> SetupTestTradeAsync(int tradeRuleId)
         {
             var success = await _tradeRuleService.SetupTradeRuleTestAsync(tradeRuleId);
-            if(success)
+            if (success)
             {
                 await _tradeOrderService.RemoveTestTradeOrdersAsync(tradeRuleId);
             }
