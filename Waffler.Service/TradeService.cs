@@ -140,7 +140,7 @@ namespace Waffler.Service
         {
             var toDate = tradeOrderExpirationMinutes != null ? currentPeriodDateTime.AddMinutes(tradeOrderExpirationMinutes.Value) : DateTime.UtcNow;
             var candleSticks = await _candleStickService.GetCandleSticksAsync(currentPeriodDateTime, toDate, TradeType.BTC_EUR, 1);
-            var priceValid = candleSticks.Any(_ => _.LowPrice <= price);
+            var priceValid = candleSticks == null || candleSticks.Any(_ => _.LowPrice <= price);
             return priceValid;
         }
 
