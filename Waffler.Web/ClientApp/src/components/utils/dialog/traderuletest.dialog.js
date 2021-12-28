@@ -12,7 +12,7 @@ import './dialog.css';
 const TradeRuleTestDialog = ({ dialogOpen, setDialogOpen, startTradeRuleTest }) => {
     let fromDate = new Date();
     let toDate = new Date();
-    fromDate.setDate(fromDate.getDate() - 30);
+    fromDate.setDate(fromDate.getDate() - 90);
 
     const [tradeRuleTest, setTradeRuleTest] = useState({
         fromDate: fromDate,

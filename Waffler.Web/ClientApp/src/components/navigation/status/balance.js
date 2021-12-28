@@ -14,7 +14,7 @@ const Balance = () => {
     useEffect(() => {
         unmount = false;
         ProfileService.getBalance().then((value) => {
-            if (unmount == false) {
+            if (unmount === false) {
                 setBalance(value);
                 setLoading(false);
             }

@@ -13,7 +13,7 @@ namespace Waffler.Service
 {
     public interface ITradeService
     {
-        Task<TradeRuleEvaluationDTO> HandleTradeRuleAsync(int tradeRuleId, DateTime currentPeriodDateTime);
+        Task<TradeRuleEvaluationDTO> HandleTradeRuleAsync(TradeRuleDTO tradeRule, DateTime currentPeriodDateTime);
 
         Task<bool> SetupTestTradeAsync(int tradeRuleId);
     }
@@ -41,10 +41,9 @@ namespace Waffler.Service
             _logger.LogDebug("TradeService instantiated");
         }
 
-        public async Task<TradeRuleEvaluationDTO> HandleTradeRuleAsync(int tradeRuleId, DateTime currentPeriodDateTime)
+        public async Task<TradeRuleEvaluationDTO> HandleTradeRuleAsync(TradeRuleDTO tradeRule, DateTime currentPeriodDateTime)
         {
             _logger.LogInformation($"Handling trade rule");
-            var tradeRule = await _tradeRuleService.GetTradeRuleAsync(tradeRuleId);
 
             if (CanHandleTradeRule(tradeRule, currentPeriodDateTime))
             {

@@ -10,4 +10,14 @@ export default {
     }).then((response) => {
         return Request.handleResponse(response)
     }),
+    getTrend: async (from, to, tradeTypeId, samplePeriodMinues) => await Request.send({
+        url: `/statistics/trend/
+            ${from.toISOString().split('T')[0]}/
+            ${to.toISOString().split('T')[0]}/
+            ${tradeTypeId}/
+            ${samplePeriodMinues}`,
+        method: 'GET'
+    }).then((response) => {
+        return Request.handleResponse(response)
+    }),
 }

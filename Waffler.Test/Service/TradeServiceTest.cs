@@ -43,7 +43,7 @@ namespace Waffler.Test
             _tradeRuleService.GetTradeRuleAsync(Arg.Is(TestTradeRuleId)).Returns(tradeRule);
 
             //Act
-            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, DateTime.UtcNow);
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, DateTime.UtcNow);
 
             //Assert
             Assert.Null(result);
@@ -61,7 +61,7 @@ namespace Waffler.Test
             _tradeRuleService.GetTradeRuleAsync(Arg.Is(TestTradeRuleId)).Returns(tradeRule);
 
             //Act
-            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, DateTime.UtcNow);
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, DateTime.UtcNow);
 
             //Assert
             Assert.Null(result);
@@ -80,7 +80,7 @@ namespace Waffler.Test
             _candleStickService.GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime)).Returns(candleStick);
 
             //Act
-            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
             Assert.Null(result);
@@ -103,7 +103,7 @@ namespace Waffler.Test
             _candleStickService.GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime)).Returns(candleStick);
 
             //Act
-            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
             Assert.True(result.TradeRuleCondtionEvaluations.All(_ => _.IsFullfilled == false));
@@ -129,7 +129,7 @@ namespace Waffler.Test
             _candleStickService.GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime)).Returns(candleStick);
 
             //Act
-            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
             Assert.True(result.TradeRuleCondtionEvaluations.All(_ => _.IsFullfilled == false));
@@ -166,7 +166,7 @@ namespace Waffler.Test
             _candleStickService.GetPriceTrendAsync(Arg.Is(currentPeriodDateTime), Arg.Any<Variable.TradeType>(), Arg.Is(tradeRuleCondition)).Returns(trend);
 
             //Act
-            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
             Assert.True(result.TradeRuleCondtionEvaluations.All(_ => _.IsFullfilled == false));
@@ -216,7 +216,7 @@ namespace Waffler.Test
             _bitpandaService.PlaceOrderAsync(Arg.Is(tradeRule), Arg.Any<decimal>(), Arg.Any<decimal>()).Returns(orderSubmitted);
 
             //Act
-            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
             Assert.True(result.TradeRuleCondtionEvaluations.All(_ => _.IsFullfilled == true));
@@ -262,7 +262,7 @@ namespace Waffler.Test
             _bitpandaService.PlaceOrderAsync(Arg.Is(tradeRule), Arg.Any<decimal>(), Arg.Any<decimal>()).Returns(orderSubmitted);
 
             //Act
-            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
             if(tradeConditionOperatorId == (short)Variable.TradeConditionOperator.AND)
@@ -317,7 +317,7 @@ namespace Waffler.Test
             _bitpandaService.PlaceOrderAsync(Arg.Is(tradeRule), Arg.Any<decimal>(), Arg.Any<decimal>()).Returns(orderSubmitted);
 
             //Act
-            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
             if (tradeConditionOperatorId == (short)Variable.TradeConditionOperator.AND)
@@ -368,7 +368,7 @@ namespace Waffler.Test
             _bitpandaService.PlaceOrderAsync(Arg.Is(tradeRule), Arg.Any<decimal>(), Arg.Any<decimal>()).Returns(orderSubmitted);
 
             //Act
-            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
             var price = candleStick.HighPrice + (candleStick.HighPrice * (deltaPricePercent / 100));
@@ -423,7 +423,7 @@ namespace Waffler.Test
             _bitpandaService.PlaceOrderAsync(Arg.Is(tradeRule), Arg.Any<decimal>(), Arg.Any<decimal>()).Returns(orderSubmitted);
 
             //Act
-            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
             var price = candleStick.LowPrice + (candleStick.LowPrice * (deltaPricePercent / 100));
@@ -478,7 +478,7 @@ namespace Waffler.Test
             _bitpandaService.PlaceOrderAsync(Arg.Is(tradeRule), Arg.Any<decimal>(), Arg.Any<decimal>()).Returns(orderSubmitted);
 
             //Act
-            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
             var price = candleStick.OpenPrice + (candleStick.OpenPrice * (deltaPricePercent / 100));
@@ -533,7 +533,7 @@ namespace Waffler.Test
             _bitpandaService.PlaceOrderAsync(Arg.Is(tradeRule), Arg.Any<decimal>(), Arg.Any<decimal>()).Returns(orderSubmitted);
 
             //Act
-            var result = await _tradeService.HandleTradeRuleAsync(TestTradeRuleId, currentPeriodDateTime);
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
             var price = candleStick.ClosePrice + (candleStick.ClosePrice * (deltaPricePercent / 100));

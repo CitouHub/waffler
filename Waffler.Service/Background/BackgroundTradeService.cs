@@ -71,11 +71,11 @@ namespace Waffler.Service.Background
                         _logger.LogInformation($"- Data synced, last period {lastCandleStick.PeriodDateTime}, analyse trade rules...");
                         var tradeRules = await _tradeRuleService.GetTradeRulesAsync();
 
-                        foreach (int tradeRuleId in tradeRules.Where(_ => _.TestTradeInProgress == false).Select(_ => _.Id))
+                        foreach (var tradeRule in tradeRules.Where(_ => _.TestTradeInProgress == false))
                         {
                             if (cancellationToken.IsCancellationRequested == false)
                             {
-                                var result = await _tradeService.HandleTradeRuleAsync(tradeRuleId, lastCandleStick.PeriodDateTime);
+                                var result = await _tradeService.HandleTradeRuleAsync(tradeRule, lastCandleStick.PeriodDateTime);
                                 
                                 if(result != null)
                                 {

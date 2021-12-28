@@ -26,5 +26,12 @@ namespace Waffler.API.Controller
         {
             return await _statisticsService.GetTradeRuleBuyStatistics(fromPeriodDateTime, toPeriodDateTime, statisticsMode);
         }
+
+        [HttpGet]
+        [Route("trend/{fromPeriodDateTime}/{toPeriodDateTime}/{tradeTypeId}/{samplePeriodMinues}")]
+        public async Task<TrendDTO> GetTrend(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.TradeType tradeTypeId, int samplePeriodMinues)
+        {
+            return await _statisticsService.GetTrend(fromPeriodDateTime, toPeriodDateTime, tradeTypeId, samplePeriodMinues);
+        }
     }
 }

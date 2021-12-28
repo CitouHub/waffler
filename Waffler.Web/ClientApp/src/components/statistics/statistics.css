@@ -1,10 +1,32 @@
-﻿.stat-table {
+﻿.stat-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.stat-table {
     width: 100%;
 }
 
     .stat-table th, .stat-table td {
         font-size: 1.5rem;
     }
+
+.stat-icon {
+    width: 3rem;
+    height: 3rem;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 0.5rem;
+}
+
+.trend-change {
+    font-size: 1.5rem;
+    margin: auto;
+}
+
+.btc-icon {
+    color: rgba(242, 169, 0, 1)
+}
 
 .trend-up {
     color: #4caf50;

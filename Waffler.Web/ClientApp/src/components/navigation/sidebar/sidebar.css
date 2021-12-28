@@ -83,6 +83,8 @@ li a.dropdown-toggle::after {
 
 .route-active {
     background-color: #f7f9fb;
+    border-radius: 0 15px 15px 0;
+    margin-right: 6rem;
 }
 
 /* ---------------------------------------------------
