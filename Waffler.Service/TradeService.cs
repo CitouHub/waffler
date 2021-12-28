@@ -102,17 +102,21 @@ namespace Waffler.Service
 
                             if (orderId != null)
                             {
+                                var tradeOrderStatusId = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test ? (short)TradeOrderStatus.Test : (short)TradeOrderStatus.Open;
+                                var filledAmout = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test && await IsTestOrderFilled(price, currentPeriodDateTime, tradeRule.TradeOrderExpirationMinutes) ? amount : 0;
+                                var isActive = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Active;
+
                                 await _tradeOrderService.AddTradeOrderAsync(new TradeOrderDTO()
                                 {
                                     TradeActionId = (short)TradeAction.Buy,
-                                    TradeOrderStatusId = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test ? (short)TradeOrderStatus.Test : (short)TradeOrderStatus.Open,
+                                    TradeOrderStatusId = tradeOrderStatusId,
                                     TradeRuleId = tradeRule.Id,
                                     Amount = amount,
-                                    FilledAmount = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Test && await IsTestOrderFilled(price, currentPeriodDateTime, tradeRule.TradeOrderExpirationMinutes) ? amount : 0,
+                                    FilledAmount = filledAmout,
                                     OrderDateTime = currentPeriodDateTime,
                                     Price = price,
                                     OrderId = orderId.Value,
-                                    IsActive = tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Active
+                                    IsActive = isActive
                                 });
 
                                 tradeRule.LastTrigger = candleStick.PeriodDateTime;
