@@ -25,19 +25,22 @@ namespace Waffler.Service
         private readonly ITradeRuleService _tradeRuleService;
         private readonly ITradeOrderService _tradeOrderService;
         private readonly IBitpandaService _bitpandaService;
+        private readonly IStatisticsService _statisticsService;
 
         public TradeService(
             ILogger<TradeService> logger,
             ICandleStickService candleStickService,
             ITradeRuleService tradeRuleService,
             ITradeOrderService tradeOrderService,
-            IBitpandaService bitpandaService)
+            IBitpandaService bitpandaService,
+            IStatisticsService statisticsService)
         {
             _logger = logger;
             _candleStickService = candleStickService;
             _tradeRuleService = tradeRuleService;
             _tradeOrderService = tradeOrderService;
             _bitpandaService = bitpandaService;
+            _statisticsService = statisticsService;
             _logger.LogDebug("TradeService instantiated");
         }
 
@@ -59,7 +62,7 @@ namespace Waffler.Service
                 foreach (var tradeRuleCondition in tradeRule.TradeRuleConditions.Where(_ => _.IsOn == true))
                 {
                     _logger.LogInformation($" - Checking condition \"{tradeRuleCondition.Description}\"");
-                    var trend = await _candleStickService.GetPriceTrendAsync(
+                    var trend = await _statisticsService.GetPriceTrendAsync(
                         currentPeriodDateTime,
                         (TradeType)tradeRule.TradeTypeId,
                         tradeRuleCondition);
@@ -73,7 +76,7 @@ namespace Waffler.Service
                     if (trend != null)
                     {
                         _logger.LogInformation($" - Trend {trend}");
-                        conditionResult.IsFullfilled = EvaluateCondition(tradeRuleCondition, trend.Value);
+                        conditionResult.IsFullfilled = EvaluateCondition(tradeRuleCondition, trend.Change);
                     }
 
                     tradeRuleResult.TradeRuleCondtionEvaluations.Add(conditionResult);
@@ -157,7 +160,6 @@ namespace Waffler.Service
 
             return success;
         }
-
         private bool CanHandleTradeRule(TradeRuleDTO tradeRule, DateTime currentPeriodDateTime)
         {
             return tradeRule.LastTrigger < currentPeriodDateTime.AddMinutes(-1 * tradeRule.TradeMinIntervalMinutes) &&

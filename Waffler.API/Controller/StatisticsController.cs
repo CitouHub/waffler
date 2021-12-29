@@ -24,14 +24,16 @@ namespace Waffler.API.Controller
         [Route("buy/{fromPeriodDateTime}/{toPeriodDateTime}/{statisticsMode}")]
         public async Task<List<TradeRuleBuyStatisticsDTO>> GetTradeRuleBuyStatistics(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.StatisticsMode statisticsMode)
         {
-            return await _statisticsService.GetTradeRuleBuyStatistics(fromPeriodDateTime, toPeriodDateTime, statisticsMode);
+            return await _statisticsService.GetTradeRuleBuyStatisticsAsync(fromPeriodDateTime, toPeriodDateTime, statisticsMode);
         }
 
         [HttpGet]
         [Route("trend/{fromPeriodDateTime}/{toPeriodDateTime}/{tradeTypeId}/{samplePeriodMinues}")]
         public async Task<TrendDTO> GetTrend(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.TradeType tradeTypeId, int samplePeriodMinues)
         {
-            return await _statisticsService.GetTrend(fromPeriodDateTime, toPeriodDateTime, tradeTypeId, samplePeriodMinues);
+            return await _statisticsService.GetPriceTrendAsync(tradeTypeId,
+                Variable.CandleStickValueType.OpenPrice, fromPeriodDateTime, fromPeriodDateTime.AddMinutes(samplePeriodMinues),
+                Variable.CandleStickValueType.ClosePrice, toPeriodDateTime.AddMinutes(-1*samplePeriodMinues), toPeriodDateTime);
         }
     }
 }

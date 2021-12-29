@@ -15,13 +15,13 @@ namespace Waffler.Data.Extensions
             DateTime fromPeriodDateTime, 
             DateTime toPeriodDateTime, 
             short tradeTypeId, 
-            short periodDateTimeGroup)
+            int periodMinutes)
         {
             var expr = $"exec sp_getCandleSticks " +
                 $"'{fromPeriodDateTime:yyyy-MM-dd HH:mm:ss}', " +
                 $"'{toPeriodDateTime:yyyy-MM-dd HH:mm:ss}', " +
-                $"{ tradeTypeId}, " +
-                $"{ periodDateTimeGroup}";
+                $"{tradeTypeId}, " +
+                $"{periodMinutes}";
 
             return await context.Set<sp_getCandleSticks_Result>().FromSqlRaw(expr).ToListAsync();
         }

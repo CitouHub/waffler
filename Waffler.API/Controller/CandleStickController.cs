@@ -37,9 +37,9 @@ namespace Waffler.API.Controller
 
         [HttpPost]
         [Route("sync/reset")]
-        public async Task ResetCandleStickSyncAsync()
+        public async Task ResetCandleStickDataAsync()
         {
-            await _candleStickService.ResetCandleStickSyncAsync();
+            await _candleStickService.ResetCandleStickDataAsync();
         }
 
         [HttpGet]
