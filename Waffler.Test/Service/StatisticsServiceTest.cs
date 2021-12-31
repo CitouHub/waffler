@@ -1,20 +1,19 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Xunit;
+
 using Waffler.Common;
-using Waffler.Common.Util;
 using Waffler.Data;
-using Waffler.Data.ComplexModel;
 using Waffler.Domain;
 using Waffler.Service;
 using Waffler.Test.Helper;
-using Xunit;
 
 #pragma warning disable IDE0017 // Simplify object initialization
 namespace Waffler.Test.Service

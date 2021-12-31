@@ -75,18 +75,6 @@ namespace Waffler.Service
             return _mapper.Map<CandleStickDTO>(candleStick);
         }
 
-        private decimal? GetValue(Variable.CandleStickValueType candleStickValueType, CandleStickDTO candleStick)
-        {
-            return candleStickValueType switch
-            {
-                Variable.CandleStickValueType.HighPrice => candleStick?.HighPrice,
-                Variable.CandleStickValueType.LowPrice => candleStick?.LowPrice,
-                Variable.CandleStickValueType.OpenPrice => candleStick?.OpenPrice,
-                Variable.CandleStickValueType.ClosePrice => candleStick?.ClosePrice,
-                _ => default,
-            };
-        }
-
         public async Task ResetCandleStickDataAsync()
         {
             await _context.TruncateTable(nameof(CandleStick));

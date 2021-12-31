@@ -1,20 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Moq;
-using System.Linq;
+using System;
+
+using Waffler.Data;
 
 namespace Waffler.Test.Helper
 {
     public static class DatabaseHelper
     {
-        public static Mock<DbSet<TEntity>> GetMockDbSet<TEntity>(IQueryable<TEntity> querayble) where TEntity : class
+        public static WafflerDbContext GetContext()
         {
-            var dbSet = new Mock<DbSet<TEntity>>();
-            dbSet.As<IQueryable<TEntity>>().Setup(m => m.Provider).Returns(querayble.Provider);
-            dbSet.As<IQueryable<TEntity>>().Setup(m => m.Expression).Returns(querayble.Expression);
-            dbSet.As<IQueryable<TEntity>>().Setup(m => m.ElementType).Returns(querayble.ElementType);
-            dbSet.As<IQueryable<TEntity>>().Setup(m => m.GetEnumerator()).Returns(querayble.GetEnumerator());
+            var options = new DbContextOptionsBuilder<BaseDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
 
-            return dbSet;
+            return new WafflerDbContext(options);
         }
     }
 }

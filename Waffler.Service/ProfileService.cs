@@ -44,8 +44,13 @@ namespace Waffler.Service
             _logger.LogDebug("ProfileService instantiated");
         }
 
-        private string GetHashedPassword(string password)
+        public string GetHashedPassword(string password)
         {
+            if(string.IsNullOrEmpty(password))
+            {
+                return "INVALID PASSWORD";
+            }
+
             var salt = BCrypt.Net.BCrypt.GenerateSalt();
             return BCrypt.Net.BCrypt.HashPassword(password, salt);
         }
@@ -81,8 +86,14 @@ namespace Waffler.Service
 
         public async Task<bool> IsPasswordValidAsync(string password)
         {
-            var passwordHash = (await _context.WafflerProfiles.FirstOrDefaultAsync())?.Password;
-            return BCrypt.Net.BCrypt.Verify(password, passwordHash);
+            try
+            {
+                var passwordHash = (await _context.WafflerProfiles.FirstOrDefaultAsync())?.Password;
+                return BCrypt.Net.BCrypt.Verify(password, passwordHash);
+            }
+            catch { }
+
+            return false;
         }
 
         public async Task<bool> SetPasswordAsync(string newPassword)
