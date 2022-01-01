@@ -21,7 +21,7 @@ namespace Waffler.Service.Background
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundChartSyncService> _logger;
-        private readonly DatabaseSetupSignal _databaseSetupSignal;
+        private readonly IDatabaseSetupSignal _databaseSetupSignal;
         private readonly TimeSpan SyncInterval = TimeSpan.FromMinutes(5);
         private readonly TimeSpan RequestSpanMinutes = TimeSpan.FromHours(6);
         private readonly string Period = Bitpanda.Period.MINUTES;
@@ -35,7 +35,7 @@ namespace Waffler.Service.Background
         public BackgroundChartSyncService(
             ILogger<BackgroundChartSyncService> logger,
             IServiceProvider serviceProvider,
-            DatabaseSetupSignal databaseSetupSignal)
+            IDatabaseSetupSignal databaseSetupSignal)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;

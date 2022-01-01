@@ -1,12 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+
 using Waffler.Domain;
 using Waffler.Domain.Message;
 using Waffler.Service;
@@ -19,11 +15,11 @@ namespace Waffler.API.Controller
     public class TradeRuleController : ControllerBase
     {
         private readonly ITradeRuleService _tradeRuleService;
-        private readonly TradeRuleTestQueue _testTradeRuleQueue;
+        private readonly ITradeRuleTestQueue _testTradeRuleQueue;
 
         public TradeRuleController(
             ITradeRuleService tradeRuleService,
-            TradeRuleTestQueue testTradeRuleQueue)
+            ITradeRuleTestQueue testTradeRuleQueue)
         {
             _tradeRuleService = tradeRuleService;
             _testTradeRuleQueue = testTradeRuleQueue;

@@ -21,7 +21,7 @@ namespace Waffler.Service.Background
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundTradeOrderSyncService> _logger;
-        private readonly DatabaseSetupSignal _databaseSetupSignal;
+        private readonly IDatabaseSetupSignal _databaseSetupSignal;
         private readonly TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
 
         private Timer _fetchTimer;
@@ -32,7 +32,7 @@ namespace Waffler.Service.Background
         public BackgroundTradeOrderSyncService(
             ILogger<BackgroundTradeOrderSyncService> logger,
             IServiceProvider serviceProvider,
-            DatabaseSetupSignal databaseSetupSignal)
+            IDatabaseSetupSignal databaseSetupSignal)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;

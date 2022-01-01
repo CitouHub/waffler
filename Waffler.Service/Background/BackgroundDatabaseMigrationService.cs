@@ -20,12 +20,12 @@ namespace Waffler.Service.Background
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<BackgroundDatabaseMigrationService> _logger;
-        private readonly DatabaseSetupSignal _databaseSetupSignal;
+        private readonly IDatabaseSetupSignal _databaseSetupSignal;
 
         public BackgroundDatabaseMigrationService(
             ILogger<BackgroundDatabaseMigrationService> logger,
             IConfiguration configuration,
-            DatabaseSetupSignal databaseSetupSignal)
+            IDatabaseSetupSignal databaseSetupSignal)
         {
             _logger = logger;
             _configuration = configuration;

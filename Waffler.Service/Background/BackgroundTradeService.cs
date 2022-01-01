@@ -16,18 +16,19 @@ namespace Waffler.Service.Background
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundTradeService> _logger;
-        private readonly DatabaseSetupSignal _databaseSetupSignal;
+        private readonly IDatabaseSetupSignal _databaseSetupSignal;
         private readonly TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
         private readonly TimeSpan RetryRequestPeriod = TimeSpan.FromMinutes(1);
-        private readonly TimeSpan ValidSyncOffser = TimeSpan.FromMinutes(15);
 
         private Timer _timer;
         private bool InProgress = false;
 
+        public readonly TimeSpan ValidSyncOffser = TimeSpan.FromMinutes(15);
+
         public BackgroundTradeService(
             ILogger<BackgroundTradeService> logger,
             IServiceProvider serviceProvider,
-            DatabaseSetupSignal databaseSetupSignal)
+            IDatabaseSetupSignal databaseSetupSignal)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
@@ -41,11 +42,11 @@ namespace Waffler.Service.Background
 
             if(!cancellationToken.IsCancellationRequested)
             {
-                _timer = new Timer(async _ => await HandleTradeRules(cancellationToken), null, TimeSpan.FromSeconds(0), RequestPeriod);
+                _timer = new Timer(async _ => await HandleTradeRulesAsync(cancellationToken), null, TimeSpan.FromSeconds(0), RequestPeriod);
             }
         }
 
-        private async Task HandleTradeRules(CancellationToken cancellationToken)
+        public async Task HandleTradeRulesAsync(CancellationToken cancellationToken)
         {
             if (InProgress)
             {
