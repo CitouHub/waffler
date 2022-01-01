@@ -12,6 +12,11 @@ namespace Waffler.Domain
         public decimal Progress { get
             {
                 var totalMinutes = (ToDate - FromDate).TotalMinutes;
+                if(totalMinutes <= 0)
+                {
+                    return 100;
+                }
+
                 var minutesProsessed = (ToDate - CurrentPositionDate).TotalMinutes;
                 var progress = Math.Round((100 - ((decimal)minutesProsessed / (decimal)totalMinutes) * 100), 2);
 

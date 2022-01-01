@@ -60,7 +60,7 @@ namespace Waffler.API
             services.AddHostedService<BackgroundChartSyncService>();
             services.AddHostedService<BackgroundTradeService>();
             services.AddHostedService<BackgroundTestTradeService>();
-            services.AddHostedService<BackgroundOrderSyncService>();
+            services.AddHostedService<BackgroundTradeOrderSyncService>();
 
             var mapperConfig = new MapperConfiguration(mc =>
             {
@@ -68,9 +68,9 @@ namespace Waffler.API
             });
 
             services.AddSingleton(mapperConfig.CreateMapper());
-            services.AddSingleton(new Cache());
-            services.AddSingleton(new TradeRuleTestQueue());
-            services.AddSingleton(new DatabaseSetupSignal());
+            services.AddSingleton<ICache, Cache>();
+            services.AddSingleton<ITradeRuleTestQueue, TradeRuleTestQueue>();
+            services.AddSingleton<IDatabaseSetupSignal, DatabaseSetupSignal>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

@@ -26,17 +26,6 @@ namespace Waffler.Data.Extensions
             return await context.Set<sp_getCandleSticks_Result>().FromSqlRaw(expr).ToListAsync();
         }
 
-        public static async Task<List<sp_getTradeOrders_Result>> sp_getTradeOrders(this WafflerDbContext context,
-            DateTime fromPeriodDateTime,
-            DateTime toPeriodDateTime)
-        {
-            var expr = $"exec sp_getTradeOrders " +
-                $"'{fromPeriodDateTime:yyyy-MM-dd HH:mm:ss}', " +
-                $"'{toPeriodDateTime:yyyy-MM-dd HH:mm:ss}'";
-
-            return await context.Set<sp_getTradeOrders_Result>().FromSqlRaw(expr).ToListAsync();
-        }
-
         public static async Task<List<sp_getTradeRuleBuyStatistics_Result>> sp_getTradeRuleBuyStatistics(this WafflerDbContext context,
             DateTime fromPeriodDateTime,
             DateTime toPeriodDateTime,

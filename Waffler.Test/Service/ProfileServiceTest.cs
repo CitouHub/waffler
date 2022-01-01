@@ -13,7 +13,6 @@ using Waffler.Domain.Bitpanda.Private.Balance;
 using System.Collections.Generic;
 using Waffler.Common;
 
-#pragma warning disable IDE0017 // Simplify object initialization
 namespace Waffler.Test.Service
 {
     public class ProfileServiceTest
@@ -66,7 +65,6 @@ namespace Waffler.Test.Service
         {
             //Setup
             var context = DatabaseHelper.GetContext();
-            var profile = ProfileHelper.GetProfile();
             context.WafflerProfiles.Add(ProfileHelper.GetProfile());
             context.SaveChanges();
             var profileService = new ProfileService(_logger, context, _mapper, _bitpandaService);

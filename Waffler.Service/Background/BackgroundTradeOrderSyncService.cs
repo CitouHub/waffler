@@ -17,10 +17,10 @@ using static Waffler.Common.Variable;
 
 namespace Waffler.Service.Background
 {
-    public class BackgroundOrderSyncService : BackgroundService
+    public class BackgroundTradeOrderSyncService : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<BackgroundOrderSyncService> _logger;
+        private readonly ILogger<BackgroundTradeOrderSyncService> _logger;
         private readonly DatabaseSetupSignal _databaseSetupSignal;
         private readonly TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
 
@@ -29,8 +29,8 @@ namespace Waffler.Service.Background
         private bool FetchInProgress = false;
         private bool UpdateInProgress = false;
 
-        public BackgroundOrderSyncService(
-            ILogger<BackgroundOrderSyncService> logger,
+        public BackgroundTradeOrderSyncService(
+            ILogger<BackgroundTradeOrderSyncService> logger,
             IServiceProvider serviceProvider,
             DatabaseSetupSignal databaseSetupSignal)
         {
@@ -51,7 +51,7 @@ namespace Waffler.Service.Background
             }
         }
 
-        private async Task UpdateOrderDataAsync(CancellationToken cancellationToken)
+        public async Task UpdateOrderDataAsync(CancellationToken cancellationToken)
         {
             if (UpdateInProgress)
             {
@@ -67,7 +67,6 @@ namespace Waffler.Service.Background
                     _logger.LogInformation($"- Setting up scoped services");
                     var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
                     var _tradeOrderService = scope.ServiceProvider.GetRequiredService<ITradeOrderService>();
-                    var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
                     var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
@@ -114,7 +113,7 @@ namespace Waffler.Service.Background
             FetchInProgress = false;
         }
 
-        private async Task FetchOrderDataAsync(CancellationToken cancellationToken)
+        public async Task FetchOrderDataAsync(CancellationToken cancellationToken)
         {
             if (FetchInProgress)
             {
@@ -130,7 +129,6 @@ namespace Waffler.Service.Background
                     _logger.LogInformation($"- Setting up scoped services");
                     var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
                     var _tradeOrderService = scope.ServiceProvider.GetRequiredService<ITradeOrderService>();
-                    var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
                     var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
@@ -162,7 +160,10 @@ namespace Waffler.Service.Background
                                 await _tradeOrderService.AddTradeOrderAsync(tradeOrder);
                                 _logger.LogInformation($"- Trade order {tradeOrder} added");
 
-                                _fetchTimer.Change(RequestPeriod, RequestPeriod);
+                                if (_fetchTimer != null)
+                                {
+                                    _fetchTimer.Change(RequestPeriod, RequestPeriod);
+                                }
                             }
                             
                             _logger.LogInformation($"- Data save successfull");

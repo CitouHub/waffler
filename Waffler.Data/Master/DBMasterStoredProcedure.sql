@@ -47,46 +47,6 @@ BEGIN
 END
 GO
 
-IF OBJECTPROPERTY(object_id('dbo.sp_getTradeOrders'), N'IsProcedure') = 1 DROP PROCEDURE [dbo].[sp_getTradeOrders]
-GO
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE PROCEDURE [dbo].[sp_getTradeOrders]
--- =====================================================================
--- Author:			Rikard Gustafsson
--- Create date:		2021-10-27
--- Description:		
--- =====================================================================
-	@FromPeriodDateTime DATETIME2(0),
-	@ToPeriodDateTime DATETIME2(0)
-AS
-BEGIN
-	SET NOCOUNT ON
-
-	SELECT 
-		TradeOrder.Id AS Id,
-		ISNULL(TradeRule.Id, 0) AS TradeRuleId,
-		ISNULL(TradeRule.Name, 'Manual') AS TradeRuleName,
-		TradeAction.Id AS TradeActionId,
-		TradeAction.Name AS TradeActionName,
-		TradeOrderStatus.Id AS TradeOrderStatusId,
-		TradeOrderStatus.Name AS TradeOrderStatusName,
-		TradeOrder.OrderId AS OrderId,
-		TradeOrder.OrderDateTime AS OrderDateTime,
-		TradeOrder.Price AS Price,
-		TradeOrder.Amount AS Amount,
-		TradeOrder.FilledAmount AS FilledAmount
-	FROM TradeOrder
-		LEFT JOIN TradeRule ON TradeOrder.TradeRuleId = TradeRule.Id
-		INNER JOIN TradeAction ON TradeOrder.TradeActionId = TradeAction.Id
-		INNER JOIN TradeOrderStatus ON TradeOrder.TradeOrderStatusId = TradeOrderStatus.Id
-	WHERE TradeOrder.OrderDateTime >= @FromPeriodDateTime
-		AND TradeOrder.OrderDateTime <= @ToPeriodDateTime
-END
-GO
-
 IF OBJECTPROPERTY(object_id('dbo.sp_getTradeRuleBuyStatistics'), N'IsProcedure') = 1 DROP PROCEDURE [dbo].[sp_getTradeRuleBuyStatistics]
 GO
 SET ANSI_NULLS ON

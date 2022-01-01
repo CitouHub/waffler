@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Reflection;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -12,7 +11,6 @@ using AutoMapper;
 using Waffler.Domain;
 using Waffler.Data;
 using Waffler.Common;
-using Waffler.Common.Util;
 using Waffler.Data.Extensions;
 
 namespace Waffler.Service
@@ -31,14 +29,12 @@ namespace Waffler.Service
         private readonly ILogger<CandleStickService> _logger;
         private readonly WafflerDbContext _context;
         private readonly IMapper _mapper;
-        private readonly Cache _cache;
 
-        public CandleStickService(ILogger<CandleStickService> logger, WafflerDbContext context, IMapper mapper, Cache cache)
+        public CandleStickService(ILogger<CandleStickService> logger, WafflerDbContext context, IMapper mapper)
         {
             _logger = logger;
             _context = context;
             _mapper = mapper;
-            _cache = cache;
             _logger.LogDebug("CandleStickService instantiated");
         }
 

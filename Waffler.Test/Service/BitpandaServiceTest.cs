@@ -1,23 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Newtonsoft.Json;
-using NSubstitute;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-
 using System.Threading.Tasks;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using NSubstitute;
+using Xunit;
+
 using Waffler.Common;
-using Waffler.Data;
 using Waffler.Domain.Bitpanda.Private.Balance;
 using Waffler.Service;
 using Waffler.Test.Helper;
 using Waffler.Test.Mock;
-using Xunit;
 
 #pragma warning disable IDE0017 // Simplify object initialization
 namespace Waffler.Test.Service
@@ -177,7 +175,7 @@ namespace Waffler.Test.Service
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
             _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
 
             //Act
             var result = await _bitpandaService.PlaceOrderAsync(tradeRule, 10, 10);
@@ -206,7 +204,7 @@ namespace Waffler.Test.Service
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
             _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
 
             //Act
             var result = await _bitpandaService.PlaceOrderAsync(tradeRule, 10, 10);
@@ -236,7 +234,7 @@ namespace Waffler.Test.Service
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
             _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeActionId = tradeActionId;
 
             //Act
@@ -268,7 +266,7 @@ namespace Waffler.Test.Service
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
             _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeActionId = tradeActionId;
 
             //Act
@@ -304,7 +302,7 @@ namespace Waffler.Test.Service
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
             _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeActionId = tradeActionId;
 
             //Act
@@ -339,7 +337,7 @@ namespace Waffler.Test.Service
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
             _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeActionId = tradeActionId;
 
             //Act
@@ -377,7 +375,7 @@ namespace Waffler.Test.Service
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
             _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeActionId = tradeActionId;
 
             //Act
@@ -486,7 +484,7 @@ namespace Waffler.Test.Service
         public async Task GetOrderAsync_NoProfile()
         {
             //Setup
-            var order = BitpandaHelper.GetOrder();
+            var order = BitpandaHelper.GetOrderHistoryEntity();
             var httpMessageHandler = new MockHttpMessageHandler(JsonConvert.SerializeObject(order), HttpStatusCode.OK);
             var httpClient = new HttpClient(httpMessageHandler);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
@@ -505,7 +503,7 @@ namespace Waffler.Test.Service
         public async Task GetOrderAsync_NoApiKey()
         {
             //Setup
-            var order = BitpandaHelper.GetOrder();
+            var order = BitpandaHelper.GetOrderHistoryEntity();
             var httpMessageHandler = new MockHttpMessageHandler(JsonConvert.SerializeObject(order), HttpStatusCode.OK);
             var httpClient = new HttpClient(httpMessageHandler);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
@@ -528,7 +526,7 @@ namespace Waffler.Test.Service
         public async Task GetOrderAsync_BadRequest()
         {
             //Setup
-            var order = BitpandaHelper.GetOrder();
+            var order = BitpandaHelper.GetOrderHistoryEntity();
             var httpMessageHandler = new MockHttpMessageHandler(JsonConvert.SerializeObject(order), HttpStatusCode.BadRequest);
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
@@ -551,7 +549,7 @@ namespace Waffler.Test.Service
         public async Task GetOrderAsync_OK()
         {
             //Setup
-            var order = BitpandaHelper.GetOrder();
+            var order = BitpandaHelper.GetOrderHistoryEntity();
             var httpMessageHandler = new MockHttpMessageHandler(JsonConvert.SerializeObject(order), HttpStatusCode.OK);
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);

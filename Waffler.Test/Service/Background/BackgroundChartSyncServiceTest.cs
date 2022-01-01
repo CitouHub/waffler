@@ -97,7 +97,7 @@ namespace Waffler.Test.Service.Background
             //Setup
             var profile = ProfileHelper.GetProfile();
             _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.PeriodDateTime = DateTime.UtcNow.AddDays(-10);
             _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(candleStick);
 
@@ -112,6 +112,36 @@ namespace Waffler.Test.Service.Background
                 Arg.Is<DateTime>(_ => _.Date == candleStick.PeriodDateTime.Date),
                 Arg.Is<DateTime>(_ => _ > candleStick.PeriodDateTime));
             _ = _candleStickService.DidNotReceive().AddCandleSticksAsync(Arg.Any<List<CandleStickDTO>>());
+        }
+
+        //[Fact]
+        //This case should be tested but is difficult as the internal loop never stopps
+        internal async Task FetchCandleStickDataAsync_BitpandaCandleStickData()
+        {
+            //Setup
+            var nbrOfCandleSticks = 10;
+            var profile = ProfileHelper.GetProfile();
+            _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
+            candleStick.PeriodDateTime = DateTime.UtcNow.AddDays(-10);
+            _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(candleStick);
+                _bitpandaService.GetCandleSticksAsync(
+                Arg.Is(Bitpanda.InstrumentCode.BTC_EUR), Arg.Is(Bitpanda.Period.MINUTES), 1,
+                Arg.Is<DateTime>(_ => _.Date == candleStick.PeriodDateTime.Date),
+                Arg.Is<DateTime>(_ => _ > candleStick.PeriodDateTime))
+                .Returns(BitpandaHelper.GetCandleSticks(nbrOfCandleSticks));
+
+            //Act
+            await _backgroundChartSyncService.FetchCandleStickDataAsync(new CancellationToken());
+
+            //Asert
+            _ = _profileService.Received().GetProfileAsync();
+            _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Any<DateTime>());
+            _ = _bitpandaService.Received().GetCandleSticksAsync(
+                Arg.Is(Bitpanda.InstrumentCode.BTC_EUR), Arg.Is(Bitpanda.Period.MINUTES), 1,
+                Arg.Is<DateTime>(_ => _.Date == candleStick.PeriodDateTime.Date),
+                Arg.Is<DateTime>(_ => _ > candleStick.PeriodDateTime));
+            _ = _candleStickService.Received().AddCandleSticksAsync(Arg.Is<List<CandleStickDTO>>(_ => _.Count == nbrOfCandleSticks));
         }
     }
 }

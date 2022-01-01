@@ -7,7 +7,7 @@ namespace Waffler.Test.Helper
 {
     public static class TradeRuleHelper
     {
-        public static TradeRuleDTO GetTradeRule()
+        public static TradeRuleDTO GetTradeRuleDTO()
         {
             return new TradeRuleDTO()
             {

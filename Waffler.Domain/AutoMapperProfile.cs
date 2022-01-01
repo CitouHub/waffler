@@ -30,6 +30,10 @@ namespace Waffler.Domain
                 .ForMember(dest => dest.ToTradeRuleConditionPeriodDirection, opt => opt.Ignore());
 
             CreateMap<TradeOrder, TradeOrderDTO>()
+                .ForMember(dest => dest.TradeActionName, opt => opt.MapFrom(src => src.TradeAction != null ? src.TradeAction.Name : null))
+                .ForMember(dest => dest.TradeOrderStatusName, opt => opt.MapFrom(src => src.TradeOrderStatus != null ? src.TradeOrderStatus.Name : null))
+                .ForMember(dest => dest.TradeRuleId, opt => opt.MapFrom(src => src.TradeRule != null ? src.TradeRuleId : 0))
+                .ForMember(dest => dest.TradeRuleName, opt => opt.MapFrom(src => src.TradeRule != null ? src.TradeRule.Name : "Manual"))
                 .ReverseMap()
                 .ForMember(dest => dest.TradeAction, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeOrderStatus, opt => opt.Ignore())
@@ -60,7 +64,6 @@ namespace Waffler.Domain
             CreateMap<TradeType, CommonAttributeDTO>();
 
             CreateMap<sp_getCandleSticks_Result, CandleStickDTO>();
-            CreateMap<sp_getTradeOrders_Result, TradeOrderDTO>();
             CreateMap<sp_getTradeRuleBuyStatistics_Result, TradeRuleBuyStatisticsDTO>();
         }
 

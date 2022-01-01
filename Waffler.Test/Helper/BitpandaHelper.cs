@@ -28,7 +28,7 @@ namespace Waffler.Test.Helper
             };
         }
 
-        public static List<CandleStickDTO> GetCandleSticks(short candleSticks)
+        public static List<CandleStickDTO> GetCandleSticks(int candleSticks)
         {
             return Enumerable.Repeat(new CandleStickDTO()
             {
@@ -75,36 +75,41 @@ namespace Waffler.Test.Helper
             };
         }
 
-        public static OrderHistoryDTO GetOrders(short orders)
+        public static OrderHistoryDTO GetOrders(int orders)
         {
             return new OrderHistoryDTO()
             {
-                Order_history = Enumerable.Repeat(GetOrder(), orders).ToList()
+                Order_history = Enumerable.Repeat(GetOrderHistoryEntity(), orders).ToList()
             };
         }
 
-        public static OrderHistoryEntityDTO GetOrder()
+        public static OrderHistoryEntityDTO GetOrderHistoryEntity()
         {
             return new OrderHistoryEntityDTO()
             {
-                Order = new OrderDTO()
-                {
-                    Account_id = Guid.NewGuid().ToString(),
-                    Amount = 0,
-                    Average_price = 0,
-                    Client_id = Guid.NewGuid().ToString(),
-                    Filled_amount = 0,
-                    Instrument_code = Bitpanda.InstrumentCode.BTC_EUR,
-                    Order_book_sequence = 0,
-                    Order_id = Guid.NewGuid().ToString(),
-                    Price = 0,
-                    Sequence = 0,
-                    Side = Bitpanda.Side.BUY,
-                    Status = Bitpanda.Status.FILLED,
-                    Time = DateTime.UtcNow,
-                    Time_last_updated = DateTime.UtcNow,
-                    Type = Bitpanda.OrderType.LIMIT
-                }
+                Order = GetOrder()
+            };
+        }
+
+        public static OrderDTO GetOrder()
+        {
+            return new OrderDTO()
+            {
+                Account_id = Guid.NewGuid().ToString(),
+                Amount = 0,
+                Average_price = 0,
+                Client_id = Guid.NewGuid().ToString(),
+                Filled_amount = 0,
+                Instrument_code = Bitpanda.InstrumentCode.BTC_EUR,
+                Order_book_sequence = 0,
+                Order_id = Guid.NewGuid().ToString(),
+                Price = 0,
+                Sequence = 0,
+                Side = Bitpanda.Side.BUY,
+                Status = Bitpanda.Status.FILLED,
+                Time = DateTime.UtcNow,
+                Time_last_updated = DateTime.UtcNow,
+                Type = Bitpanda.OrderType.LIMIT
             };
         }
     }

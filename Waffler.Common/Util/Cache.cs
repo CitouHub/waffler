@@ -4,7 +4,16 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Waffler.Common.Util
 {
-    public class Cache
+    public interface ICache
+    {
+        void Clear();
+        T Get<T>(string key);
+        T Get<T, U>(string key, out U metaData);
+        void Set(string key, object value, object cacheMetadata = null);
+        int GetEntriesCount();
+    }
+
+    public class Cache : ICache
     {
         private const int ExpirationTime = 60 * 10;
         private MemoryCache MemoryCache { get; set; }

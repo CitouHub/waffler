@@ -8,7 +8,19 @@ using Waffler.Domain.Message;
 
 namespace Waffler.Service.Infrastructure
 {
-    public class TradeRuleTestQueue
+    public interface ITradeRuleTestQueue
+    {
+        void QueueTest(TradeRuleTestRequestDTO tradeRuleTestRequest);
+        Task<TradeRuleTestRequestDTO> DequeueTestAsync(CancellationToken cancellationToken);
+        void AbortTest(int tradeRuleId);
+        bool IsTestAborted(int tradeRuleId);
+        Task AwaitClose(CancellationToken cancellationToken, int tradeRuleId);
+        TradeRuleTestStatusDTO InitTradeRuleTestRun(TradeRuleTestRequestDTO tradeRuleTestRequest);
+        TradeRuleTestStatusDTO GetTradeRuleTestStatus(int tradeRuleId);
+        void CloseTest(int tradeRuleId);
+    }
+
+    public class TradeRuleTestQueue : ITradeRuleTestQueue
     {
         private readonly ConcurrentQueue<TradeRuleTestRequestDTO> _tradeRuleTestRequests;
         private readonly SemaphoreSlim _queueSignal;

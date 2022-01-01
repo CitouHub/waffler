@@ -10,7 +10,6 @@ using AutoMapper;
 
 using Waffler.Data;
 using Waffler.Domain;
-using Waffler.Data.Extensions;
 using Waffler.Common;
 
 namespace Waffler.Service
@@ -20,7 +19,7 @@ namespace Waffler.Service
         Task AddTradeOrderAsync(TradeOrderDTO tradeOrderDto);
         Task<List<TradeOrderDTO>> GetTradeOrdersAsync(DateTime from, DateTime to);
         Task<List<TradeOrderDTO>> GetActiveTradeOrdersAsync();
-        Task RemoveTestTradeOrdersAsync(int tradeRuleId);
+        Task<int> RemoveTestTradeOrdersAsync(int tradeRuleId);
         Task<TradeOrderDTO> GetLastTradeOrderAsync(DateTime toPeriodDateTime);
         Task<bool> UpdateTradeOrderAsync(TradeOrderDTO tradeOrdersDTO);
         Task<IEnumerable<CommonAttributeDTO>> GetTradeOrderStatusesAsync();
@@ -42,7 +41,11 @@ namespace Waffler.Service
 
         public async Task<List<TradeOrderDTO>> GetTradeOrdersAsync(DateTime from, DateTime to)
         {
-            var tradeOrders = await _context.sp_getTradeOrders(from, to);
+            var tradeOrders = await _context.TradeOrders
+                .Include(_ => _.TradeRule)
+                .Include(_ => _.TradeAction)
+                .Include(_ => _.TradeOrderStatus)
+                .Where(_ => _.OrderDateTime >= from && _.OrderDateTime <= to).ToArrayAsync();
             return _mapper.Map<List<TradeOrderDTO>>(tradeOrders);
         }
 
@@ -64,13 +67,15 @@ namespace Waffler.Service
             await _context.SaveChangesAsync();
         }
 
-        public async Task RemoveTestTradeOrdersAsync(int tradeRuleId)
+        public async Task<int> RemoveTestTradeOrdersAsync(int tradeRuleId)
         {
             var tradeOrders = await _context.TradeOrders.Where(_ => 
                 _.TradeRuleId == tradeRuleId &&
                 _.TradeOrderStatusId == (short)Variable.TradeOrderStatus.Test).ToArrayAsync();
             _context.TradeOrders.RemoveRange(tradeOrders);
             await _context.SaveChangesAsync();
+
+            return tradeOrders.Count();
         }
 
         public async Task<TradeOrderDTO> GetLastTradeOrderAsync(DateTime toOrderDateTime)

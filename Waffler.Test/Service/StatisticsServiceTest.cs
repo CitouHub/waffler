@@ -5,24 +5,20 @@ using System.Threading.Tasks;
 
 using AutoMapper;
 using Microsoft.Extensions.Logging;
-using Moq;
 using NSubstitute;
 using Xunit;
 
 using Waffler.Common;
-using Waffler.Data;
 using Waffler.Domain;
 using Waffler.Service;
 using Waffler.Test.Helper;
 
-#pragma warning disable IDE0017 // Simplify object initialization
 namespace Waffler.Test.Service
 {
     public class StatisticsServiceTest
     {
         private readonly ILogger<StatisticsService> _logger = Substitute.For<ILogger<StatisticsService>>();
         private readonly ICandleStickService _candleStickService = Substitute.For<ICandleStickService>();
-        private readonly Mock<WafflerDbContext> _context = new Mock<WafflerDbContext>();
         private readonly StatisticsService _statisticsService;
 
         public StatisticsServiceTest()
@@ -33,7 +29,7 @@ namespace Waffler.Test.Service
             });
             var _mapper = mapperConfig.CreateMapper();
 
-            _statisticsService = new StatisticsService(_logger, _context.Object, _mapper, _candleStickService);
+            _statisticsService = new StatisticsService(_logger, DatabaseHelper.GetContext(), _mapper, _candleStickService);
         }
 
         [Theory]
@@ -64,7 +60,7 @@ namespace Waffler.Test.Service
         public void GetPrice(Variable.CandleStickValueType candleStickValueType, int expectedPrice)
         {
             //Setup
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.HighPrice = candleStickValueType == Variable.CandleStickValueType.HighPrice ? expectedPrice : 0;
             candleStick.OpenPrice = candleStickValueType == Variable.CandleStickValueType.OpenPrice ? expectedPrice : 0;
             candleStick.ClosePrice = candleStickValueType == Variable.CandleStickValueType.ClosePrice ? expectedPrice : 0;
@@ -129,9 +125,9 @@ namespace Waffler.Test.Service
             Assert.Equal(expetedTrend, trend.Change);
         }
 
-        private List<CandleStickDTO> GetCandleSticks(Variable.CandleStickValueType candleStickValueType, int avgPrice, PeriodDTO period)
+        private static List<CandleStickDTO> GetCandleSticks(Variable.CandleStickValueType candleStickValueType, int avgPrice, PeriodDTO period)
         {
-            var candleSticks = Enumerable.Repeat(CandleStickHelper.GetCandleStick(), 5).ToList();
+            var candleSticks = Enumerable.Repeat(CandleStickHelper.GetCandleStickDTO(), 5).ToList();
             var periodMinutes = (period.From - period.To).TotalMinutes / candleSticks.Count;
             for(int i = 0; i<candleSticks.Count; i++)
             {

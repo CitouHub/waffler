@@ -18,8 +18,6 @@ namespace Waffler.Data
 
         public virtual DbSet<sp_getCandleSticks_Result> sp_getCandleSticks_Result { get; set; }
 
-        public virtual DbSet<sp_getTradeOrders_Result> sp_getTradeOrders_Result { get; set; }
-
         public virtual DbSet<sp_getTradeRuleBuyStatistics_Result> sp_getTradeRuleBuyStatistics_Result { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -40,15 +38,6 @@ namespace Waffler.Data
                 entity.Property(e => e.OpenPrice).HasColumnType("decimal(10, 2)");
                 entity.Property(e => e.ClosePrice).HasColumnType("decimal(10, 2)");
                 entity.Property(e => e.Volume).HasColumnType("decimal(10, 2)");
-            });
-
-            modelBuilder.Entity<sp_getTradeOrders_Result>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
-                entity.Property(e => e.Amount).HasColumnType("decimal(10, 8)");
-                entity.Property(e => e.FilledAmount).HasColumnType("decimal(10, 8)");
             });
 
             modelBuilder.Entity<sp_getTradeRuleBuyStatistics_Result>(entity =>

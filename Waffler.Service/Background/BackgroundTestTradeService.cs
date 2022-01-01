@@ -8,8 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using AutoMapper;
-
 using Waffler.Domain;
 using Waffler.Domain.Message;
 using Waffler.Service.Infrastructure;
@@ -20,18 +18,18 @@ namespace Waffler.Service.Background
     {
         private readonly ILogger<BackgroundTestTradeService> _logger;
         private readonly IServiceProvider _serviceProvider;
-        private readonly TradeRuleTestQueue _testTradeRuleQueue;
-        private readonly DatabaseSetupSignal _databaseSetupSignal;
+        private readonly ITradeRuleTestQueue _tradeRuleTestQueue;
+        private readonly IDatabaseSetupSignal _databaseSetupSignal;
 
         public BackgroundTestTradeService(
             ILogger<BackgroundTestTradeService> logger,
             IServiceProvider serviceProvider,
-            TradeRuleTestQueue testTradeRuleQueue,
-            DatabaseSetupSignal databaseSetupSignal)
+            ITradeRuleTestQueue tradeRuleTestQueue,
+            IDatabaseSetupSignal databaseSetupSignal)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
-            _testTradeRuleQueue = testTradeRuleQueue;
+            _tradeRuleTestQueue = tradeRuleTestQueue;
             _databaseSetupSignal = databaseSetupSignal;
             _logger.LogDebug("BackgroundTestTradeService instantiated");
         }
@@ -43,13 +41,8 @@ namespace Waffler.Service.Background
             while (!cancellationToken.IsCancellationRequested)
             {
                 _logger.LogInformation($"Waiting for trade rule test request...");
-                var tradeRuleTestRequest = await _testTradeRuleQueue.DequeueTestAsync(cancellationToken);
-                var currentStatus = _testTradeRuleQueue.GetTradeRuleTestStatus(tradeRuleTestRequest.TradeRuleId);
-                if (currentStatus != null && currentStatus.Progress < 100)
-                {
-                    _testTradeRuleQueue.AbortTest(tradeRuleTestRequest.TradeRuleId);
-                    await _testTradeRuleQueue.AwaitClose(cancellationToken, tradeRuleTestRequest.TradeRuleId);
-                }
+                var tradeRuleTestRequest = await _tradeRuleTestQueue.DequeueTestAsync(cancellationToken);
+                await AbortOngoingTest(cancellationToken, tradeRuleTestRequest.TradeRuleId);
 
                 if (cancellationToken.IsCancellationRequested == false)
                 {
@@ -58,10 +51,20 @@ namespace Waffler.Service.Background
             }
         }
 
+        public async Task AbortOngoingTest(CancellationToken cancellationToken, int tradeRuleId)
+        {
+            var currentStatus = _tradeRuleTestQueue.GetTradeRuleTestStatus(tradeRuleId);
+            if (currentStatus != null && currentStatus.Progress < 100)
+            {
+                _tradeRuleTestQueue.AbortTest(tradeRuleId);
+                await _tradeRuleTestQueue.AwaitClose(cancellationToken, tradeRuleId);
+            }
+        }
+
         public async Task RunTradeTest(CancellationToken cancellationToken, TradeRuleTestRequestDTO tradeRuleTestRequest)
         {
             _logger.LogInformation($"New trade rule test request found {tradeRuleTestRequest}");
-            var currentStatus = _testTradeRuleQueue.InitTradeRuleTestRun(tradeRuleTestRequest);
+            var currentStatus = _tradeRuleTestQueue.InitTradeRuleTestRun(tradeRuleTestRequest);
 
             try
             {
@@ -69,7 +72,6 @@ namespace Waffler.Service.Background
                 {
                     var _tradeRuleService = scope.ServiceProvider.GetRequiredService<ITradeRuleService>();
                     var _tradeService = scope.ServiceProvider.GetRequiredService<ITradeService>();
-                    var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
                     var testReady = await _tradeService.SetupTestTradeAsync(tradeRuleTestRequest.TradeRuleId);
                     if (testReady)
@@ -80,7 +82,7 @@ namespace Waffler.Service.Background
 
                         currentStatus.CurrentPositionDate = tradeRuleTestRequest.FromDate;
                         while (!cancellationToken.IsCancellationRequested &&
-                            !_testTradeRuleQueue.IsTestAborted(tradeRule.Id) &&
+                            !_tradeRuleTestQueue.IsTestAborted(tradeRule.Id) &&
                             currentStatus.CurrentPositionDate < tradeRuleTestRequest.ToDate.AddMinutes(tradeRuleTestRequest.MinuteStep))
                         {
                             var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentStatus.CurrentPositionDate);
@@ -121,9 +123,9 @@ namespace Waffler.Service.Background
                     }
                 }
 
-                var testStatus = _testTradeRuleQueue.GetTradeRuleTestStatus(tradeRuleTestRequest.TradeRuleId);
+                var testStatus = _tradeRuleTestQueue.GetTradeRuleTestStatus(tradeRuleTestRequest.TradeRuleId);
 
-                if (cancellationToken.IsCancellationRequested || testStatus.Aborted)
+                if (cancellationToken.IsCancellationRequested || (testStatus?.Aborted ?? false))
                 {
                     _logger.LogInformation($"Trade rule test ended prematurely");
                 }
@@ -133,7 +135,7 @@ namespace Waffler.Service.Background
                 _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
             }
 
-            _testTradeRuleQueue.CloseTest(tradeRuleTestRequest.TradeRuleId);
+            _tradeRuleTestQueue.CloseTest(tradeRuleTestRequest.TradeRuleId);
         }
     }
 }

@@ -38,7 +38,7 @@ namespace Waffler.Test
         public async Task HandleTradeRule_NoTrade_TradeRuleStatusInactive()
         {
             //Setup
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeRuleStatusId = (short)Variable.TradeRuleStatus.Inactive;
             tradeRule.LastTrigger = DateTime.UtcNow.AddDays(-1).AddMinutes(-1);
             tradeRule.TradeMinIntervalMinutes = 24 * 60;
@@ -56,7 +56,7 @@ namespace Waffler.Test
         public async Task HandleTradeRule_NoTrade_TriggerInterval()
         {
             //Setup
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeRuleStatusId = (short)Variable.TradeRuleStatus.Active;
             tradeRule.LastTrigger = DateTime.UtcNow.AddDays(-1).AddMinutes(1);
             tradeRule.TradeMinIntervalMinutes = 24 * 60;
@@ -75,8 +75,8 @@ namespace Waffler.Test
         {
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
-            var tradeRule = TradeRuleHelper.GetTradeRule();
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.PeriodDateTime = currentPeriodDateTime;
             _tradeRuleService.GetTradeRuleAsync(Arg.Is(TestTradeRuleId)).Returns(tradeRule);
             _candleStickService.GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime)).Returns(candleStick);
@@ -96,10 +96,10 @@ namespace Waffler.Test
             var currentPeriodDateTime = DateTime.UtcNow;
             var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
             tradeRuleCondition.IsOn = false;
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.PeriodDateTime = currentPeriodDateTime;
             _tradeRuleService.GetTradeRuleAsync(Arg.Is(TestTradeRuleId)).Returns(tradeRule);
             _candleStickService.GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime)).Returns(candleStick);
@@ -122,10 +122,10 @@ namespace Waffler.Test
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
             var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.PeriodDateTime = currentPeriodDateTime;
             _tradeRuleService.GetTradeRuleAsync(Arg.Is(TestTradeRuleId)).Returns(tradeRule);
             _candleStickService.GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime)).Returns(candleStick);
@@ -157,11 +157,11 @@ namespace Waffler.Test
             var currentPeriodDateTime = DateTime.UtcNow;
             var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
             tradeRuleCondition.TradeRuleConditionComparatorId = tradeRuleConditionComparatorId;
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
             tradeRuleCondition.DeltaPercent = deltaPercent;
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.PeriodDateTime = currentPeriodDateTime;
             _tradeRuleService.GetTradeRuleAsync(Arg.Is(TestTradeRuleId)).Returns(tradeRule);
             _candleStickService.GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime)).Returns(candleStick);
@@ -202,13 +202,13 @@ namespace Waffler.Test
             var currentPeriodDateTime = DateTime.UtcNow;
             var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
             tradeRuleCondition.TradeRuleConditionComparatorId = tradeRuleConditionComparatorId;
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.Amount = (decimal)0.01;
             tradeRule.TradeRuleStatusId = tradeRuleStatusId;
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
             tradeRuleCondition.DeltaPercent = deltaPercent;
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.PeriodDateTime = currentPeriodDateTime;
             var orderSubmitted = BitpandaHelper.GetOrderSubmitted();
 
@@ -247,13 +247,13 @@ namespace Waffler.Test
             var currentPeriodDateTime = DateTime.UtcNow;
             var tradeRuleCondition1 = TradeRuleConditionHelper.GetTradeRuleCondition();
             var tradeRuleCondition2 = TradeRuleConditionHelper.GetTradeRuleCondition();
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeRuleStatusId = tradeRuleStatusId;
             tradeRule.TradeConditionOperatorId = tradeConditionOperatorId;
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition1);
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition2);
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.PeriodDateTime = currentPeriodDateTime;
             var orderSubmitted = BitpandaHelper.GetOrderSubmitted();
 
@@ -302,13 +302,13 @@ namespace Waffler.Test
             var currentPeriodDateTime = DateTime.UtcNow;
             var tradeRuleCondition1 = TradeRuleConditionHelper.GetTradeRuleCondition();
             var tradeRuleCondition2 = TradeRuleConditionHelper.GetTradeRuleCondition();
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeRuleStatusId = tradeRuleStatusId;
             tradeRule.TradeConditionOperatorId = tradeConditionOperatorId;
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition1);
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition2);
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.PeriodDateTime = currentPeriodDateTime;
             var orderSubmitted = BitpandaHelper.GetOrderSubmitted();
 
@@ -349,14 +349,14 @@ namespace Waffler.Test
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
             var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.Amount = 100;
             tradeRule.PriceDeltaPercent = deltaPricePercent;
             tradeRule.TradeRuleStatusId = tradeRuleStatusId;
             tradeRule.CandleStickValueTypeId = (short)Variable.CandleStickValueType.HighPrice;
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.HighPrice = 1500;
             candleStick.LowPrice = 500;
             candleStick.OpenPrice = 1200;
@@ -404,14 +404,14 @@ namespace Waffler.Test
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
             var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.Amount = 100;
             tradeRule.PriceDeltaPercent = deltaPricePercent;
             tradeRule.TradeRuleStatusId = tradeRuleStatusId;
             tradeRule.CandleStickValueTypeId = (short)Variable.CandleStickValueType.LowPrice;
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.HighPrice = 1500;
             candleStick.LowPrice = 500;
             candleStick.OpenPrice = 1200;
@@ -459,14 +459,14 @@ namespace Waffler.Test
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
             var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.Amount = 100;
             tradeRule.PriceDeltaPercent = deltaPricePercent;
             tradeRule.TradeRuleStatusId = tradeRuleStatusId;
             tradeRule.CandleStickValueTypeId = (short)Variable.CandleStickValueType.OpenPrice;
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.HighPrice = 1500;
             candleStick.LowPrice = 500;
             candleStick.OpenPrice = 1200;
@@ -514,14 +514,14 @@ namespace Waffler.Test
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
             var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.Amount = 100;
             tradeRule.PriceDeltaPercent = deltaPricePercent;
             tradeRule.TradeRuleStatusId = tradeRuleStatusId;
             tradeRule.CandleStickValueTypeId = (short)Variable.CandleStickValueType.ClosePrice;
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.HighPrice = 1500;
             candleStick.LowPrice = 500;
             candleStick.OpenPrice = 1200;
@@ -573,20 +573,20 @@ namespace Waffler.Test
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
             var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
-            var tradeRule = TradeRuleHelper.GetTradeRule();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.Amount = 100;
             tradeRule.TradeRuleStatusId = (short)Variable.TradeRuleStatus.Test;
             tradeRule.PriceDeltaPercent = deltaPricePercent;
             tradeRule.CandleStickValueTypeId = candleStickValueTypeId;
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
-            var candleStick = CandleStickHelper.GetCandleStick();
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.HighPrice = candleStickValueTypeId == (short)Variable.CandleStickValueType.HighPrice ? orderPrice : 0;
             candleStick.LowPrice = candleStickValueTypeId == (short)Variable.CandleStickValueType.LowPrice ? orderPrice : 0;
             candleStick.OpenPrice = candleStickValueTypeId == (short)Variable.CandleStickValueType.OpenPrice ? orderPrice : 0;
             candleStick.ClosePrice = candleStickValueTypeId == (short)Variable.CandleStickValueType.ClosePrice ? orderPrice : 0;
             candleStick.PeriodDateTime = currentPeriodDateTime;
-            var futureCandleStick = CandleStickHelper.GetCandleStick();
+            var futureCandleStick = CandleStickHelper.GetCandleStickDTO();
             futureCandleStick.LowPrice = futurePrice;
             var orderSubmitted = BitpandaHelper.GetOrderSubmitted();
 
