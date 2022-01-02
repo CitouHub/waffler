@@ -16,7 +16,8 @@ namespace Waffler.Domain
                     return false;
                 }
 
-                return LastPeriodDateTime.Value >= DateTime.UtcNow.AddHours(-1);
+                var limit = DateTime.UtcNow.AddMinutes(-60);
+                return LastPeriodDateTime.Value >= limit;
             }
         }
 

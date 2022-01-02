@@ -57,17 +57,10 @@ namespace Waffler.Service
 
             if (fromPrice != null && toPrice != null)
             {
-                var change = (decimal)0.0;
-                if (fromPrice.Value != 0)
-                {
-                    change = Math.Round((toPrice.Value / fromPrice.Value - 1) * 100, 2);
-                }
-
                 return new TrendDTO
                 {
                     FromPrice = fromPrice.Value,
-                    ToPrice = toPrice.Value,
-                    Change = change
+                    ToPrice = toPrice.Value
                 };
             }
 
