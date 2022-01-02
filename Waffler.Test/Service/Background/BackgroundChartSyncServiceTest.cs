@@ -60,7 +60,7 @@ namespace Waffler.Test.Service.Background
         }
 
         [Fact]
-        public async Task FetchCandleStickDataAsync_NoProfile()
+        public async Task FetchCandleStickData_NoProfile()
         {
             //Act
             await _backgroundChartSyncService.FetchCandleStickDataAsync(new CancellationToken());
@@ -71,7 +71,7 @@ namespace Waffler.Test.Service.Background
         }
 
         [Fact]
-        public async Task FetchCandleStickDataAsync_NoPreviousCandleStickData_NoBitpandaCandleStickData()
+        public async Task FetchCandleStickData_NoPreviousCandleStickData_NoBitpandaCandleStickData()
         {
             //Setup
             var profile = ProfileHelper.GetProfile();
@@ -91,7 +91,7 @@ namespace Waffler.Test.Service.Background
         }
 
         [Fact]
-        public async Task FetchCandleStickDataAsync_PreviousCandleStickData_NoBitpandaCandleStickData()
+        public async Task FetchCandleStickData_PreviousCandleStickData_NoBitpandaCandleStickData()
         {
             //Setup
             var profile = ProfileHelper.GetProfile();
@@ -115,7 +115,7 @@ namespace Waffler.Test.Service.Background
 
         //[Fact]
         //This case should be tested but is difficult as the internal loop never stopps
-        internal async Task FetchCandleStickDataAsync_BitpandaCandleStickData()
+        internal async Task FetchCandleStickData_BitpandaCandleStickData()
         {
             //Setup
             var nbrOfCandleSticks = 10;

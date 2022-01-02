@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Web;
 
-using Waffler.Service.Converter;
-
 using Xunit;
+
+using Waffler.Domain.Converter;
 
 namespace Waffler.Test.Service.Converter
 {

@@ -1,5 +1,5 @@
 ﻿using Waffler.Common;
-using Waffler.Common.Util;
+using Waffler.Domain.Converter;
 
 namespace Waffler.Domain
 {
@@ -26,14 +26,14 @@ namespace Waffler.Domain
         public bool IsOn { get; set; }
 
         //Consolidation of span and sampling for ease of use
-        public Variable.TimeUnit FromTimeUnit { get { return TimeUnitManager.GetTimeUnit(FromMinutes); } }
-        public int FromTime { get { return -1 * TimeUnitManager.GetTimeValue(FromTimeUnit, FromMinutes); } }
-        public Variable.TimeUnit FromPeriodTimeUnit { get { return TimeUnitManager.GetTimeUnit(FromPeriodMinutes); } }
-        public int FromPeriod { get { return TimeUnitManager.GetTimeValue(FromPeriodTimeUnit, FromPeriodMinutes); } }
+        public Variable.TimeUnit FromTimeUnit { get { return TimeUnitFormatConverter.GetTimeUnit(FromMinutes); } }
+        public int FromTime { get { return -1 * TimeUnitFormatConverter.GetTimeValue(FromTimeUnit, FromMinutes); } }
+        public Variable.TimeUnit FromPeriodTimeUnit { get { return TimeUnitFormatConverter.GetTimeUnit(FromPeriodMinutes); } }
+        public int FromPeriod { get { return TimeUnitFormatConverter.GetTimeValue(FromPeriodTimeUnit, FromPeriodMinutes); } }
 
-        public Variable.TimeUnit ToTimeUnit { get { return TimeUnitManager.GetTimeUnit(ToMinutes); } }
-        public int ToTime { get { return -1 * TimeUnitManager.GetTimeValue(ToTimeUnit, ToMinutes); } }
-        public Variable.TimeUnit ToPeriodTimeUnit { get { return TimeUnitManager.GetTimeUnit(ToPeriodMinutes); } }
-        public int ToPeriod { get { return TimeUnitManager.GetTimeValue(ToPeriodTimeUnit, ToPeriodMinutes); } }
+        public Variable.TimeUnit ToTimeUnit { get { return TimeUnitFormatConverter.GetTimeUnit(ToMinutes); } }
+        public int ToTime { get { return -1 * TimeUnitFormatConverter.GetTimeValue(ToTimeUnit, ToMinutes); } }
+        public Variable.TimeUnit ToPeriodTimeUnit { get { return TimeUnitFormatConverter.GetTimeUnit(ToPeriodMinutes); } }
+        public int ToPeriod { get { return TimeUnitFormatConverter.GetTimeValue(ToPeriodTimeUnit, ToPeriodMinutes); } }
     }
 }

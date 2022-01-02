@@ -1,12 +1,12 @@
 ﻿using Newtonsoft.Json;
-using Waffler.Service.Converter;
+using Waffler.Domain.Converter;
 using Xunit;
 
 namespace Waffler.Test.Service.Converter
 {
     public class DecimalStringFormatConverterTest
     {
-        private readonly DecimalStringFormatConverter _converter = new DecimalStringFormatConverter();
+        private readonly DecimalStringFormatConverter _converter = new();
 
         [Theory]
         [InlineData(1.1, true)]

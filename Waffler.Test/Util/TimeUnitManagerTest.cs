@@ -1,7 +1,7 @@
 ﻿using Xunit;
 
 using Waffler.Common;
-using Waffler.Common.Util;
+using Waffler.Domain.Converter;
 
 namespace Waffler.Test.Util
 {
@@ -23,7 +23,7 @@ namespace Waffler.Test.Util
         public void TimeUnitManager_GetTimeUnit(int? minutes, Variable.TimeUnit expectedTimeUnit)
         {
             //Act
-            var timeUnit = TimeUnitManager.GetTimeUnit(minutes);
+            var timeUnit = TimeUnitFormatConverter.GetTimeUnit(minutes);
 
             //Assert
             Assert.Equal(expectedTimeUnit, timeUnit);
@@ -38,7 +38,7 @@ namespace Waffler.Test.Util
         public void TimeUnitManager_GetTimeValue(Variable.TimeUnit timeUnit, int? minuts, int expectedUnits)
         {
             //Act
-            var units = TimeUnitManager.GetTimeValue(timeUnit, minuts);
+            var units = TimeUnitFormatConverter.GetTimeValue(timeUnit, minuts);
 
             //Assert
             Assert.Equal(expectedUnits, units);

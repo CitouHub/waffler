@@ -17,7 +17,7 @@ using Waffler.Domain;
 using Waffler.Domain.Bitpanda.Private;
 using Waffler.Domain.Bitpanda.Private.Balance;
 using Waffler.Domain.Bitpanda.Private.Order;
-using Waffler.Service.Converter;
+using Waffler.Domain.Converter;
 
 namespace Waffler.Service
 {

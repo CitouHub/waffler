@@ -2,7 +2,7 @@
 using System.Globalization;
 using Newtonsoft.Json;
 
-namespace Waffler.Service.Converter
+namespace Waffler.Domain.Converter
 {
     public class DecimalStringFormatConverter : JsonConverter
     {

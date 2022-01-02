@@ -28,7 +28,7 @@ namespace Waffler.Test.Service
             _mapper = mapperConfig.CreateMapper();
         }
 
-        private TradeRule AddTradeRule(WafflerDbContext context)
+        private static TradeRule AddTradeRule(WafflerDbContext context)
         {
             var tradeRule = TradeRuleHelper.GetTradeRule();
             tradeRule.Id = context.TradeRules.Count() + 1;
@@ -94,7 +94,7 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task GetTradeRuleConditionAttributesAsync()
+        public async Task GetTradeRuleConditionAttributes()
         {
             //Setup
             var context = DatabaseHelper.GetContext();
@@ -149,7 +149,7 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task DeleteTradeRuleConditionAsync_TradeRuleConditionDoesNotExist()
+        public async Task DeleteTradeRuleCondition_TradeRuleConditionDoesNotExist()
         {
             //Setup
             var context = DatabaseHelper.GetContext();
@@ -163,7 +163,7 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task DeleteTradeRuleConditionAsync_TradeRuleConditionExists()
+        public async Task DeleteTradeRuleCondition_TradeRuleConditionExists()
         {
             //Setup
             var context = DatabaseHelper.GetContext();

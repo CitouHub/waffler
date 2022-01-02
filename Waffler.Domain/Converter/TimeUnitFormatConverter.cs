@@ -1,6 +1,8 @@
-﻿namespace Waffler.Common.Util
+﻿using Waffler.Common;
+
+namespace Waffler.Domain.Converter
 {
-    public static class TimeUnitManager
+    public static class TimeUnitFormatConverter
     {
         public static int GetTimeValue(Variable.TimeUnit timeUnit, int? minutes)
         {

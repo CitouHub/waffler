@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web;
 
-namespace Waffler.Service.Converter
+namespace Waffler.Domain.Converter
 {
     public static class DateTimeStringFormatConverter
     {

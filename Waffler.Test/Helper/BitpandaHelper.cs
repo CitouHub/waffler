@@ -11,6 +11,7 @@ namespace Waffler.Test.Helper
 {
     public static class BitpandaHelper
     {
+
         public static OrderSubmittedDTO GetOrderSubmitted()
         {
             return new OrderSubmittedDTO()

@@ -92,7 +92,7 @@ namespace Waffler.Test.Service
         [InlineData(Variable.TradeRuleConditionPeriodDirection.RightShift, 100, Variable.TradeRuleConditionPeriodDirection.LeftShift, 90, -10.0)]
         [InlineData(Variable.TradeRuleConditionPeriodDirection.RightShift, 100, Variable.TradeRuleConditionPeriodDirection.RightShift, 110, 10.0)]
         [InlineData(Variable.TradeRuleConditionPeriodDirection.RightShift, 100, Variable.TradeRuleConditionPeriodDirection.RightShift, 90, -10.0)]
-        public async Task GetPriceTrendAsync(Variable.TradeRuleConditionPeriodDirection fromTradeRuleConditionPeriodDirection, int fromPrice,
+        public async Task GetPriceTrend(Variable.TradeRuleConditionPeriodDirection fromTradeRuleConditionPeriodDirection, int fromPrice,
             Variable.TradeRuleConditionPeriodDirection toTradeRuleConditionPeriodDirection, int toPrice, decimal expetedTrend)
         {
             //Setup

@@ -240,7 +240,7 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task GetBitpandaApiKeyAsync_NoProfile()
+        public async Task GetBitpandaApiKey_NoProfile()
         {
             //Setup
             var context = DatabaseHelper.GetContext();

@@ -29,7 +29,7 @@ namespace Waffler.Test.Service
         private BitpandaService _bitpandaService;
 
         [Fact]
-        public async Task GetAccountAsync_NoProfile()
+        public async Task GetAccount_NoProfile()
         {
             //Setup
             var httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
@@ -47,7 +47,7 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task GetAccountAsync_NoApiKey()
+        public async Task GetAccount_NoApiKey()
         {
             //Setup
             var httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
@@ -69,7 +69,7 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task GetAccountAsync_BadRequest()
+        public async Task GetAccount_BadRequest()
         {
             //Setup
             var account = BitpandaHelper.GetAccount();
@@ -92,7 +92,7 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task GetAccountAsync_OK()
+        public async Task GetAccount_OK()
         {
             //Setup
             var account = BitpandaHelper.GetAccount();
@@ -116,7 +116,7 @@ namespace Waffler.Test.Service
 
         [Theory]
         [InlineData(0, Bitpanda.InstrumentCode.BTC_EUR, Bitpanda.Period.MINUTES, 15, "2020-01-01 12:00", "2020-01-01 18:00")]
-        public async Task GetCandleSticksAsync_BadRequest(short nbrCandleSticks, string instrumentCode, string unit, short period, DateTime from, DateTime to)
+        public async Task GetCandleSticks_BadRequest(short nbrCandleSticks, string instrumentCode, string unit, short period, DateTime from, DateTime to)
         {
             //Setup
             var candleSticks = BitpandaHelper.GetCandleSticks(nbrCandleSticks);
@@ -140,7 +140,7 @@ namespace Waffler.Test.Service
         [InlineData(0, Bitpanda.InstrumentCode.BTC_EUR, Bitpanda.Period.MINUTES, 15, "2020-01-01 12:00", "2020-01-01 18:00")]
         [InlineData(1, Bitpanda.InstrumentCode.BTC_EUR, Bitpanda.Period.MINUTES, 15, "2020-01-01 12:00", "2020-01-01 18:00")]
         [InlineData(50, Bitpanda.InstrumentCode.BTC_EUR, Bitpanda.Period.MINUTES, 15, "2020-01-01 12:00", "2020-01-01 18:00")]
-        public async Task GetCandleSticksAsync_OK(short nbrCandleSticks, string instrumentCode, string unit, short period, DateTime from, DateTime to)
+        public async Task GetCandleSticks_OK(short nbrCandleSticks, string instrumentCode, string unit, short period, DateTime from, DateTime to)
         {
             //Setup
             var candleSticks = BitpandaHelper.GetCandleSticks(nbrCandleSticks);
@@ -162,7 +162,7 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task PlaceOrderAsync_NoOrder_NoProfile()
+        public async Task PlaceOrder_NoOrder_NoProfile()
         {
             //Setup
             var  httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
@@ -186,7 +186,7 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task PlaceOrderAsync_NoOrder_NoApiKey()
+        public async Task PlaceOrder_NoOrder_NoApiKey()
         {
             //Setup
             var httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
@@ -219,7 +219,7 @@ namespace Waffler.Test.Service
         [InlineData((short)Variable.TradeAction.Buy, false, false)]
         [InlineData((short)Variable.TradeAction.Sell, true, false)]
         [InlineData((short)Variable.TradeAction.Sell, false, false)]
-        public async Task PlaceOrderAsync_NoOrder_ActionDisabled(short tradeActionId, bool buy, bool sell)
+        public async Task PlaceOrder_NoOrder_ActionDisabled(short tradeActionId, bool buy, bool sell)
         {
             //Setup
             var httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
@@ -248,7 +248,7 @@ namespace Waffler.Test.Service
         [Theory]
         [InlineData((short)Variable.TradeAction.Buy)]
         [InlineData((short)Variable.TradeAction.Sell)]
-        public async Task PlaceOrderAsync_NoOrder_NoBalance(short tradeActionId)
+        public async Task PlaceOrder_NoOrder_NoBalance(short tradeActionId)
         {
             //Setup
             var account = BitpandaHelper.GetAccount();
@@ -281,7 +281,7 @@ namespace Waffler.Test.Service
         [Theory]
         [InlineData((short)Variable.TradeAction.Buy, 0.1, 100, 9, 11)]
         [InlineData((short)Variable.TradeAction.Sell, 0.1, 100, 11, 9)]
-        public async Task PlaceOrderAsync_NoOrder_InsufficientBalance(short tradeActionId, decimal amount, decimal price, decimal euro, decimal btc)
+        public async Task PlaceOrder_NoOrder_InsufficientBalance(short tradeActionId, decimal amount, decimal price, decimal euro, decimal btc)
         {
             //Setup
             var account = BitpandaHelper.GetAccount();
@@ -316,7 +316,7 @@ namespace Waffler.Test.Service
 
         [Theory]
         [InlineData((short)Variable.TradeAction.Buy, 0.1, 100, 11, 0)]
-        public async Task PlaceOrderAsync_Order_BadRequest(short tradeActionId, decimal amount, decimal price, decimal euro, decimal btc)
+        public async Task PlaceOrder_Order_BadRequest(short tradeActionId, decimal amount, decimal price, decimal euro, decimal btc)
         {
             //Setup
             var account = BitpandaHelper.GetAccount();
@@ -354,7 +354,7 @@ namespace Waffler.Test.Service
         [InlineData((short)Variable.TradeAction.Buy, 0.1, 100, 11, 11)]
         [InlineData((short)Variable.TradeAction.Sell, 0.1, 100, 0, 11)]
         [InlineData((short)Variable.TradeAction.Sell, 0.1, 100, 11, 11)]
-        public async Task PlaceOrderAsync_Order_OK(short tradeActionId, decimal amount, decimal price, decimal euro, decimal btc)
+        public async Task PlaceOrder_Order_OK(short tradeActionId, decimal amount, decimal price, decimal euro, decimal btc)
         {
             //Setup
             var account = BitpandaHelper.GetAccount();
@@ -390,7 +390,7 @@ namespace Waffler.Test.Service
 
         [Theory]
         [InlineData(Bitpanda.InstrumentCode.BTC_EUR, "2020-01-01 12:00", "2020-01-01 18:00")]
-        public async Task GetOrdersAsync_NoProfile(string instrumentCode, DateTime from, DateTime to)
+        public async Task GetOrders_NoProfile(string instrumentCode, DateTime from, DateTime to)
         {
             //Setup
             var httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
@@ -409,7 +409,7 @@ namespace Waffler.Test.Service
 
         [Theory]
         [InlineData(Bitpanda.InstrumentCode.BTC_EUR, "2020-01-01 12:00", "2020-01-01 18:00")]
-        public async Task GetOrdersAsync_NoApiKey(string instrumentCode, DateTime from, DateTime to)
+        public async Task GetOrders_NoApiKey(string instrumentCode, DateTime from, DateTime to)
         {
             //Setup
             var httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
@@ -432,7 +432,7 @@ namespace Waffler.Test.Service
 
         [Theory]
         [InlineData(0, Bitpanda.InstrumentCode.BTC_EUR, "2020-01-01 12:00", "2020-01-01 18:00")]
-        public async Task GetOrdersAsync_BadRequest(short nbrOrders, string instrumentCode, DateTime from, DateTime to)
+        public async Task GetOrders_BadRequest(short nbrOrders, string instrumentCode, DateTime from, DateTime to)
         {
             //Setup
             var orders = BitpandaHelper.GetOrders(nbrOrders);
@@ -457,7 +457,7 @@ namespace Waffler.Test.Service
         [InlineData(0, Bitpanda.InstrumentCode.BTC_EUR, "2020-01-01 12:00", "2020-01-01 18:00")]
         [InlineData(1, Bitpanda.InstrumentCode.BTC_EUR, "2020-01-01 12:00", "2020-01-01 18:00")]
         [InlineData(50, Bitpanda.InstrumentCode.BTC_EUR, "2020-01-01 12:00", "2020-01-01 18:00")]
-        public async Task GetOrdersAsync_OK(short nbrOrders, string instrumentCode, DateTime from, DateTime to)
+        public async Task GetOrders_OK(short nbrOrders, string instrumentCode, DateTime from, DateTime to)
         {
             //Setup
             var orders = BitpandaHelper.GetOrders(nbrOrders);
@@ -481,7 +481,7 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task GetOrderAsync_NoProfile()
+        public async Task GetOrder_NoProfile()
         {
             //Setup
             var order = BitpandaHelper.GetOrderHistoryEntity();
@@ -500,7 +500,7 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task GetOrderAsync_NoApiKey()
+        public async Task GetOrder_NoApiKey()
         {
             //Setup
             var order = BitpandaHelper.GetOrderHistoryEntity();
@@ -523,7 +523,7 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task GetOrderAsync_BadRequest()
+        public async Task GetOrder_BadRequest()
         {
             //Setup
             var order = BitpandaHelper.GetOrderHistoryEntity();
@@ -546,7 +546,7 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task GetOrderAsync_OK()
+        public async Task GetOrder_OK()
         {
             //Setup
             var order = BitpandaHelper.GetOrderHistoryEntity();

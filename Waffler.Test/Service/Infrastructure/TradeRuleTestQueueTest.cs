@@ -1,16 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+
+using Xunit;
+
 using Waffler.Service.Infrastructure;
 using Waffler.Test.Helper;
-using Xunit;
 
 namespace Waffler.Test.Service.Infrastructure
 {
     public class TradeRuleTestQueueTest
     {
+        [Fact]
+        public async Task DequeueRequest()
+        {
+            //Setup
+            var queue = new TradeRuleTestQueue();
+            var request = TradeRuleTestQueueHelper.GetTradeRuleTestRequestDTO();
+
+            //Act
+            queue.QueueTest(request);
+            var dequeuedRequest = await queue.DequeueTestAsync(new CancellationToken());
+
+            //Assert
+            Assert.Equal(request, dequeuedRequest);
+        }
+
         [Fact]
         public void GetTradeRuleTestStatus_NoTest()
         {

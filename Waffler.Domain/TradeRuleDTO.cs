@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Waffler.Common;
-using Waffler.Common.Util;
+using Waffler.Domain.Converter;
 
 namespace Waffler.Domain
 {
@@ -29,9 +29,9 @@ namespace Waffler.Domain
         public List<TradeRuleConditionDTO> TradeRuleConditions { get; set; }
 
         //Consolidation of time interval 
-        public Variable.TimeUnit IntervalTimeUnit { get { return TimeUnitManager.GetTimeUnit(TradeMinIntervalMinutes); } }
-        public int TradeMinInterval { get { return TimeUnitManager.GetTimeValue(IntervalTimeUnit, TradeMinIntervalMinutes); } }
-        public Variable.TimeUnit OrderExpirationTimeUnit { get { return TimeUnitManager.GetTimeUnit(TradeOrderExpirationMinutes); } }
-        public int OrderExpiration { get { return TimeUnitManager.GetTimeValue(OrderExpirationTimeUnit, TradeOrderExpirationMinutes); } }
+        public Variable.TimeUnit IntervalTimeUnit { get { return TimeUnitFormatConverter.GetTimeUnit(TradeMinIntervalMinutes); } }
+        public int TradeMinInterval { get { return TimeUnitFormatConverter.GetTimeValue(IntervalTimeUnit, TradeMinIntervalMinutes); } }
+        public Variable.TimeUnit OrderExpirationTimeUnit { get { return TimeUnitFormatConverter.GetTimeUnit(TradeOrderExpirationMinutes); } }
+        public int OrderExpiration { get { return TimeUnitFormatConverter.GetTimeValue(OrderExpirationTimeUnit, TradeOrderExpirationMinutes); } }
     }
 }

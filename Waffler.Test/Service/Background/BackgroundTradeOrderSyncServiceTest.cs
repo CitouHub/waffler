@@ -151,7 +151,7 @@ namespace Waffler.Test.Service.Background
         }
 
         [Fact]
-        public async Task UpdateOrderDataAsync_NoActiveOrders()
+        public async Task UpdateOrderData_NoActiveOrders()
         {
             //Setup
             _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
@@ -166,7 +166,7 @@ namespace Waffler.Test.Service.Background
         }
 
         [Fact]
-        public async Task UpdateOrderDataAsync_ActiveOrder_NoBitpandaOrderData()
+        public async Task UpdateOrderData_ActiveOrder_NoBitpandaOrderData()
         {
             //Setup
             _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
@@ -185,7 +185,7 @@ namespace Waffler.Test.Service.Background
         }
 
         [Fact]
-        internal async Task UpdateOrderDataAsync_ActiveOrder_BitpandaOrderData()
+        internal async Task UpdateOrderData_ActiveOrder_BitpandaOrderData()
         {
             //Setup
             var profile = ProfileHelper.GetProfile();
