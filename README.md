@@ -31,7 +31,7 @@ To make Waffler avalible as `Waffler.local` enable the following service:
 ```
 sudo systemctl enable --now avahi-alias@waffler.local.service
 ```
-To make sure that Waffler starts when you restart your Raspberry Pi put the following in `asdf`
+To make sure that Waffler starts when you restart your Raspberry Pi put the following in `/etc/systemd/system/waffler.service`
 ```
 [Unit]
 Description=Docker Compose Waffler
@@ -47,6 +47,10 @@ TimeoutStartSec=0
 
 [Install]
 WantedBy=multi-user.target
+```
+And enable the Waffler service
+```
+sudo systemctl enable --now waffler.service
 ```
 Waffler is now running on `http://waffler.local:8088`, enjoy!
 
