@@ -1,4 +1,4 @@
-name: Waffler release
+name: Waffler build test
 
 on:
   workflow_dispatch:
