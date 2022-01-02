@@ -1,5 +1,3 @@
-LABEL org.opencontainers.image.source="https://github.com/CitouHub/waffler"
-
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 ARG build_id=1
 ARG build_tag=(none)
@@ -37,6 +35,7 @@ RUN BUILD_ID=$(cat var_build_id); \
     dotnet publish "Waffler.Web.csproj" -c Release -o /app/publish -p:BuildId=${BUILD_ID} -p:BuildTag=${BUILD_TAG} -p:CommitId=${COMMIT_ID}
 
 FROM base AS final
+LABEL org.opencontainers.image.source="https://github.com/CitouHub/waffler"
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Waffler.Web.dll"]
