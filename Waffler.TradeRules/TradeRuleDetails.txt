@@ -1,0 +1,3 @@
+Buy big dip:    This rule triggers on a 10% drop over 7 days then one day of stablility
+Buy small dip:  This rule triggers on a 3% drop over 3 hours then 3 hours of stablility
+Buy weekly:     This rule triggers once a week

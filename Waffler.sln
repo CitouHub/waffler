@@ -15,7 +15,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waffler.Web", "Waffler.Web\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waffler.API", "Waffler.API\Waffler.API.csproj", "{6AB40EE5-8B46-4084-8991-99A1CA4F60A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waffler.Test", "Waffler.Test\Waffler.Test.csproj", "{7CEBAD78-5E00-423F-AEF6-4E59220C8701}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waffler.Test", "Waffler.Test\Waffler.Test.csproj", "{7CEBAD78-5E00-423F-AEF6-4E59220C8701}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Waffler.TradeRules", "Waffler.TradeRules", "{7CE82509-7C95-4D15-99E6-D71D67BEA38B}"
+	ProjectSection(SolutionItems) = preProject
+		Waffler.TradeRules\Buy big dip.json = Waffler.TradeRules\Buy big dip.json
+		Waffler.TradeRules\Buy small dip.json = Waffler.TradeRules\Buy small dip.json
+		Waffler.TradeRules\Buy weekly.json = Waffler.TradeRules\Buy weekly.json
+		TradeRuleDetails.txt = TradeRuleDetails.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
