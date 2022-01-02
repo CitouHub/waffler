@@ -12,7 +12,6 @@ using Microsoft.OpenApi.Models;
 
 using AutoMapper;
 
-using Waffler.Common.Util;
 using Waffler.Data;
 using Waffler.Domain;
 using Waffler.Service;
@@ -68,7 +67,6 @@ namespace Waffler.API
             });
 
             services.AddSingleton(mapperConfig.CreateMapper());
-            services.AddSingleton<ICache, Cache>();
             services.AddSingleton<ITradeRuleTestQueue, TradeRuleTestQueue>();
             services.AddSingleton<IDatabaseSetupSignal, DatabaseSetupSignal>();
 

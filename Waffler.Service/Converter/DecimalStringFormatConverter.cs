@@ -8,13 +8,15 @@ namespace Waffler.Service.Converter
     {
         public override bool CanConvert(Type objectType)
         {
-            return (objectType == typeof(decimal));
+            return objectType == typeof(decimal) || 
+                objectType == typeof(double) ||
+                objectType == typeof(float);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var decimalValue = ((decimal)value).ToString("N8", CultureInfo.InvariantCulture);
-            var formatedDecimalValue = decimalValue.Replace(",", "").TrimEnd('0');
+            var decimalValue = Convert.ToDecimal(value).ToString("N8", CultureInfo.InvariantCulture);
+            var formatedDecimalValue = decimalValue.Replace(",", "").TrimEnd('0').TrimEnd('.');
             writer.WriteValue(formatedDecimalValue);
         }
 

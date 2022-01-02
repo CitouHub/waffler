@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -90,13 +89,8 @@ namespace Waffler.Service
 
         public async Task<List<Domain.Bitpanda.Public.CandleStickDTO>> GetCandleSticksAsync(string instrumentCode, string unit, short period, DateTime from, DateTime to)
         {
-            var fromString = HttpUtility.UrlEncode(from.ToString("o"));
-            var toString = HttpUtility.UrlEncode(to.ToString("o"));
-
-            //TODO: WHY is the Z included in some cases and in some not?!
-            //This fix solves the problem for now...
-            fromString = fromString.EndsWith("Z") ? fromString : fromString + "Z";
-            toString = toString.EndsWith("Z") ? toString : toString + "Z";
+            var fromString = DateTimeStringFormatConverter.GetDateTimeString(from);
+            var toString = DateTimeStringFormatConverter.GetDateTimeString(to);
 
             var result = await PublicHttpClient.GetAsync($"candlesticks/{instrumentCode}?" +
                 $"unit={unit}&" +
@@ -172,13 +166,8 @@ namespace Waffler.Service
         {
             if (PrivateHttpClient != null)
             {
-                var fromString = HttpUtility.UrlEncode(from.ToString("o"));
-                var toString = HttpUtility.UrlEncode(to.ToString("o"));
-
-                //TODO: WHY is the Z included in some cases and in some not?!
-                //This fix solves the problem for now...
-                fromString = fromString.EndsWith("Z") ? fromString : fromString + "Z";
-                toString = toString.EndsWith("Z") ? toString : toString + "Z";
+                var fromString = DateTimeStringFormatConverter.GetDateTimeString(from);
+                var toString = DateTimeStringFormatConverter.GetDateTimeString(to);
 
                 var activeOrders = await PrivateHttpClient.GetAsync($"account/orders/?" +
                     $"from={fromString}&" +
