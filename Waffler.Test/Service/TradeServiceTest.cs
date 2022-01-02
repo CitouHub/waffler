@@ -94,7 +94,7 @@ namespace Waffler.Test
         {
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
-            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
             tradeRuleCondition.IsOn = false;
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
@@ -121,7 +121,7 @@ namespace Waffler.Test
         {
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
-            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
             tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
@@ -155,7 +155,7 @@ namespace Waffler.Test
         {
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
-            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
             tradeRuleCondition.TradeRuleConditionComparatorId = tradeRuleConditionComparatorId;
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
@@ -201,7 +201,7 @@ namespace Waffler.Test
         {
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
-            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
             tradeRuleCondition.TradeRuleConditionComparatorId = tradeRuleConditionComparatorId;
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.Amount = (decimal)0.01;
@@ -247,8 +247,8 @@ namespace Waffler.Test
         {
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
-            var tradeRuleCondition1 = TradeRuleConditionHelper.GetTradeRuleCondition();
-            var tradeRuleCondition2 = TradeRuleConditionHelper.GetTradeRuleCondition();
+            var tradeRuleCondition1 = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
+            var tradeRuleCondition2 = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeRuleStatusId = tradeRuleStatusId;
             tradeRule.TradeConditionOperatorId = tradeConditionOperatorId;
@@ -304,8 +304,8 @@ namespace Waffler.Test
         {
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
-            var tradeRuleCondition1 = TradeRuleConditionHelper.GetTradeRuleCondition();
-            var tradeRuleCondition2 = TradeRuleConditionHelper.GetTradeRuleCondition();
+            var tradeRuleCondition1 = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
+            var tradeRuleCondition2 = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeRuleStatusId = tradeRuleStatusId;
             tradeRule.TradeConditionOperatorId = tradeConditionOperatorId;
@@ -354,7 +354,7 @@ namespace Waffler.Test
         {
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
-            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.Amount = 100;
             tradeRule.PriceDeltaPercent = deltaPricePercent;
@@ -410,7 +410,7 @@ namespace Waffler.Test
         {
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
-            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.Amount = 100;
             tradeRule.PriceDeltaPercent = deltaPricePercent;
@@ -466,7 +466,7 @@ namespace Waffler.Test
         {
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
-            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.Amount = 100;
             tradeRule.PriceDeltaPercent = deltaPricePercent;
@@ -522,7 +522,7 @@ namespace Waffler.Test
         {
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
-            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.Amount = 100;
             tradeRule.PriceDeltaPercent = deltaPricePercent;
@@ -582,7 +582,7 @@ namespace Waffler.Test
         {
             //Setup
             var currentPeriodDateTime = DateTime.UtcNow;
-            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.Amount = 100;
             tradeRule.TradeRuleStatusId = (short)Variable.TradeRuleStatus.Test;

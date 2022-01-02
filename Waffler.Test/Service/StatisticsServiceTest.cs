@@ -108,7 +108,7 @@ namespace Waffler.Test.Service
             _candleStickService.GetCandleSticksAsync(Arg.Is(fromPeriod.From), Arg.Is(fromPeriod.To), Arg.Is(Variable.TradeType.BTC_EUR), Arg.Is(fromPeriodMinutes)).Returns(fromCandleSticks);
             _candleStickService.GetCandleSticksAsync(Arg.Is(toPeriod.From), Arg.Is(toPeriod.To), Arg.Is(Variable.TradeType.BTC_EUR), Arg.Is(toPeriodMinutes)).Returns(toCandleSticks);
 
-            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleCondition();
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
             tradeRuleCondition.FromCandleStickValueTypeId = (short)Variable.CandleStickValueType.HighPrice;
             tradeRuleCondition.FromMinutes = -1 * (int)(to - from).TotalMinutes;
             tradeRuleCondition.FromPeriodMinutes = fromPeriodMinutes;

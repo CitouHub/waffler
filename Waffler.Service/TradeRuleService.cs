@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using AutoMapper;
 
 using Waffler.Domain;
 using Waffler.Data;
 using Waffler.Common;
-using Microsoft.Extensions.Logging;
 
 namespace Waffler.Service
 {

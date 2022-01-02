@@ -43,32 +43,37 @@ namespace Waffler.Service
 
         public async Task<TradeRuleConditionDTO> NewTradeRuleConditionAsync(int tradeRuleId)
         {
-            var newTradeRuleCondition = new TradeRuleCondition()
+            if(_context.TradeRules.Any(_ => _.Id == tradeRuleId))
             {
-                InsertDate = DateTime.UtcNow,
-                InsertByUser = 1,
-                TradeRuleId = tradeRuleId,
-                TradeRuleConditionComparatorId = (short)Variable.TradeRuleConditionComparator.LessThen,
+                var newTradeRuleCondition = new TradeRuleCondition()
+                {
+                    InsertDate = DateTime.UtcNow,
+                    InsertByUser = 1,
+                    TradeRuleId = tradeRuleId,
+                    TradeRuleConditionComparatorId = (short)Variable.TradeRuleConditionComparator.LessThen,
 
-                FromCandleStickValueTypeId = (short)Variable.CandleStickValueType.HighPrice,
-                FromTradeRuleConditionPeriodDirectionId = (short)Variable.TradeRuleConditionPeriodDirection.Centered,
-                FromMinutes = 0,
-                FromPeriodMinutes = 0,
+                    FromCandleStickValueTypeId = (short)Variable.CandleStickValueType.HighPrice,
+                    FromTradeRuleConditionPeriodDirectionId = (short)Variable.TradeRuleConditionPeriodDirection.Centered,
+                    FromMinutes = 0,
+                    FromPeriodMinutes = 0,
 
-                ToCandleStickValueTypeId = (short)Variable.CandleStickValueType.HighPrice,
-                ToTradeRuleConditionPeriodDirectionId = (short)Variable.TradeRuleConditionPeriodDirection.LeftShift,
-                ToMinutes = 0,
-                ToPeriodMinutes = 0,
+                    ToCandleStickValueTypeId = (short)Variable.CandleStickValueType.HighPrice,
+                    ToTradeRuleConditionPeriodDirectionId = (short)Variable.TradeRuleConditionPeriodDirection.LeftShift,
+                    ToMinutes = 0,
+                    ToPeriodMinutes = 0,
 
-                DeltaPercent = 0,
-                Description = "New condition",
-                IsOn = false
-            };
+                    DeltaPercent = 0,
+                    Description = "New condition",
+                    IsOn = false
+                };
 
-            await _context.TradeRuleConditions.AddAsync(newTradeRuleCondition);
-            await _context.SaveChangesAsync();
+                await _context.TradeRuleConditions.AddAsync(newTradeRuleCondition);
+                await _context.SaveChangesAsync();
 
-            return _mapper.Map<TradeRuleConditionDTO>(newTradeRuleCondition);
+                return _mapper.Map<TradeRuleConditionDTO>(newTradeRuleCondition);
+            }
+
+            return null;
         }
 
         public async Task<List<TradeRuleConditionDTO>> GetTradeRuleConditionsAsync(int tradeRuleId)

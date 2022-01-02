@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
+
+using Microsoft.EntityFrameworkCore;
+
 using Waffler.Common;
 using Waffler.Data;
 
@@ -36,6 +38,60 @@ namespace Waffler.Test.Helper
                 {
                     Id = (short)tradeOrderStatus,
                     Name = tradeOrderStatus.ToString()
+                });
+            }
+
+            foreach (Variable.CandleStickValueType candleStickValueType in Enum.GetValues(typeof(Variable.CandleStickValueType)))
+            {
+                context.CandleStickValueTypes.Add(new CandleStickValueType()
+                {
+                    Id = (short)candleStickValueType,
+                    Name = candleStickValueType.ToString()
+                });
+            }
+            
+            foreach (Variable.TradeType tradeType in Enum.GetValues(typeof(Variable.TradeType)))
+            {
+                context.TradeTypes.Add(new TradeType()
+                {
+                    Id = (short)tradeType,
+                    Name = tradeType.ToString()
+                });
+            }
+
+            foreach (Variable.TradeConditionOperator tradeConditionOperator in Enum.GetValues(typeof(Variable.TradeConditionOperator)))
+            {
+                context.TradeConditionOperators.Add(new TradeConditionOperator()
+                {
+                    Id = (short)tradeConditionOperator,
+                    Name = tradeConditionOperator.ToString()
+                });
+            }
+
+            foreach (Variable.TradeRuleStatus tradeRuleStatus in Enum.GetValues(typeof(Variable.TradeRuleStatus)))
+            {
+                context.TradeRuleStatuses.Add(new TradeRuleStatus()
+                {
+                    Id = (short)tradeRuleStatus,
+                    Name = tradeRuleStatus.ToString()
+                });
+            }
+
+            foreach (Variable.TradeRuleConditionComparator tradeRuleConditionComparator in Enum.GetValues(typeof(Variable.TradeRuleConditionComparator)))
+            {
+                context.TradeRuleConditionComparators.Add(new TradeRuleConditionComparator()
+                {
+                    Id = (short)tradeRuleConditionComparator,
+                    Name = tradeRuleConditionComparator.ToString()
+                });
+            }
+
+            foreach (Variable.TradeRuleConditionPeriodDirection tradeRuleConditionPeriodDirection in Enum.GetValues(typeof(Variable.TradeRuleConditionPeriodDirection)))
+            {
+                context.TradeRuleConditionPeriodDirections.Add(new TradeRuleConditionPeriodDirection()
+                {
+                    Id = (short)tradeRuleConditionPeriodDirection,
+                    Name = tradeRuleConditionPeriodDirection.ToString()
                 });
             }
         }

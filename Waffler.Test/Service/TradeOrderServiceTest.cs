@@ -1,18 +1,18 @@
-﻿using AutoMapper;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Microsoft.Extensions.Logging;
+
+using Xunit;
+using AutoMapper;
+using NSubstitute;
+
+using Waffler.Common;
+using Waffler.Data;
 using Waffler.Domain;
 using Waffler.Service;
 using Waffler.Test.Helper;
-using Xunit;
-using Microsoft.EntityFrameworkCore;
-using Waffler.Domain.Bitpanda.Private.Balance;
-using System.Collections.Generic;
-using Waffler.Common;
-using Waffler.Data;
 
 namespace Waffler.Test.Service
 {
