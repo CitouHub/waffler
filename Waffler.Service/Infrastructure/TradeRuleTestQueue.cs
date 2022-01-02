@@ -12,7 +12,7 @@ namespace Waffler.Service.Infrastructure
     {
         void QueueTest(TradeRuleTestRequestDTO tradeRuleTestRequest);
         Task<TradeRuleTestRequestDTO> DequeueTestAsync(CancellationToken cancellationToken);
-        void AbortTest(int tradeRuleId);
+        bool AbortTest(int tradeRuleId);
         bool IsTestAborted(int tradeRuleId);
         Task AwaitClose(CancellationToken cancellationToken, int tradeRuleId);
         TradeRuleTestStatusDTO InitTradeRuleTestRun(TradeRuleTestRequestDTO tradeRuleTestRequest);
@@ -47,12 +47,16 @@ namespace Waffler.Service.Infrastructure
             return tradeTestRequest;
         }
 
-        public void AbortTest(int tradeRuleId)
+        public bool AbortTest(int tradeRuleId)
         {
             if (_tradeRuleTestRun.ContainsKey(tradeRuleId))
             {
                 _tradeRuleTestRun[tradeRuleId].Abort = true;
-            } 
+
+                return true;
+            }
+
+            return false;
         }
 
         public bool IsTestAborted(int tradeRuleId)
