@@ -20,7 +20,9 @@ COPY ["Waffler.Data/Waffler.Data.csproj", "Waffler.Data/"]
 COPY ["Waffler.Domain/Waffler.Domain.csproj", "Waffler.Domain/"]
 
 RUN mkdir -p /Master
+RUN mkdir -p /Migration
 COPY ./Waffler.Data/Master /Master
+COPY ./Waffler.Data/Migration /Migration
 
 RUN dotnet restore "Waffler.API/Waffler.API.csproj"
 COPY . .

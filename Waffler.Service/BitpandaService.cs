@@ -14,7 +14,6 @@ using Newtonsoft.Json;
 using Waffler.Common;
 using Waffler.Data;
 using Waffler.Domain;
-using Waffler.Domain.Bitpanda.Private;
 using Waffler.Domain.Bitpanda.Private.Balance;
 using Waffler.Domain.Bitpanda.Private.Order;
 using Waffler.Domain.Converter;
@@ -25,7 +24,7 @@ namespace Waffler.Service
     {
         Task<AccountDTO> GetAccountAsync();
         Task<List<Domain.Bitpanda.Public.CandleStickDTO>> GetCandleSticksAsync(string instrumentCode, string unit, short period, DateTime from, DateTime to);
-        Task<OrderSubmittedDTO> PlaceOrderAsync(TradeRuleDTO tradeRule, decimal amount, decimal price);
+        Task<OrderSubmittedDTO> TryPlaceOrderAsync(TradeRuleDTO tradeRule, decimal amount, decimal price);
         Task<List<OrderDTO>> GetOrdersAsync(string instrumentCode, DateTime from, DateTime to);
         Task<OrderDTO> GetOrderAsync(Guid orderId);
     }
@@ -109,7 +108,28 @@ namespace Waffler.Service
             }
         }
 
-        public async Task<OrderSubmittedDTO> PlaceOrderAsync(TradeRuleDTO tradeRule, decimal amount, decimal price)
+        private async Task<OrderSubmittedDTO> PlaceOrderAsync(CreateOrderDTO order)
+        {
+            var orderJson = JsonConvert.SerializeObject(order, new DecimalStringFormatConverter());
+            var requestContent = new StringContent(orderJson, Encoding.UTF8, "application/json");
+
+            var result = await PrivateHttpClient.PostAsync($"account/orders", requestContent);
+
+            if (result.IsSuccessStatusCode)
+            {
+                var content = await result.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<OrderSubmittedDTO>(content);
+            }
+            else
+            {
+                var error = await result.Content.ReadAsStringAsync();
+                _logger.LogError($"Unable to place order, {error}");
+            }
+
+            return null;
+        }
+
+        public async Task<OrderSubmittedDTO> TryPlaceOrderAsync(TradeRuleDTO tradeRule, decimal amount, decimal price)
         {
             if (PrivateHttpClient != null &&
                 (tradeRule.TradeActionId == (short)Variable.TradeAction.Buy && _configuration.GetValue<bool>("Bitpanda:OrderFeature:Buy") == true) ||
@@ -119,35 +139,21 @@ namespace Waffler.Service
                 var buyBalance = balance?.Balances?.FirstOrDefault(_ => _.Currency_code == Bitpanda.CurrencyCode.EUR);
                 var sellBalance = balance?.Balances?.FirstOrDefault(_ => _.Currency_code == Bitpanda.CurrencyCode.BTC);
 
-                if ((buyBalance?.Available >= amount*price && tradeRule.TradeActionId == (short)Variable.TradeAction.Buy) ||
-                    (sellBalance?.Available >= amount*price && tradeRule.TradeActionId == (short)Variable.TradeAction.Sell)) 
+                if ((buyBalance?.Available >= amount * price && tradeRule.TradeActionId == (short)Variable.TradeAction.Buy) ||
+                    (sellBalance?.Available >= amount * price && tradeRule.TradeActionId == (short)Variable.TradeAction.Sell))
                 {
                     var order = new CreateOrderDTO()
                     {
                         Amount = amount,
                         Type = Bitpanda.OrderType.LIMIT,
                         Expire_after = tradeRule.TradeOrderExpirationMinutes != null ? DateTime.UtcNow.AddMinutes((int)tradeRule.TradeOrderExpirationMinutes) : (DateTime?)null,
-                        Instrument_code = Bitpanda.GetInstrumentCode((Variable.TradeType)tradeRule.TradeActionId),
+                        Instrument_code = Bitpanda.GetInstrumentCode((Variable.TradeType)tradeRule.TradeTypeId),
                         Price = price,
                         Side = Bitpanda.GetSide((Variable.TradeAction)tradeRule.TradeActionId),
                         Time_in_force = tradeRule.TradeOrderExpirationMinutes != null ? Bitpanda.TimeInForce.GOOD_TILL_TIME : Bitpanda.TimeInForce.GOOD_TILL_CANCELLED
                     };
 
-                    var orderJson = JsonConvert.SerializeObject(order, new DecimalStringFormatConverter());
-                    var requestContent = new StringContent(orderJson, Encoding.UTF8, "application/json");
-
-                    var result = await PrivateHttpClient.PostAsync($"account/orders", requestContent);
-
-                    if (result.IsSuccessStatusCode)
-                    {
-                        var content = await result.Content.ReadAsStringAsync();
-                        return JsonConvert.DeserializeObject<OrderSubmittedDTO>(content);
-                    }
-                    else
-                    {
-                        var error = await result.Content.ReadAsStringAsync();
-                        _logger.LogError($"Unable to place order for rule {tradeRule.Name}, {error}");
-                    }
+                    return await PlaceOrderAsync(order);
                 }
                 else
                 {

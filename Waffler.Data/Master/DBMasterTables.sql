@@ -29,6 +29,8 @@ IF OBJECTPROPERTY(object_id('dbo.TradeOrderStatus'), N'IsTable') = 1 DROP TABLE 
 GO
 IF OBJECTPROPERTY(object_id('dbo.TradeAction'), N'IsTable') = 1 DROP TABLE [dbo].[TradeAction]
 GO
+IF OBJECTPROPERTY(object_id('dbo.MigrationHistory'), N'IsTable') = 1 DROP TABLE [dbo].[MigrationHistory]
+GO
 
 -- Create new tables
 -- =====================================================================
@@ -305,3 +307,16 @@ CREATE UNIQUE NONCLUSTERED INDEX [IdxTradeOrder_OrderId] ON [dbo].[TradeOrder]
     [OrderId] ASC
 ) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 GO
+
+CREATE TABLE [dbo].[DatabaseMigration](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[InsertDate] [datetime2](7) NOT NULL DEFAULT(GETUTCDATE()),
+	[InsertByUser] [int] NOT NULL DEFAULT(1),
+	[UpdateDate] [datetime2](7) NULL,
+	[UpdateByUser] [int] NULL,
+	[ScriptName] [nvarchar](500) NOT NULL,
+ CONSTRAINT [DatabaseMigration_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)

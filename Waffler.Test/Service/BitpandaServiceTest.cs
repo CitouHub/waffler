@@ -178,7 +178,7 @@ namespace Waffler.Test.Service
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
 
             //Act
-            var result = await _bitpandaService.PlaceOrderAsync(tradeRule, 10, 10);
+            var result = await _bitpandaService.TryPlaceOrderAsync(tradeRule, 10, 10);
 
             //Assert
             Assert.Null(result);
@@ -207,7 +207,7 @@ namespace Waffler.Test.Service
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
 
             //Act
-            var result = await _bitpandaService.PlaceOrderAsync(tradeRule, 10, 10);
+            var result = await _bitpandaService.TryPlaceOrderAsync(tradeRule, 10, 10);
 
             //Assert
             Assert.Null(result);
@@ -238,7 +238,7 @@ namespace Waffler.Test.Service
             tradeRule.TradeActionId = tradeActionId;
 
             //Act
-            var result = await _bitpandaService.PlaceOrderAsync(tradeRule, 10, 10);
+            var result = await _bitpandaService.TryPlaceOrderAsync(tradeRule, 10, 10);
 
             //Assert
             Assert.Null(result);
@@ -270,7 +270,7 @@ namespace Waffler.Test.Service
             tradeRule.TradeActionId = tradeActionId;
 
             //Act
-            var result = await _bitpandaService.PlaceOrderAsync(tradeRule, 10, 10);
+            var result = await _bitpandaService.TryPlaceOrderAsync(tradeRule, 10, 10);
 
             //Assert
             Assert.Null(result);
@@ -306,7 +306,7 @@ namespace Waffler.Test.Service
             tradeRule.TradeActionId = tradeActionId;
 
             //Act
-            var result = await _bitpandaService.PlaceOrderAsync(tradeRule, amount, price);
+            var result = await _bitpandaService.TryPlaceOrderAsync(tradeRule, amount, price);
 
             //Assert
             Assert.Null(result);
@@ -341,7 +341,7 @@ namespace Waffler.Test.Service
             tradeRule.TradeActionId = tradeActionId;
 
             //Act
-            var result = await _bitpandaService.PlaceOrderAsync(tradeRule, amount, price);
+            var result = await _bitpandaService.TryPlaceOrderAsync(tradeRule, amount, price);
 
             //Assert
             Assert.Null(result);
@@ -379,7 +379,7 @@ namespace Waffler.Test.Service
             tradeRule.TradeActionId = tradeActionId;
 
             //Act
-            var result = await _bitpandaService.PlaceOrderAsync(tradeRule, amount, price);
+            var result = await _bitpandaService.TryPlaceOrderAsync(tradeRule, amount, price);
 
             //Assert
             Assert.NotNull(result);

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace Waffler.Domain.Bitpanda.Private
+namespace Waffler.Domain.Bitpanda.Private.Order
 {
     public class CreateOrderDTO
     {

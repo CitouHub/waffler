@@ -19,6 +19,7 @@ namespace Waffler.Data
 
         public virtual DbSet<CandleStick> CandleSticks { get; set; }
         public virtual DbSet<CandleStickValueType> CandleStickValueTypes { get; set; }
+        public virtual DbSet<DatabaseMigration> DatabaseMigrations { get; set; }
         public virtual DbSet<TradeAction> TradeActions { get; set; }
         public virtual DbSet<TradeConditionOperator> TradeConditionOperators { get; set; }
         public virtual DbSet<TradeOrder> TradeOrders { get; set; }
@@ -91,6 +92,19 @@ namespace Waffler.Data
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<DatabaseMigration>(entity =>
+            {
+                entity.ToTable("DatabaseMigration");
+
+                entity.Property(e => e.InsertByUser).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.InsertDate).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.ScriptName)
+                    .IsRequired()
+                    .HasMaxLength(500);
             });
 
             modelBuilder.Entity<TradeAction>(entity =>

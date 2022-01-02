@@ -99,7 +99,7 @@ namespace Waffler.Service
                             var amount = Math.Round(tradeRule.Amount / price, Bitpanda.DecimalPrecision);
                             if (tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Active)
                             {
-                                var order = await _bitpandaService.PlaceOrderAsync(tradeRule, amount, price);
+                                var order = await _bitpandaService.TryPlaceOrderAsync(tradeRule, amount, price);
                                 orderId = order != null ? new Guid(order.Order_id) : (Guid?)null;
                             }
 

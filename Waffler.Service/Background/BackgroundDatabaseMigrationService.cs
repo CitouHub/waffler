@@ -13,21 +13,31 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 
 using Waffler.Service.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+using Waffler.Data;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace Waffler.Service.Background
 {
     public class BackgroundDatabaseMigrationService : BackgroundService
     {
         private readonly IConfiguration _configuration;
+        private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundDatabaseMigrationService> _logger;
         private readonly IDatabaseSetupSignal _databaseSetupSignal;
 
+        private readonly string ScriptSectionMaster = "Master";
+        private readonly string ScriptSectionMigration = "Migration";
+
         public BackgroundDatabaseMigrationService(
             ILogger<BackgroundDatabaseMigrationService> logger,
+            IServiceProvider serviceProvider,
             IConfiguration configuration,
             IDatabaseSetupSignal databaseSetupSignal)
         {
             _logger = logger;
+            _serviceProvider = serviceProvider;
             _configuration = configuration;
             _databaseSetupSignal = databaseSetupSignal;
             _logger.LogDebug("BackgroundDatabaseMigrationService instantiated");
@@ -59,11 +69,13 @@ namespace Waffler.Service.Background
 
                     await AwaitServerOnline(new SqlConnection(connectionString));
 
-                    await RunScript(new SqlConnection(connectionString), "DBMasterTables.sql");
-                    await RunScript(new SqlConnection(connectionString), "DBMasterData.sql");
+                    await RunScript(new SqlConnection(connectionString), ScriptSectionMaster, "DBMasterTables.sql");
+                    await RunScript(new SqlConnection(connectionString), ScriptSectionMaster, "DBMasterData.sql");
                 }
 
-                await RunScript (new SqlConnection(connectionString), "DBMasterStoredProcedure.sql");
+                await RunScript (new SqlConnection(connectionString), ScriptSectionMaster, "DBMasterStoredProcedure.sql");
+
+                await RunMigrationScripts(connectionString);
 
                 _logger.LogInformation($"Database {database} migration finished");
                 _databaseSetupSignal.SetDatabaseReady();
@@ -132,7 +144,7 @@ namespace Waffler.Service.Background
             await connection.CloseAsync();
         }
 
-        private async Task RunScript(SqlConnection connection, string script)
+        private async Task RunScript(SqlConnection connection, string section, string script)
         {
             _logger.LogInformation($"Running {script} script on {connection.Database}");
             _logger.LogInformation($"ConnectionString: {connection.ConnectionString}");
@@ -140,12 +152,38 @@ namespace Waffler.Service.Background
 
             var currentExecutable = Assembly.GetExecutingAssembly().Location;
             var currentFolder = Path.GetDirectoryName(currentExecutable);
-            var masterTables = File.ReadAllText($"{currentFolder}{Path.DirectorySeparatorChar}Master{Path.DirectorySeparatorChar}{script}");
+            var scriptFile = File.ReadAllText($"{currentFolder}{Path.DirectorySeparatorChar}{section}{Path.DirectorySeparatorChar}{script}");
 
             var server = new Server(new ServerConnection(connection));
-            server.ConnectionContext.ExecuteNonQuery(masterTables);
+            server.ConnectionContext.ExecuteNonQuery(scriptFile);
 
             await connection.CloseAsync();
+        }
+
+        private async Task RunMigrationScripts(string connectionString)
+        {
+            var currentExecutable = Assembly.GetExecutingAssembly().Location;
+            var currentFolder = Path.GetDirectoryName(currentExecutable);
+            var migrationScripts = Directory.GetFiles($"{currentFolder}{Path.DirectorySeparatorChar}{ScriptSectionMigration}{Path.DirectorySeparatorChar}")
+                .Select(_ => new FileInfo(_));
+
+            using IServiceScope scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<WafflerDbContext>();
+            var executedScripts = await context.DatabaseMigrations.Select(_ => _.ScriptName).ToListAsync();
+
+            var newScripts = migrationScripts.Where(n => executedScripts.Any(e => e == n.Name) == false).ToList();
+
+            foreach (var script in newScripts)
+            {
+                await RunScript(new SqlConnection(connectionString), ScriptSectionMigration, script.Name);
+                context.DatabaseMigrations.Add(new DatabaseMigration()
+                {
+                    InsertByUser = 1,
+                    InsertDate = DateTime.UtcNow,
+                    ScriptName = script.Name
+                });
+                context.SaveChanges();
+            }
         }
     }
 }
