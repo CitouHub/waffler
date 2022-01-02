@@ -41,7 +41,7 @@ After=docker.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=docker-compose --file /home/waffler/docker-compose.gh.arm64.yml start
+ExecStart=docker-compose --file /home/waffler/docker-compose.gh.arm64.yml up -d
 ExecStop=docker-compose --file /home/waffler/docker-compose.gh.arm64.yml stop
 TimeoutStartSec=0
 
