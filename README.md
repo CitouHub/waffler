@@ -4,7 +4,7 @@ Waffler is a trade-aid application which acts on the Bitpanda platform via your 
 ## Running Waffler on your Raspberry Pi
 Seting up Waffler on your own Raspberry Pi should be quite streightforward. Copy and run the docker-compose file docker-compose.gh.arm64.yml on your Raspberry Pi
 ```
-docker-compose --file docker-compose.gh.arm64.yml up
+docker-compose --file docker-compose.gh.arm64.yml up -d
 ```
 In order to make the application work properly localy on your network, you'll also have to setup Avahi on your Raspberry Pi
 ```
@@ -53,7 +53,6 @@ And enable the Waffler service
 sudo systemctl enable --now waffler.service
 ```
 Waffler is now running on `http://waffler.local:8088`, enjoy!
-
 
 ## Trade rules
 I'm experimeted a bit in designing some default trade rules. If you want to use these for your instance of Waffler you'll be able to get them i the 'Waffler.TradeRules' folder. After you've set up Waffler you can just import them in the `Trade rule` view.
