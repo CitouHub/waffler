@@ -1,3 +1,5 @@
+LABEL org.opencontainers.image.source="https://github.com/CitouHub/waffler"
+
 FROM mcr.microsoft.com/azure-sql-edge:latest
 EXPOSE 1433
 

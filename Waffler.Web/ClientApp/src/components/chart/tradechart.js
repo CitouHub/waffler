@@ -140,15 +140,17 @@ const TradeChart = () => {
 
     const getCandleStickSyncStatus = () => {
         CandleStickService.getCandleSticksSyncStatus().then((syncStatus) => {
-            syncStatus.firstPeriodDateTime = new Date(syncStatus.firstPeriodDateTime);
-            syncStatus.lastPeriodDateTime = new Date(syncStatus.lastPeriodDateTime);
+            if (syncStatus) {
+                syncStatus.firstPeriodDateTime = new Date(syncStatus.firstPeriodDateTime);
+                syncStatus.lastPeriodDateTime = new Date(syncStatus.lastPeriodDateTime);
 
-            if (syncActive) {
-                setSyncStatus(syncStatus);
-            }
+                if (syncActive) {
+                    setSyncStatus(syncStatus);
+                }
 
-            if (syncStatus?.finished) {
-                syncActive = false;
+                if (syncStatus.finished) {
+                    syncActive = false;
+                }
             }
 
             if (syncActive) {

@@ -1,3 +1,5 @@
+LABEL org.opencontainers.image.source="https://github.com/CitouHub/waffler"
+
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 ARG build_id=1
 ARG build_tag=(none)
