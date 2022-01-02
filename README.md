@@ -15,6 +15,10 @@ Put the following in `/etc/systemd/system/avahi-alias@.service`
 ```
 [Unit]
 Description=Publish %I as alias for %H.local via mdns
+Wants=network-online.target
+After=network-online.target
+Wants=docker.service
+After=docker.service
 
 [Service]
 Type=simple
@@ -27,7 +31,25 @@ To make Waffler avalible as `Waffler.local` enable the following service:
 ```
 sudo systemctl enable --now avahi-alias@waffler.local.service
 ```
+To make sure that Waffler starts when you restart your Raspberry Pi put the following in `asdf`
+```
+[Unit]
+Description=Docker Compose Waffler
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=docker-compose --file /home/waffler/docker-compose.gh.arm64.yml start
+ExecStop=docker-compose --file /home/waffler/docker-compose.gh.arm64.yml stop
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target
+```
 Waffler is now running on `http://waffler.local:8088`, enjoy!
+
 
 ## Trade rules
 I'm experimeted a bit in designing some default trade rules. If you want to use these for your instance of Waffler you'll be able to get them i the 'Waffler.TradeRules' folder. After you've set up Waffler you can just import them in the `Trade rule` view.
