@@ -26,8 +26,14 @@ jobs:
     - name: Build and tag image for DB
       run: docker build --tag ghcr.io/citou-ab/$DB_IMAGE_NAME:latest . --file Waffler.Data/Dockerfile
 
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.DB_IMAGE_NAME }}
+
     - name: Push image for DB
-      run: docker push --all-tags ghcr.io/citou-ab/$DB_IMAGE_NAME
+      run: docker push --all-tags ghcr.io/citou-ab/$DB_IMAGE_NAME --labels ${{ steps.meta.outputs.labels }}
       
   build_push_db_armv7:
     runs-on: ubuntu-18.04
