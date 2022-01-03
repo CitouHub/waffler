@@ -25,6 +25,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Waffler.TradeRules", "Waffl
 		TradeRuleDetails.txt = TradeRuleDetails.txt
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Waffler.Docker.Compose", "Waffler.Docker.Compose", "{115DA70C-946C-4434-8BDD-F71B09AB6DF5}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.arm64.yml = docker-compose.arm64.yml
+		docker-compose.gh.arm64.yml = docker-compose.gh.arm64.yml
+		docker-compose.gh.yml = docker-compose.gh.yml
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
