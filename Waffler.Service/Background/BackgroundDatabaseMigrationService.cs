@@ -52,6 +52,9 @@ namespace Waffler.Service.Background
         {
             try
             {
+                _logger.LogInformation($"Waiting for database to be ready");
+                await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
+
                 _logger.LogInformation($"Running database migration");
                 var server = _configuration.GetValue<string>("Database:Server");
                 var database = _configuration.GetValue<string>("Database:Catalog");
@@ -60,7 +63,6 @@ namespace Waffler.Service.Background
                 var connectionStringMaster = $"Server={server};Initial Catalog=master;{credentials}";
                 var connectionString = $"Server={server};Initial Catalog={database};{credentials}";
 
-                await _databaseSetupSignal.AwaitDatabaseOnlineAsync(new SqlConnection(connectionStringMaster));
                 var databaseExists = await DatabaseExists(new SqlConnection(connectionString));
                 
                 if(databaseExists == false && cancellationToken.IsCancellationRequested == false)

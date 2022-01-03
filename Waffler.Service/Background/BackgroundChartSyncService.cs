@@ -28,6 +28,7 @@ namespace Waffler.Service.Background
         private readonly short PeriodMinutes = 1;
         private readonly int NearEndSaveLimit = 5;
         private readonly int RequestLimit = 180;
+        private readonly object StartUpLock = new object();
 
         private Timer _timer;
         private bool InProgress = false;
@@ -43,24 +44,30 @@ namespace Waffler.Service.Background
             _logger.LogDebug("BackgroundChartSyncService instantiated");
         }
 
-        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
-
             if(!cancellationToken.IsCancellationRequested)
             {
                 _timer = new Timer(async _ => await FetchCandleStickDataAsync(cancellationToken), null, TimeSpan.FromSeconds(0), SyncInterval);
             }
+
+            return Task.CompletedTask;
         }
 
         public async Task FetchCandleStickDataAsync(CancellationToken cancellationToken)
         {
-            if (InProgress)
+            lock(StartUpLock)
             {
-                return;
+                if (InProgress)
+                {
+                    return;
+                }
+
+                InProgress = true;
             }
 
-            InProgress = true;
+            _logger.LogInformation($"Waiting for database to be ready");
+            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
             try
             {
                 _logger.LogInformation($"Syncing candlestick data");

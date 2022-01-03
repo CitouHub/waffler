@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,7 +16,6 @@ using Waffler.Service;
 using Waffler.Service.Background;
 using Waffler.Service.Infrastructure;
 using Waffler.Test.Helper;
-using System.Linq;
 
 namespace Waffler.Test.Service.Background
 {
@@ -32,10 +31,10 @@ namespace Waffler.Test.Service.Background
 
         public BackgroundTradeOrderSyncServiceTest()
         {
-            var backgroundTradeOrderSyncServiceLogger = Substitute.For<ILogger<BackgroundTradeOrderSyncService>>();
-            var databaseSetupSignalLogger = Substitute.For<ILogger<DatabaseSetupSignal>>();
+            var logger = Substitute.For<ILogger<BackgroundTradeOrderSyncService>>();
+            var databaseSetupSignal = Substitute.For<IDatabaseSetupSignal>();
 
-        _serviceProvider.GetService(typeof(IServiceScopeFactory)).Returns(_serviceScopeFactory);
+            _serviceProvider.GetService(typeof(IServiceScopeFactory)).Returns(_serviceScopeFactory);
             _serviceProvider.GetService<IServiceScopeFactory>().Returns(_serviceScopeFactory);
             _serviceProvider.GetRequiredService(typeof(IServiceScopeFactory)).Returns(_serviceScopeFactory);
             _serviceProvider.GetRequiredService<IServiceScopeFactory>().Returns(_serviceScopeFactory);
@@ -57,8 +56,7 @@ namespace Waffler.Test.Service.Background
             _serviceScope.ServiceProvider.GetRequiredService<IBitpandaService>().Returns(_bitpandaService);
             _serviceScope.ServiceProvider.GetRequiredService<IMapper>().Returns(_mapper);
 
-            _backgroundTradeOrderSyncService = new BackgroundTradeOrderSyncService(backgroundTradeOrderSyncServiceLogger, _serviceProvider, 
-                new DatabaseSetupSignal(databaseSetupSignalLogger));
+            _backgroundTradeOrderSyncService = new BackgroundTradeOrderSyncService(logger, _serviceProvider, databaseSetupSignal);
         }
 
         [Fact]

@@ -12,6 +12,7 @@ namespace Waffler.Service.Infrastructure
     {
         Task AwaitDatabaseReadyAsync(CancellationToken cancellationToken);
         void SetDatabaseReady();
+        void SetDatabaseBusy();
         Task AwaitDatabaseOnlineAsync(SqlConnection connection);
     }
 
@@ -43,6 +44,15 @@ namespace Waffler.Service.Infrastructure
                 }
                 await _databaseReadySignal.WaitAsync(cancellationToken);
                 _logger.LogDebug($"Got database ready signal");
+            }
+        }
+
+        public void SetDatabaseBusy()
+        {
+            lock (Lock)
+            {
+                DatabaseReady = false;
+                _logger.LogDebug($"Database set to busy");
             }
         }
 

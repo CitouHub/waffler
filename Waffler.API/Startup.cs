@@ -56,6 +56,7 @@ namespace Waffler.API
             services.AddScoped<IStatisticsService, StatisticsService>();
 
             services.AddHostedService<BackgroundDatabaseMigrationService>();
+            services.AddHostedService<BackgroundDatabaseTuneService>();
             services.AddHostedService<BackgroundChartSyncService>();
             services.AddHostedService<BackgroundTradeService>();
             services.AddHostedService<BackgroundTestTradeService>();

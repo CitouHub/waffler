@@ -23,6 +23,8 @@ namespace Waffler.Service.Background
         private readonly ILogger<BackgroundTradeOrderSyncService> _logger;
         private readonly IDatabaseSetupSignal _databaseSetupSignal;
         private readonly TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
+        private readonly object FetchStartLock = new object();
+        private readonly object UpdateStartLock = new object();
 
         private Timer _fetchTimer;
         private Timer _updateTimer;
@@ -40,25 +42,31 @@ namespace Waffler.Service.Background
             _logger.LogDebug("BackgroundOrderSyncService instantiated");
         }
 
-        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
-
             if(!cancellationToken.IsCancellationRequested)
             {
                 _fetchTimer = new Timer(async _ => await FetchOrderDataAsync(cancellationToken), null, TimeSpan.FromSeconds(0), RequestPeriod);
                 _updateTimer = new Timer(async _ => await UpdateOrderDataAsync(cancellationToken), null, TimeSpan.FromSeconds(0), RequestPeriod);
             }
+
+            return Task.CompletedTask;
         }
 
         public async Task UpdateOrderDataAsync(CancellationToken cancellationToken)
         {
-            if (UpdateInProgress)
+            lock (UpdateStartLock)
             {
-                return;
+                if (UpdateInProgress)
+                {
+                    return;
+                }
+
+                UpdateInProgress = true;
             }
 
-            UpdateInProgress = true;
+            _logger.LogInformation($"Waiting for database to be ready");
+            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
             try
             {
                 _logger.LogInformation($"Syncing order data");
@@ -115,12 +123,18 @@ namespace Waffler.Service.Background
 
         public async Task FetchOrderDataAsync(CancellationToken cancellationToken)
         {
-            if (FetchInProgress)
+            lock (FetchStartLock)
             {
-                return;
+                if (FetchInProgress)
+                {
+                    return;
+                }
+
+                FetchInProgress = true;
             }
 
-            FetchInProgress = true;
+            _logger.LogInformation($"Waiting for database to be ready");
+            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
             try
             {
                 _logger.LogInformation($"Syncing order data");

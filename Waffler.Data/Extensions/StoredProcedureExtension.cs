@@ -38,5 +38,12 @@ namespace Waffler.Data.Extensions
 
             return await context.Set<sp_getTradeRuleBuyStatistics_Result>().FromSqlRaw(expr).ToListAsync();
         }
+
+        public static async Task<List<sp_getIndexFragmentation_Result>> sp_getIndexFragmentation(this WafflerDbContext context)
+        {
+            var expr = $"exec sp_getIndexFragmentation";
+
+            return await context.Set<sp_getIndexFragmentation_Result>().FromSqlRaw(expr).ToListAsync();
+        }
     }
 }

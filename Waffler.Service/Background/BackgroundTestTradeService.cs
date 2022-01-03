@@ -36,8 +36,6 @@ namespace Waffler.Service.Background
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
-
             while (!cancellationToken.IsCancellationRequested)
             {
                 _logger.LogInformation($"Waiting for trade rule test request...");
@@ -63,6 +61,9 @@ namespace Waffler.Service.Background
 
         public async Task RunTradeTest(CancellationToken cancellationToken, TradeRuleTestRequestDTO tradeRuleTestRequest)
         {
+            _logger.LogInformation($"Waiting for database to be ready");
+            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
+
             _logger.LogInformation($"New trade rule test request found {tradeRuleTestRequest}");
             var currentStatus = _tradeRuleTestQueue.InitTradeRuleTestRun(tradeRuleTestRequest);
 

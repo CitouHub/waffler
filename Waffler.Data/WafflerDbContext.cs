@@ -20,6 +20,8 @@ namespace Waffler.Data
 
         public virtual DbSet<sp_getTradeRuleBuyStatistics_Result> sp_getTradeRuleBuyStatistics_Result { get; set; }
 
+        public virtual DbSet<sp_getIndexFragmentation_Result> sp_getIndexFragmentation_Result { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
@@ -50,6 +52,17 @@ namespace Waffler.Data
                 entity.Property(e => e.TotalInvested).HasColumnType("decimal(10, 2)");
                 entity.Property(e => e.AveragePrice).HasColumnType("decimal(10, 2)");
                 entity.Property(e => e.ValueIncrease).HasColumnType("decimal(5, 2)");
+            });
+
+            modelBuilder.Entity<sp_getIndexFragmentation_Result>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.Property(e => e.SchemaName).HasColumnType("nvarchar(50)");
+                entity.Property(e => e.TableName).HasColumnType("nvarchar(200)");
+                entity.Property(e => e.IndexName).HasColumnType("nvarchar(200)");
+                entity.Property(e => e.Fragmentation).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.PageCount).HasColumnType("bigint");
             });
 
             base.OnModelCreating(modelBuilder);
