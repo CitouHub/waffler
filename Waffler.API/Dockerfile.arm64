@@ -11,6 +11,11 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+RUN mkdir -p Master
+RUN mkdir -p Migration
+COPY ./Waffler.Data/Master Master
+COPY ./Waffler.Data/Migration Migration
+
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim-arm64v8 AS build
 WORKDIR /src
 COPY ["Waffler.API/Waffler.API.csproj", "Waffler.API/"]
@@ -18,11 +23,6 @@ COPY ["Waffler.Common/Waffler.Common.csproj", "Waffler.Common/"]
 COPY ["Waffler.Service/Waffler.Service.csproj", "Waffler.Service/"]
 COPY ["Waffler.Data/Waffler.Data.csproj", "Waffler.Data/"]
 COPY ["Waffler.Domain/Waffler.Domain.csproj", "Waffler.Domain/"]
-
-RUN mkdir -p /Master
-RUN mkdir -p /Migration
-COPY ./Waffler.Data/Master /Master
-COPY ./Waffler.Data/Migration /Migration
 
 RUN dotnet restore "Waffler.API/Waffler.API.csproj"
 COPY . .
