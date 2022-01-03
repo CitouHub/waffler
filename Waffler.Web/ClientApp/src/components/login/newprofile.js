@@ -30,7 +30,7 @@ const NewProfile = () => {
     if (!loading && !hasProfile) {
 
         return (
-            <div className="profile">
+            <div className="p-center profile">
                 <img src={waffle} alt="Logo" className="waffle" />
                 <h1>welcome new waffler!</h1>
                 <Form

@@ -1,8 +1,13 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { Redirect } from "react-router-dom";
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 
-import Cache from '../../util/cache'
-import ProfileService from '../../services/profile.service'
+import Cache from '../../util/cache';
+import ProfileService from '../../services/profile.service';
+import StatusService from '../../services/status.service';
+
+import waffle from '../../assets/images/waffle.png';
 
 const Home = () => {
     const [loading, setLoading] = useState(true);
@@ -11,9 +16,11 @@ const Home = () => {
     const isAuthenticated = Cache.get("isAuthenticated");
 
     useEffect(() => {
-        ProfileService.hasProfile().then((value) => {
-            setHasProfile(value);
-            setLoading(false);
+        StatusService.awaitDatabaseOnline().then(() => {
+            ProfileService.hasProfile().then((value) => {
+                setHasProfile(value);
+                setLoading(false);
+            });
         });
     }, []);
 
@@ -29,6 +36,15 @@ const Home = () => {
                 return <Redirect to="/login" />
             }
         }
+    } else if (isAuthenticated === false) {
+        return (
+            <div className="p-center">
+                <img src={waffle} alt="Logo" className="waffle mb-3" />
+                <Box sx={{ display: 'flex' }}>
+                    <CircularProgress />
+                </Box>
+            </div>
+        )
     } else {
         return null;
     }

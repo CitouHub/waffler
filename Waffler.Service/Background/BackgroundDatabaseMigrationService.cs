@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 using System.Reflection;
+using System.Linq;
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -11,12 +12,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 using Waffler.Service.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using Waffler.Data;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
 
 namespace Waffler.Service.Background
 {
@@ -60,14 +60,14 @@ namespace Waffler.Service.Background
                 var connectionStringMaster = $"Server={server};Initial Catalog=master;{credentials}";
                 var connectionString = $"Server={server};Initial Catalog={database};{credentials}";
 
-                await AwaitServerOnline(new SqlConnection(connectionStringMaster));
+                await _databaseSetupSignal.AwaitDatabaseOnlineAsync(new SqlConnection(connectionStringMaster));
                 var databaseExists = await DatabaseExists(new SqlConnection(connectionString));
                 
                 if(databaseExists == false && cancellationToken.IsCancellationRequested == false)
                 {
                     await CreateDatabase(new SqlConnection(connectionStringMaster), database);
 
-                    await AwaitServerOnline(new SqlConnection(connectionString));
+                    await _databaseSetupSignal.AwaitDatabaseOnlineAsync(new SqlConnection(connectionString));
 
                     await RunScript(new SqlConnection(connectionString), ScriptSectionMaster, "DBMasterTables.sql");
                     await RunScript(new SqlConnection(connectionString), ScriptSectionMaster, "DBMasterData.sql");
@@ -114,34 +114,6 @@ namespace Waffler.Service.Background
             catch { }
 
             return false;
-        }
-
-        private async Task AwaitServerOnline(SqlConnection connection)
-        {
-            while (true)
-            {
-                try
-                {
-                    await connection.OpenAsync();
-                }
-                catch (Exception e)
-                {
-                    _logger.LogDebug($"{e.Message} - {e.InnerException?.Message}");
-                }
-
-                if (connection.State != ConnectionState.Open)
-                {
-                    _logger.LogInformation($"Database {connection.Database} not online, waiting...");
-                    Thread.Sleep(2000);
-                }
-                else
-                {
-                    _logger.LogInformation($"Database {connection.Database} online, proceeding with migration");
-                    break;
-                }
-            }
-
-            await connection.CloseAsync();
         }
 
         private async Task RunScript(SqlConnection connection, string section, string script)

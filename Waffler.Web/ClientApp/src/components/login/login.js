@@ -28,7 +28,7 @@ const Login = () => {
     };
 
     return (
-        <div className="profile">
+        <div className="p-center profile">
             <img src={waffle} alt="Logo" className="waffle" />
             <h1>welcome back!</h1>
             <Form
