@@ -30,7 +30,7 @@ jobs:
         images: ${{ env.REGISTRY }}/${{ env.DB_IMAGE_NAME }}
 
     - name: Build and tag image for DB
-      run: docker build --tag ghcr.io/citou-ab/$DB_IMAGE_NAME:latest . --label ${{ steps.meta.outputs.labels }} --file Waffler.Data/Dockerfile
+      run: docker build --tag ghcr.io/citou-ab/$DB_IMAGE_NAME:latest . --file Waffler.Data/Dockerfile --label ${{ steps.meta.outputs.labels }}
 
     - name: Push image for DB
       run: docker push --all-tags ghcr.io/citou-ab/$DB_IMAGE_NAME
