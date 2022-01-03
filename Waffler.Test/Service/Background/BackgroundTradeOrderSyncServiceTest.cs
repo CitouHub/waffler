@@ -32,9 +32,10 @@ namespace Waffler.Test.Service.Background
 
         public BackgroundTradeOrderSyncServiceTest()
         {
-            var logger = Substitute.For<ILogger<BackgroundTradeOrderSyncService>>();
+            var backgroundTradeOrderSyncServiceLogger = Substitute.For<ILogger<BackgroundTradeOrderSyncService>>();
+            var databaseSetupSignalLogger = Substitute.For<ILogger<DatabaseSetupSignal>>();
 
-            _serviceProvider.GetService(typeof(IServiceScopeFactory)).Returns(_serviceScopeFactory);
+        _serviceProvider.GetService(typeof(IServiceScopeFactory)).Returns(_serviceScopeFactory);
             _serviceProvider.GetService<IServiceScopeFactory>().Returns(_serviceScopeFactory);
             _serviceProvider.GetRequiredService(typeof(IServiceScopeFactory)).Returns(_serviceScopeFactory);
             _serviceProvider.GetRequiredService<IServiceScopeFactory>().Returns(_serviceScopeFactory);
@@ -56,7 +57,8 @@ namespace Waffler.Test.Service.Background
             _serviceScope.ServiceProvider.GetRequiredService<IBitpandaService>().Returns(_bitpandaService);
             _serviceScope.ServiceProvider.GetRequiredService<IMapper>().Returns(_mapper);
 
-            _backgroundTradeOrderSyncService = new BackgroundTradeOrderSyncService(logger, _serviceProvider, new DatabaseSetupSignal());
+            _backgroundTradeOrderSyncService = new BackgroundTradeOrderSyncService(backgroundTradeOrderSyncServiceLogger, _serviceProvider, 
+                new DatabaseSetupSignal(databaseSetupSignalLogger));
         }
 
         [Fact]
