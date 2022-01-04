@@ -12,7 +12,7 @@ namespace Waffler.Test.Domain
         [InlineData(100, 150, 50)]
         [InlineData(100, 99, -1)]
         [InlineData(100, 101, 1)]
-        public void Trend_Change(decimal fromPrice, decimal toPrice, decimal expectedChange)
+        public void Change(decimal fromPrice, decimal toPrice, decimal expectedChange)
         {
             //Act
             var trend = new TrendDTO()

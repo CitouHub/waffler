@@ -32,7 +32,7 @@ namespace Waffler.API.Controller
 
             var connectionString = $"Server={server};Initial Catalog={database};{credentials}";
 
-            await _databaseSetupSignal.AwaitDatabaseOnlineAsync(new SqlConnection(connectionString));
+            await _databaseSetupSignal.AwaitDatabaseOnlineAsync(new CancellationToken(), new SqlConnection(connectionString));
         }
     }
 }

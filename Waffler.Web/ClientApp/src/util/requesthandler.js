@@ -20,14 +20,15 @@ export default {
     },
     handleResponse: async (response) => {
         try {
-            if (response?.status === 200) {
-                return response.data;
-            } else if (response?.status !== 204) {
-                console.warn("Unexpected API result!");
-                console.warn(response);
+            if (response) {
+                if (response.status === 200) {
+                    return response.data;
+                } else if (response.status !== 204) {
+                    console.warn("Unexpected API result!");
+                    console.warn(response);
+                }
             } else {
-                console.warn("Unexpected API response!");
-                console.warn(response);
+                console.warn("Unexpected NULL response from API");
             }
         } catch (error) {
             console.error(error);

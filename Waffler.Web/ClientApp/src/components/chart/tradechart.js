@@ -24,7 +24,7 @@ import CandleStickService from '../../services/candlestick.service'
 import TradeOrderService from '../../services/tradeorder.service'
 import TradeRuleService from '../../services/traderule.service'
 import ToolTipHelper from './tooltip/hover.tooltip'
-import ChartFilter from './filter/filter'
+import TradeFilter from '../filter/trade.filter'
 import SyncBar from './syncbar'
 
 import './chart.css';
@@ -86,7 +86,7 @@ const TradeChart = () => {
 
     useEffect(() => {
         if (loading === false) {
-            getCandleStickSyncStatus(); 
+            getCandleStickSyncStatus();
         }
     }, [loading]);
 
@@ -211,14 +211,17 @@ const TradeChart = () => {
     const yExtents = (data) => {
         return [data.high, data.low];
     };
-    
+
     return (
         <div className='chart-wrapper' ref={canvasRef}>
             <LoadingBar active={loading && syncStatus?.finished} />
+            <div className='mt-3 mb-3'>
+                <h4>Chart</h4>
+            </div>
             {!syncStatus?.finished && <SyncBar currentDate={syncStatus?.lastPeriodDateTime?.toJSON()?.slice(0, 10)} progress={syncStatus.progress} />}
             {syncStatus?.finished && dimensions.width > 0 && dimensions.height > 0 &&
                 <div>
-                    <ChartFilter
+                    <TradeFilter
                         filter={filter}
                         updateFilter={(filter) => setFilter(filter)}
                         tradeRules={tradeRules}
@@ -229,7 +232,7 @@ const TradeChart = () => {
                         updateSelectedTradeStatuses={(selectedTradeOrderStatuses) => setSelectedTradeOrderStatuses(selectedTradeOrderStatuses)}
                     />
                     {candleSticksChart && candleSticksChart.length > 0 && <ChartCanvas
-                        height={dimensions.height - 100}
+                        height={dimensions.height - 150}
                         ratio={1}
                         width={dimensions.width}
                         margin={margin}

@@ -9,7 +9,7 @@ namespace Waffler.Test.Domain
         [Theory]
         [InlineData(59, true)]
         [InlineData(61, false)]
-        public void CandleStickSyncStatus_Finished(int lastPeriodDateTimeMinutesOffset, bool expectedFinished)
+        public void Finished(int lastPeriodDateTimeMinutesOffset, bool expectedFinished)
         {
             //Act
             var candleStickSyncStatus = new CandleStickSyncStatusDTO()
@@ -28,7 +28,7 @@ namespace Waffler.Test.Domain
         [InlineData(400, 400, 0)]
         [InlineData(400, 200, 50)]
         [InlineData(400, 0, 100)]
-        public void CandleStickSyncStatus_Progress(int? firstPeriodDateTimeMinutesOffset, int? lastPeriodDateTimeMinutesOffset, decimal expectedProgress)
+        public void Progress(int? firstPeriodDateTimeMinutesOffset, int? lastPeriodDateTimeMinutesOffset, decimal expectedProgress)
         {
             //Act
             var candleStickSyncStatus = new CandleStickSyncStatusDTO()

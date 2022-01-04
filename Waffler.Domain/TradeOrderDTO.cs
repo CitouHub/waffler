@@ -18,6 +18,27 @@ namespace Waffler.Domain
 		public decimal FilledAmount { get; set; }
 		public bool IsActive { get; set; }
 
+		public decimal TotalValue
+        {
+			get
+            {
+				return Math.Round(Price * FilledAmount, 2);
+            }
+        }
+
+		public decimal FilledPercent
+		{
+			get
+			{
+				if(Amount == 0)
+                {
+					return 0;
+                }
+
+				return Math.Round((FilledAmount / Amount) * 100, 2);
+			}
+		}
+
 		public override string ToString()
         {
 			return $"{OrderId} {OrderDateTime} {Price} {FilledAmount}/{Amount}";

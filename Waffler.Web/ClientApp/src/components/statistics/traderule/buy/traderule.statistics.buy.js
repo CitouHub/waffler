@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from "react";
-import StatisticsFilter from '../../filter/filter';
+import StatisticsFilter from '../../../filter/statistics.filter';
 import LoadingBar from '../../../utils/loadingbar';
 
 import CandleStickService from '../../../../services/candlestick.service';

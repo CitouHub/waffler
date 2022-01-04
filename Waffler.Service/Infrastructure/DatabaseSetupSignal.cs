@@ -13,7 +13,7 @@ namespace Waffler.Service.Infrastructure
         Task AwaitDatabaseReadyAsync(CancellationToken cancellationToken);
         void SetDatabaseReady();
         void SetDatabaseBusy();
-        Task AwaitDatabaseOnlineAsync(SqlConnection connection);
+        Task AwaitDatabaseOnlineAsync(CancellationToken cancellationToken, SqlConnection connection);
     }
 
     public class DatabaseSetupSignal : IDatabaseSetupSignal
@@ -66,9 +66,9 @@ namespace Waffler.Service.Infrastructure
             }
         }
 
-        public async Task AwaitDatabaseOnlineAsync(SqlConnection connection)
+        public async Task AwaitDatabaseOnlineAsync(CancellationToken cancellationToken, SqlConnection connection)
         {
-            while (true)
+            while (cancellationToken.IsCancellationRequested == false)
             {
                 try
                 {
@@ -87,11 +87,10 @@ namespace Waffler.Service.Infrastructure
                 else
                 {
                     _logger.LogInformation($"Database {connection.Database} online, proceeding with migration");
+                    await connection.CloseAsync();
                     break;
                 }
             }
-
-            await connection.CloseAsync();
         }
     }
 }
