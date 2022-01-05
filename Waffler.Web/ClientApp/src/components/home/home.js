@@ -11,42 +11,44 @@ import waffle from '../../assets/images/waffle.png';
 
 const Home = () => {
     const [loading, setLoading] = useState(true);
-    const [hasProfile, setHasProfile] = useState();
+    const [hasProfile, setHasProfile] = useState(false);
 
-    const isAuthenticated = Cache.get("isAuthenticated");
+    const isAuthenticated = Cache.getAndReset("isAuthenticated");
 
     useEffect(() => {
         StatusService.awaitDatabaseOnline().then(() => {
-            ProfileService.hasProfile().then((value) => {
-                setHasProfile(value);
+            if (!isAuthenticated) {
+                ProfileService.hasProfile().then((value) => {
+                    setHasProfile(value);
+                    setLoading(false);
+                });
+            } else {
                 setLoading(false);
-            });
+            }
         });
     }, []);
 
     if (!loading) {
-        if (hasProfile && isAuthenticated) {
-            return (
-                <Redirect to="/tradechart" />
-            );
+        if (isAuthenticated) {
+            return <Redirect to="/tradechart" />
+        } else if (hasProfile && !isAuthenticated) {
+            return <Redirect to="/login" />
         } else {
-            if (!hasProfile) {
-                return <Redirect to="/newprofile" />
-            } else if (!isAuthenticated) {
-                return <Redirect to="/login" />
-            }
+            return <Redirect to="/newprofile" />
         }
-    } else if (isAuthenticated === false) {
-        return (
-            <div className="p-center">
-                <img src={waffle} alt="Logo" className="waffle mb-3" />
-                <Box sx={{ display: 'flex' }}>
-                    <CircularProgress />
-                </Box>
-            </div>
-        )
     } else {
-        return null;
+        if (!isAuthenticated) {
+            return (
+                <div className="p-center">
+                    <img src={waffle} alt="Logo" className="waffle mb-3" />
+                    <Box sx={{ display: 'flex' }}>
+                        <CircularProgress />
+                    </Box>
+                </div>
+            )
+        } else if (isAuthenticated) {
+            return null;
+        }
     }
 }
 

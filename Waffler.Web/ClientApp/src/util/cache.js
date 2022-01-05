@@ -12,7 +12,7 @@ export default {
 	},
 	get(key) {
 		const itemStr = localStorage.getItem(key);
-		
+
 		if (!itemStr) {
 			return null
 		}
@@ -23,10 +23,16 @@ export default {
 			localStorage.removeItem(key)
 			return null
 		}
-		else {
-			this.set(key, item.value);
+
+		return item.value;
+	},
+	getAndReset(key) {
+		const value = this.get(key);
+
+		if (value) {
+			this.set(key, value);
 		}
 
-		return item.value
+		return value;
 	}
 }

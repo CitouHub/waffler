@@ -8,7 +8,7 @@ import SideBar from './sidebar/sidebar';
 import './contentframe.css';
 
 const ContentFrame = (props) => {
-    const isAuthenticated = Cache.get("isAuthenticated");
+    const isAuthenticated = Cache.getAndReset("isAuthenticated");
 
     if (isAuthenticated === true) {
         return (
