@@ -17,6 +17,7 @@ using Waffler.Test.Helper;
 using Waffler.Test.Mock;
 using Waffler.Domain.Github;
 
+#pragma warning disable IDE0017 // Simplify object initialization
 namespace Waffler.Test.Service
 {
     public class GithubServiceTest
