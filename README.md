@@ -58,4 +58,4 @@ Waffler is now running on `http://waffler.local:8088`, enjoy!
 I'm experimeted a bit in designing some default trade rules. If you want to use these for your instance of Waffler you'll be able to get them i the 'Waffler.TradeRules' folder. After you've set up Waffler you can just import them in the `Trade rule` view.
 
 ## Final thoughts
-I'm running Waffler on my own Raspberry Pi 4 which is also acting as my Lightning Node with Umbrel. The Sell-functionality is, in the spirit of HOLD, by default disable, who wants to sell BTC? If, however, you want to enable it. Open your docker-compose file and change `Bitpanda__OrderFeature__Sell=false` to `Bitpanda__OrderFeature__Sell=true`.
+I'm running Waffler on my own Raspberry Pi 4 which is also acting as my Lightning Node with Umbrel. The Sell-functionality is, in the spirit of HODL, by default disable, who wants to sell BTC? If, however, you want to enable it. Open your docker-compose file and change `Bitpanda__OrderFeature__Sell=false` to `Bitpanda__OrderFeature__Sell=true`.
