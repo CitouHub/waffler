@@ -6,7 +6,7 @@
   "tradeRuleStatusId": 2,
   "candleStickValueTypeId": 4,
   "name": "Buy big dip",
-  "amount": 50,
+  "amount": 75,
   "priceDeltaPercent": 0,
   "tradeMinIntervalMinutes": 1440,
   "tradeOrderExpirationMinutes": 1440,

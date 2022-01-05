@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
 
+using Waffler.API.Security;
 using Waffler.Domain;
 using Waffler.Domain.Message;
 using Waffler.Service;
@@ -12,6 +13,7 @@ namespace Waffler.API.Controller
 {
     [ApiController]
     [Route("v1/[controller]")]
+    [ApiKey]
     public class TradeRuleController : ControllerBase
     {
         private readonly ITradeRuleService _tradeRuleService;

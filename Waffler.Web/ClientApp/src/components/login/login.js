@@ -15,11 +15,12 @@ const Login = () => {
     let history = useHistory();
 
     const onSubmit = values => {
-        ProfileService.verifyPassword(values.password).then((success) => {
+        ProfileService.login(values.password).then((apiKey) => {
             setPasswordChecked(true);
-            if (success === true) {
+            if (apiKey) {
                 setPasswordValid(true);
                 Cache.set("isAuthenticated", true);
+                Cache.set("apiKey", apiKey);
                 history.push("/");
             } else {
                 setPasswordValid(false);

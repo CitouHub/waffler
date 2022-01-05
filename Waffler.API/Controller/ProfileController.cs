@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
+using Waffler.API.Security;
 using Waffler.Domain;
 using Waffler.Service;
 
@@ -40,6 +41,7 @@ namespace Waffler.API.Controller
 
         [HttpGet]
         [Route("")]
+        [ApiKey]
         public async Task<ProfileDTO> GetProfileAsync()
         {
             var profile =  await _profileService.GetProfileAsync();
@@ -53,6 +55,7 @@ namespace Waffler.API.Controller
 
         [HttpPut]
         [Route("password")]
+        [ApiKey]
         public async Task<bool> UpdatePasswordAsync([FromBody] ChangePasswordDTO changePassword)
         {
             var isValid = await _profileService.IsPasswordValidAsync(changePassword.OldPassword);
@@ -66,14 +69,21 @@ namespace Waffler.API.Controller
         }
 
         [HttpPost]
-        [Route("password/verify")]
-        public async Task<bool> VerifyPasswordAsync([FromBody]ProfileDTO profile)
+        [Route("login")]
+        public async Task<string> VerifyPasswordAsync([FromBody]ProfileDTO profile)
         {
-            return await _profileService.IsPasswordValidAsync(profile.Password);
+            var passwordValid = await _profileService.IsPasswordValidAsync(profile.Password);
+            if(passwordValid)
+            {
+                UserSession.New();
+            }
+
+            return UserSession.ApiKey;
         }
 
         [HttpPut]
         [Route("")]
+        [ApiKey]
         public async Task<bool> UpdateProfileAsync([FromBody]ProfileDTO profile)
         {
             return await _profileService.UpdateProfileAsync(profile);
@@ -81,6 +91,7 @@ namespace Waffler.API.Controller
 
         [HttpGet]
         [Route("balance")]
+        [ApiKey]
         public async Task<List<BalanceDTO>> GetBalanceAsync()
         {
             return await _profileService.GetBalanceAsync();

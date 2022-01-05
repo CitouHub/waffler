@@ -34,8 +34,8 @@ export default {
     }).then((response) => {
         return Request.handleResponse(response)
     }),
-    verifyPassword: async (password) => await Request.send({
-        url: `/profile/password/verify`,
+    login: async (password) => await Request.send({
+        url: `/profile/login`,
         data: { password: password },
         method: 'POST'
     }).then((response) => {

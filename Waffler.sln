@@ -22,7 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Waffler.TradeRules", "Waffl
 		Waffler.TradeRules\Buy big dip.json = Waffler.TradeRules\Buy big dip.json
 		Waffler.TradeRules\Buy small dip.json = Waffler.TradeRules\Buy small dip.json
 		Waffler.TradeRules\Buy weekly.json = Waffler.TradeRules\Buy weekly.json
-		TradeRuleDetails.txt = TradeRuleDetails.txt
+		Waffler.TradeRules\TradeRuleDetails.txt = Waffler.TradeRules\TradeRuleDetails.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Waffler.Docker", "Waffler.Docker", "{115DA70C-946C-4434-8BDD-F71B09AB6DF5}"

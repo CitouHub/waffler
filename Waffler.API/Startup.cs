@@ -17,6 +17,7 @@ using Waffler.Domain;
 using Waffler.Service;
 using Waffler.Service.Background;
 using Waffler.Service.Infrastructure;
+using Waffler.API.Security;
 
 namespace Waffler.API
 {
@@ -27,12 +28,13 @@ namespace Waffler.API
         public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
-        }        
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().AddJsonOptions(options => {
+            services.AddMvc().AddJsonOptions(options =>
+            {
                 options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
             var connectionString = GetDatabaseConnectionString();
@@ -75,6 +77,22 @@ namespace Waffler.API
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Waffler.API", Version = "v1" });
+                c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Name = ApiKeyAttribute.Name,
+                    Type = SecuritySchemeType.ApiKey
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
             });
         }
 
