@@ -81,7 +81,7 @@ const TradeRuleActionMenu = ({ runningTest, saveTradeRule, copyTradeRule, export
                 <MenuItem onClick={e => {
                     saveTradeRule();
                     setAnchorEl(null);
-                }} disableRipple>
+                }} disableRipple disabled={runningTest}>
                     <SaveIcon />
                     Save
                 </MenuItem>
@@ -95,14 +95,14 @@ const TradeRuleActionMenu = ({ runningTest, saveTradeRule, copyTradeRule, export
                 <MenuItem onClick={e => {
                     copyTradeRule();
                     setAnchorEl(null);
-                }} disableRipple>
+                }} disableRipple disabled={runningTest}>
                     <ContentCopyIcon />
                     Copy
                 </MenuItem>
                 <MenuItem onClick={e => {
                     deleteTradeRule();
                     setAnchorEl(null);
-                }} disableRipple>
+                }} disableRipple disabled={runningTest}>
                     <DeleteIcon />
                     Delete
                 </MenuItem>

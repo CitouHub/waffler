@@ -11,7 +11,7 @@
   "tradeMinIntervalMinutes": 1440,
   "tradeOrderExpirationMinutes": 1440,
   "lastTrigger": "2021-12-12T09:44:00",
-  "testTradeInProgress": true,
+  "testTradeInProgress": false,
   "tradeRuleConditions": [
     {
       "id": 7,

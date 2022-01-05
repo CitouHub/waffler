@@ -10,6 +10,6 @@ namespace Waffler.Data.ComplexModel
 		public decimal FilledPercent { get; set; }
 		public decimal TotalInvested { get; set; }
 		public decimal AveragePrice { get; set; }
-		public decimal ValueIncrease { get; set; }
+		public decimal? ValueIncrease { get; set; }
 	}
 }

@@ -27,10 +27,15 @@ const TradeRuleBuyStatistics = () => {
     useEffect(() => {
         setloadingPeriod(true);
         CandleStickService.getFirstPeriod().then(result => {
-            var date = new Date(result);
-            date.setDate(date.getDate() + 1);
-            setFilter({ ...filter, fromDate: date });
+            let date = new Date();
+            date.setDate(date.getDate() - 30);
 
+            if (result) {
+                date = new Date(result);
+                date.setDate(date.getDate() + 1);
+            }
+            
+            setFilter({ ...filter, fromDate: date });
             setloadingPeriod(false);
         });
     }, []);
