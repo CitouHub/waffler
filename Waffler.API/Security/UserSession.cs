@@ -4,7 +4,7 @@ namespace Waffler.API.Security
 {
     public static class UserSession
     {
-        private static readonly int SessionValidMinuets = 60 * 20; //20 minutes
+        public static int SessionValidSeconds { get; set; }
 
         public static string ApiKey { private set; get; }
         private static DateTime Expiration;
@@ -12,7 +12,7 @@ namespace Waffler.API.Security
         public static void New()
         {
             ApiKey = Guid.NewGuid().ToString();
-            Expiration = DateTime.UtcNow.AddMinutes(SessionValidMinuets);
+            Expiration = DateTime.UtcNow.AddSeconds(SessionValidSeconds);
         }
 
         public static bool IsValid()
@@ -22,7 +22,10 @@ namespace Waffler.API.Security
 
         public static void Refresh()
         {
-            Expiration = DateTime.UtcNow.AddMinutes(SessionValidMinuets);
+            if(IsValid())
+            {
+                Expiration = DateTime.UtcNow.AddSeconds(SessionValidSeconds);
+            }
         }
     }
 }

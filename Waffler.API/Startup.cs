@@ -47,6 +47,12 @@ namespace Waffler.API
                 _.BaseAddress = new Uri(_configuration.GetValue<string>("Bitpanda:BaseUri"));
                 _.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             });
+            services.AddHttpClient("Github", _ =>
+            {
+                _.BaseAddress = new Uri(_configuration.GetValue<string>("Github:BaseUri"));
+                _.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                _.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(new ProductHeaderValue("Waffler")));
+            });
 
             services.AddScoped<IBitpandaService, BitpandaService>();
             services.AddScoped<ITradeOrderService, TradeOrderService>();
@@ -56,6 +62,7 @@ namespace Waffler.API
             services.AddScoped<ICandleStickService, CandleStickService>();
             services.AddScoped<ITradeService, TradeService>();
             services.AddScoped<IStatisticsService, StatisticsService>();
+            services.AddScoped<IGithubService, GithubService>();
 
             services.AddHostedService<BackgroundDatabaseMigrationService>();
             services.AddHostedService<BackgroundDatabaseTuneService>();
@@ -72,6 +79,9 @@ namespace Waffler.API
             services.AddSingleton(mapperConfig.CreateMapper());
             services.AddSingleton<ITradeRuleTestQueue, TradeRuleTestQueue>();
             services.AddSingleton<IDatabaseSetupSignal, DatabaseSetupSignal>();
+
+            var sessionExpirationMinutes = _configuration.GetValue<int>("Profile:SessionExpirationMinutes");
+            UserSession.SessionValidSeconds = sessionExpirationMinutes * 60;
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

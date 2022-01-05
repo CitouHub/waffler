@@ -27,7 +27,7 @@ namespace Waffler.Test.Mock
             return Task.FromResult(new HttpResponseMessage
             {
                 StatusCode = _statusCode,
-                Content = new StringContent(_response)
+                Content = string.IsNullOrEmpty(_response) == false ? new StringContent(_response) : null
             });
         }
     }

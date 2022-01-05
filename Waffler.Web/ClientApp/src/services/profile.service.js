@@ -47,4 +47,10 @@ export default {
     }).then((response) => {
         return Request.handleResponse(response)
     }),
+    getLatestRelease: async () => await Request.send({
+        url: `/profile/release/latest`,
+        method: 'GET'
+    }).then((response) => {
+        return Request.handleResponse(response)
+    }),
 }

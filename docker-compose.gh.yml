@@ -28,9 +28,12 @@ services:
       - Database__Credentials=User ID=sa;Password=pAssword1234
       - Database__Service__IndexFragmentationAnalasys__TriggerTime=02:00
       - Profile__DefaultCandleStickSyncOffsetDays=90
+      - Profile__SessionExpirationMinutes=1200
       - Bitpanda__BaseUri=https://api.exchange.bitpanda.com/public/v1/
       - Bitpanda__OrderFeature__Buy=true
       - Bitpanda__OrderFeature__Sell=false
+      - Github__BaseUri=https://api.github.com/
+      - Github__Owner=CitouHub
     volumes:
       - ./https:/https:ro
   db:

@@ -17,11 +17,13 @@ namespace Waffler.API.Controller
     {
         private readonly IConfiguration _configuration;
         private readonly IProfileService _profileService;
+        private readonly IGithubService _githubService;
 
-        public ProfileController(IConfiguration configuration, IProfileService profileService)
+        public ProfileController(IConfiguration configuration, IProfileService profileService, IGithubService githubService)
         {
             _configuration = configuration;
             _profileService = profileService;
+            _githubService = githubService;
         }
 
         [HttpGet]
@@ -70,7 +72,7 @@ namespace Waffler.API.Controller
 
         [HttpPost]
         [Route("login")]
-        public async Task<string> VerifyPasswordAsync([FromBody]ProfileDTO profile)
+        public async Task<string> Login([FromBody]ProfileDTO profile)
         {
             var passwordValid = await _profileService.IsPasswordValidAsync(profile.Password);
             if(passwordValid)
@@ -95,6 +97,14 @@ namespace Waffler.API.Controller
         public async Task<List<BalanceDTO>> GetBalanceAsync()
         {
             return await _profileService.GetBalanceAsync();
+        }
+
+        [HttpGet]
+        [Route("release/latest")]
+        [ApiKey]
+        public async Task<string> GetLatestRelease()
+        {
+            return await _githubService.GetLatestReleaseAsync();
         }
     }
 }

@@ -13,12 +13,19 @@
     margin-right: 2rem;
 }
 
-.title h4 {
-    vertical-align: middle;
-    display: table-cell;
-    color: rgba(20,24,33,.5);
-    line-height: 0.5;
-}
+    .title h4 {
+        vertical-align: middle;
+        display: table-cell;
+        color: rgba(20,24,33,.5);
+        line-height: 0.5;
+    }
+
+    .title p {
+        vertical-align: middle;
+        display: table-cell;
+        line-height: 1;
+        color: #4caf50;
+    }
 
 .version {
     font-size: 10px;

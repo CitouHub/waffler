@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Waffler.API\Waffler.API.csproj" />
     <ProjectReference Include="..\Waffler.Service\Waffler.Service.csproj" />
   </ItemGroup>
 
