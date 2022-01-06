@@ -4,6 +4,7 @@
 	{
 		public int TradeRuleId { get; set; }
 		public string TradeRuleName { get; set; }
+		public int Orders { get; set; }
 		public decimal TotalAmount { get; set; }
 		public decimal TotalFilledAmount { get; set; }
 		public decimal FilledPercent { get; set; }

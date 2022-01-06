@@ -19,7 +19,9 @@ const Profile = () => {
 
     useEffect(() => {
         ProfileService.getProfile().then((profile) => {
-            profile.candleStickSyncFromDate = new Date(profile.candleStickSyncFromDate);
+            let date = new Date(profile.candleStickSyncFromDate);
+            date.setDate(date.getDate() + 1);
+            profile.candleStickSyncFromDate = date;
             setProfile(profile);
             setLoading(false);
         });

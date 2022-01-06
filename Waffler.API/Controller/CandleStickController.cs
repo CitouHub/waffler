@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Waffler.API.Security;
 using Waffler.Domain;
 using Waffler.Service;
+using Waffler.Service.Infrastructure;
 
 namespace Waffler.API.Controller
 {
@@ -16,10 +17,12 @@ namespace Waffler.API.Controller
     public class CandleStickController : ControllerBase
     {
         private readonly ICandleStickService _candleStickService;
+        private readonly ICandleStickSyncSignal _candleStickSyncSignal;
 
-        public CandleStickController(ICandleStickService candleStickService)
+        public CandleStickController(ICandleStickService candleStickService, ICandleStickSyncSignal candleStickSyncSignal)
         {
             _candleStickService = candleStickService;
+            _candleStickSyncSignal = candleStickSyncSignal;
         }
 
         [HttpGet]
@@ -41,6 +44,11 @@ namespace Waffler.API.Controller
         [Route("sync/reset")]
         public async Task ResetCandleStickDataAsync()
         {
+            if(_candleStickSyncSignal.IsActive())
+            {
+                _candleStickSyncSignal.Abort();
+                await _candleStickSyncSignal.AwaitAbortAsync();
+            }
             await _candleStickService.ResetCandleStickDataAsync();
         }
 

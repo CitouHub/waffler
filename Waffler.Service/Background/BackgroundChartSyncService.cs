@@ -62,7 +62,7 @@ namespace Waffler.Service.Background
                 {
                     return;
                 }
-
+               
                 InProgress = true;
             }
 
@@ -77,14 +77,16 @@ namespace Waffler.Service.Background
                     var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
                     var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
+                    var _candleStickSyncSignal = scope.ServiceProvider.GetRequiredService<ICandleStickSyncSignal>();
                     var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
                     var syncingData = true;
                     var requestCount = 0;
                     var startTime = DateTime.UtcNow;
                     var profile = await _profileService.GetProfileAsync();
+                    _candleStickSyncSignal.StartSync();
 
-                    while (profile != null && syncingData && cancellationToken.IsCancellationRequested == false)
+                    while (profile != null && syncingData && cancellationToken.IsCancellationRequested == false && _candleStickSyncSignal.IsAbortRequested() == false)
                     {
                         _logger.LogInformation($"- Getting last candlestick");
                         var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow))?.PeriodDateTime ??
@@ -132,9 +134,16 @@ namespace Waffler.Service.Background
 
                         if(_timer != null)
                         {
-                            _timer.Change(SyncInterval, SyncInterval);
+                            var dueTime = SyncInterval;
+                            if (_candleStickSyncSignal.IsAbortRequested())
+                            {
+                                dueTime = TimeSpan.FromSeconds(10);
+                            }
+                            _timer.Change(dueTime, SyncInterval);
                         }
                     }
+
+                    _candleStickSyncSignal.CloseSync();
                 }
                 _logger.LogInformation($"Syncing candlestick data finished");
             }
@@ -142,6 +151,7 @@ namespace Waffler.Service.Background
             {
                 _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
             }
+
             InProgress = false;
         }
     }

@@ -79,6 +79,7 @@ namespace Waffler.API
             services.AddSingleton(mapperConfig.CreateMapper());
             services.AddSingleton<ITradeRuleTestQueue, TradeRuleTestQueue>();
             services.AddSingleton<IDatabaseSetupSignal, DatabaseSetupSignal>();
+            services.AddSingleton<ICandleStickSyncSignal, CandleStickSyncSignal>();
 
             var sessionExpirationMinutes = _configuration.GetValue<int>("Profile:SessionExpirationMinutes");
             UserSession.SessionValidSeconds = sessionExpirationMinutes * 60;

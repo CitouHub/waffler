@@ -28,6 +28,7 @@ namespace Waffler.Test.Service.Background
         private readonly ICandleStickService _candleStickService = Substitute.For<ICandleStickService>();
         private readonly IBitpandaService _bitpandaService = Substitute.For<IBitpandaService>();
         private readonly IDatabaseSetupSignal _databaseSetupSignal = Substitute.For<IDatabaseSetupSignal>();
+        private readonly ICandleStickSyncSignal _candleStickSyncSignal = Substitute.For<ICandleStickSyncSignal>();
         private readonly BackgroundChartSyncService _backgroundChartSyncService;
 
         public BackgroundChartSyncServiceTest()
@@ -50,10 +51,12 @@ namespace Waffler.Test.Service.Background
             _serviceScope.ServiceProvider.GetService<IProfileService>().Returns(_profileService);
             _serviceScope.ServiceProvider.GetService<ICandleStickService>().Returns(_candleStickService);
             _serviceScope.ServiceProvider.GetService<IBitpandaService>().Returns(_bitpandaService);
+            _serviceScope.ServiceProvider.GetService<ICandleStickSyncSignal>().Returns(_candleStickSyncSignal);
             _serviceScope.ServiceProvider.GetService<IMapper>().Returns(_mapper);
             _serviceScope.ServiceProvider.GetRequiredService<IProfileService>().Returns(_profileService);
             _serviceScope.ServiceProvider.GetRequiredService<ICandleStickService>().Returns(_candleStickService);
             _serviceScope.ServiceProvider.GetRequiredService<IBitpandaService>().Returns(_bitpandaService);
+            _serviceScope.ServiceProvider.GetRequiredService<ICandleStickSyncSignal>().Returns(_candleStickSyncSignal);
             _serviceScope.ServiceProvider.GetRequiredService<IMapper>().Returns(_mapper);
 
             _backgroundChartSyncService = new BackgroundChartSyncService(logger, _serviceProvider, _databaseSetupSignal);
@@ -68,14 +71,34 @@ namespace Waffler.Test.Service.Background
             //Asert
             _ = _profileService.Received().GetProfileAsync();
             _ = _candleStickService.DidNotReceive().GetLastCandleStickAsync(Arg.Any<DateTime>());
+            _candleStickSyncSignal.Received().StartSync();
+            _candleStickSyncSignal.Received().CloseSync();
+        }
+
+        [Fact]
+        public async Task FetchCandleStickData_AbortRequested()
+        {
+            //Setup
+            _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
+            _candleStickSyncSignal.IsAbortRequested().Returns(true);
+
+            //Act
+            await _backgroundChartSyncService.FetchCandleStickDataAsync(new CancellationToken());
+
+            //Asert
+            _ = _profileService.Received().GetProfileAsync();
+            _ = _candleStickService.DidNotReceive().GetLastCandleStickAsync(Arg.Any<DateTime>());
+            _candleStickSyncSignal.Received().StartSync();
+            _candleStickSyncSignal.Received().IsAbortRequested();
+            _candleStickSyncSignal.Received().CloseSync();
         }
 
         [Fact]
         public async Task FetchCandleStickData_NoPreviousCandleStickData_NoBitpandaCandleStickData()
         {
             //Setup
-            var profile = ProfileHelper.GetProfile();
-            _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
+            var profile = ProfileHelper.GetProfileDTO();
+            _profileService.GetProfileAsync().Returns(profile);
 
             //Act
             await _backgroundChartSyncService.FetchCandleStickDataAsync(new CancellationToken());
@@ -88,14 +111,17 @@ namespace Waffler.Test.Service.Background
                 Arg.Is<DateTime>(_ => _.Date == profile.CandleStickSyncFromDate.Date),
                 Arg.Is<DateTime>(_ => _ > profile.CandleStickSyncFromDate));
             _ = _candleStickService.DidNotReceive().AddCandleSticksAsync(Arg.Any<List<CandleStickDTO>>());
+            _candleStickSyncSignal.Received().StartSync();
+            _candleStickSyncSignal.Received().IsAbortRequested();
+            _candleStickSyncSignal.Received().CloseSync();
         }
 
         [Fact]
         public async Task FetchCandleStickData_PreviousCandleStickData_NoBitpandaCandleStickData()
         {
             //Setup
-            var profile = ProfileHelper.GetProfile();
-            _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
+            var profile = ProfileHelper.GetProfileDTO();
+            _profileService.GetProfileAsync().Returns(profile);
             var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.PeriodDateTime = DateTime.UtcNow.AddDays(-10);
             _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(candleStick);
@@ -111,6 +137,9 @@ namespace Waffler.Test.Service.Background
                 Arg.Is<DateTime>(_ => _.Date == candleStick.PeriodDateTime.Date),
                 Arg.Is<DateTime>(_ => _ > candleStick.PeriodDateTime));
             _ = _candleStickService.DidNotReceive().AddCandleSticksAsync(Arg.Any<List<CandleStickDTO>>());
+            _candleStickSyncSignal.Received().StartSync();
+            _candleStickSyncSignal.Received().IsAbortRequested();
+            _candleStickSyncSignal.Received().CloseSync();
         }
 
         //[Fact]
@@ -119,8 +148,8 @@ namespace Waffler.Test.Service.Background
         {
             //Setup
             var nbrOfCandleSticks = 10;
-            var profile = ProfileHelper.GetProfile();
-            _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
+            var profile = ProfileHelper.GetProfileDTO();
+            _profileService.GetProfileAsync().Returns(profile);
             var candleStick = CandleStickHelper.GetCandleStickDTO();
             candleStick.PeriodDateTime = DateTime.UtcNow.AddDays(-10);
             _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(candleStick);
@@ -141,6 +170,9 @@ namespace Waffler.Test.Service.Background
                 Arg.Is<DateTime>(_ => _.Date == candleStick.PeriodDateTime.Date),
                 Arg.Is<DateTime>(_ => _ > candleStick.PeriodDateTime));
             _ = _candleStickService.Received().AddCandleSticksAsync(Arg.Is<List<CandleStickDTO>>(_ => _.Count == nbrOfCandleSticks));
+            _candleStickSyncSignal.Received().StartSync();
+            _candleStickSyncSignal.Received().IsAbortRequested();
+            _candleStickSyncSignal.Received().CloseSync();
         }
     }
 }

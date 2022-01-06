@@ -9,13 +9,15 @@ import TimeUnit from './timeunit';
 import TradeRuleActionMenu from './traderule.action.menu';
 import LoadingBar from '../../utils/loadingbar';
 import NotificationMessage from '../../utils/notification.message'
+import TradeRuleTestDialog from '../../utils/dialog/traderuletest.dialog';
 
 import TradeRuleService from '../../../services/traderule.service';
 
 import './form.css';
 
-const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartTestDialog, stopTradeRuleTest, runningTest }) => {
+const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, setRunningTest, runningTest }) => {
     const [loading, setLoading] = useState(false);
+    const [startTestDialogOpen, setStartTestDialogOpen] = useState(false);
     const [statusMessage, setStatusMessage] = useState({ open: false, text: '', severity: '' });
     const [tradeRule, setTradeRule] = useState(data);
 
@@ -74,6 +76,21 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartT
                 setLoading(false);
             });
         }
+    }
+
+    const startTradeRuleTest = (tradeRuleTest) => {
+        TradeRuleService.startTradeRuleTest({ ...tradeRuleTest, tradeRuleId: tradeRule.id }).then((result) => {
+            setStartTestDialogOpen(false);
+            setRunningTest(true);
+            setTradeRule({ ...tradeRule, testTradeInProgress: true });
+        });
+    }
+
+    const stopTradeRuleTest = () => {
+        TradeRuleService.abortTradeRuleTest(tradeRule.id).then(() => {
+            setRunningTest(false);
+            setTradeRule({ ...tradeRule, testTradeInProgress: false });
+        });
     }
 
     const exportFile = async (exportTradeRule) => {
@@ -189,7 +206,7 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartT
                             copyTradeRule={copyTradeRule}
                             exportTradeRule={exportTradeRule}
                             deleteTradeRule={deleteTradeRule}
-                            startTradeRuleTest={() => openStartTestDialog()}
+                            startTradeRuleTest={() => setStartTestDialogOpen(true)}
                             stopTradeRuleTest={() => stopTradeRuleTest()}
                         />
                     </div>
@@ -200,6 +217,7 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, openStartT
                     setOpen={open => setStatusMessage({ ...statusMessage, open: open })}
                     text={statusMessage.text}
                     severity={statusMessage.severity} />
+                <TradeRuleTestDialog dialogOpen={startTestDialogOpen} setDialogOpen={setStartTestDialogOpen} startTradeRuleTest={startTradeRuleTest} />
             </div>
         )
     } else {

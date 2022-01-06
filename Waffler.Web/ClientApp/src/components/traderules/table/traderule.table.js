@@ -13,7 +13,6 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import TradeRuleForm from '../form/traderule.form';
 import ProgressBar from '../../../components/utils/progressbar';
 import TradeRuleCondition from '../traderuleconditions';
-import TradeRuleTestDialog from '../../utils/dialog/traderuletest.dialog';
 
 import TradeRuleService from '../../../services/traderule.service';
 
@@ -21,7 +20,6 @@ let unmount = false;
 
 function Row({ row, tradeRuleAttributes, updateTradeRules }) {
     const [open, setOpen] = useState(false);
-    const [startTestDialogOpen, setStartTestDialogOpen] = useState(false);
     const [traderRuleTestStatus, setTraderRuleTestStatus] = useState({});
     const [runningTest, setRunningTest] = useState(row.testTradeInProgress);
 
@@ -52,19 +50,6 @@ function Row({ row, tradeRuleAttributes, updateTradeRules }) {
         }
     }
 
-    const startTradeRuleTest = (tradeRuleTest) => {
-        TradeRuleService.startTradeRuleTest({ ...tradeRuleTest, tradeRuleId: row.id }).then((result) => {
-            setStartTestDialogOpen(false);
-            setRunningTest(true);
-        });
-    }
-
-    const stopTradeRuleTest = () => {
-        TradeRuleService.abortTradeRuleTest(row.id).then(() => {
-            setRunningTest(false);
-        });
-    }
-
     return (
         <React.Fragment>
             <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -82,12 +67,10 @@ function Row({ row, tradeRuleAttributes, updateTradeRules }) {
                         data={row}
                         tradeRuleAttributes={tradeRuleAttributes}
                         updateTradeRules={updateTradeRules}
-                        openStartTestDialog={() => setStartTestDialogOpen(true)}
-                        stopTradeRuleTest={stopTradeRuleTest}
+                        setRunningTest={(runningTest) => setRunningTest(runningTest)}
                         runningTest={runningTest}
                     />
                     <ProgressBar progress={traderRuleTestStatus?.progress ?? 0} />
-                    <TradeRuleTestDialog dialogOpen={startTestDialogOpen} setDialogOpen={setStartTestDialogOpen} startTradeRuleTest={startTradeRuleTest} />
                 </TableCell>
             </TableRow>
             <TableRow>

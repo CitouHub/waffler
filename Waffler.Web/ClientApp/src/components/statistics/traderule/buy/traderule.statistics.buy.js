@@ -76,6 +76,7 @@ const TradeRuleBuyStatistics = () => {
                     <thead>
                         <tr>
                             <th></th>
+                            <th>Orders</th>
                             <th>Amount</th>
                             <th>Filled</th>
                             <th>Invested</th>
@@ -88,6 +89,7 @@ const TradeRuleBuyStatistics = () => {
                             return (
                                 <tr key={stat.tradeRuleId}>
                                     <th>{stat.tradeRuleName}</th>
+                                    <td>{stat.orders}</td>
                                     <td>{stat.totalAmount} ₿</td>
                                     <td className={stat.filledPercent < 75 ? 'trend-down' : 'trend-up'}>{stat.filledPercent} %</td>
                                     <td>{stat.totalInvested} €</td>

@@ -36,7 +36,7 @@ namespace Waffler.Service
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
 
-        private HttpClient? PrivateHttpClient
+        private HttpClient PrivateHttpClient
         {
             get
             {
