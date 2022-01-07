@@ -6,11 +6,11 @@
   "tradeRuleStatusId": 2,
   "candleStickValueTypeId": 4,
   "name": "Buy big dip",
-  "amount": 75,
+  "amount": 50,
   "priceDeltaPercent": 0,
   "tradeMinIntervalMinutes": 1440,
   "tradeOrderExpirationMinutes": 1440,
-  "lastTrigger": "2021-12-12T09:44:00",
+  "lastTrigger": "2022-01-05T16:57:00",
   "testTradeInProgress": false,
   "tradeRuleConditions": [
     {
@@ -46,8 +46,8 @@
       "fromMinutes": -1440,
       "fromPeriodMinutes": 1440,
       "toCandleStickValueTypeId": 4,
-      "toTradeRuleConditionPeriodDirectionId": 2,
-      "toMinutes": 0,
+      "toTradeRuleConditionPeriodDirectionId": 3,
+      "toMinutes": -1440,
       "toPeriodMinutes": 1440,
       "deltaPercent": 2,
       "description": "Stable over one day",
@@ -56,8 +56,8 @@
       "fromTime": 1,
       "fromPeriodTimeUnit": 3,
       "fromPeriod": 1,
-      "toTimeUnit": 1,
-      "toTime": 0,
+      "toTimeUnit": 3,
+      "toTime": 1,
       "toPeriodTimeUnit": 3,
       "toPeriod": 1
     }

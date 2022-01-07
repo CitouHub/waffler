@@ -50,7 +50,11 @@ namespace Waffler.Service
             Variable.CandleStickValueType toCandleStickValueTypeId, DateTime fromToDate, DateTime toToDate)
         {
             var from = await _candleStickService.GetCandleSticksAsync(fromFromDate, toFromDate, Variable.TradeType.BTC_EUR, (int)(toFromDate - fromFromDate).TotalMinutes);
-            var to = await _candleStickService.GetCandleSticksAsync(fromToDate, toToDate, Variable.TradeType.BTC_EUR, (int)(toFromDate - fromFromDate).TotalMinutes);
+            var to = from;
+            if(fromFromDate != fromToDate || toFromDate != toToDate)
+            {
+                to = await _candleStickService.GetCandleSticksAsync(fromToDate, toToDate, Variable.TradeType.BTC_EUR, (int)(toFromDate - fromFromDate).TotalMinutes);
+            }
 
             var fromPrice = GetPrice(fromCandleStickValueTypeId, from.FirstOrDefault());
             var toPrice = GetPrice(toCandleStickValueTypeId, to.FirstOrDefault());
