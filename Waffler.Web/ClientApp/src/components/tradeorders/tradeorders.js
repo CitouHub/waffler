@@ -112,21 +112,19 @@ const TradeOrders = () => {
             <div className='mt-3 mb-3'>
                 <h4>Orders</h4>
             </div>
-            {loading === false &&
-                <div>
-                    <TradeFilter
-                        filter={filter}
-                        updateFilter={(filter) => setFilter(filter)}
-                        tradeRules={tradeRules}
-                        selectedTradeRules={selectedTradeRules}
-                        updateSelectedTradeRules={(selectedTradeRules) => setSelectedTradeRules(selectedTradeRules)}
-                        tradeOrderStatuses={tradeOrderStatuses}
-                        selectedTradeOrderStatuses={selectedTradeOrderStatuses}
-                        updateSelectedTradeStatuses={(selectedTradeOrderStatuses) => setSelectedTradeOrderStatuses(selectedTradeOrderStatuses)}
-                    />
-                </div>
-            }
-            {tradeOrders && tradeOrdersDisplay.length > 0 && <div className='mt-4'>
+            <div>
+                <TradeFilter
+                    filter={filter}
+                    updateFilter={(filter) => setFilter(filter)}
+                    tradeRules={tradeRules}
+                    selectedTradeRules={selectedTradeRules}
+                    updateSelectedTradeRules={(selectedTradeRules) => setSelectedTradeRules(selectedTradeRules)}
+                    tradeOrderStatuses={tradeOrderStatuses}
+                    selectedTradeOrderStatuses={selectedTradeOrderStatuses}
+                    updateSelectedTradeStatuses={(selectedTradeOrderStatuses) => setSelectedTradeOrderStatuses(selectedTradeOrderStatuses)}
+                />
+            </div>
+            {loading === false && tradeOrders && tradeOrdersDisplay.length > 0 && <div className='mt-4'>
                 <TableContainer component={Paper}>
                     <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
                         <TableHead>
