@@ -139,13 +139,14 @@ namespace Waffler.Service.Background
             var currentExecutable = Assembly.GetExecutingAssembly().Location;
             var currentFolder = Path.GetDirectoryName(currentExecutable);
             var migrationScripts = Directory.GetFiles($"{currentFolder}{Path.DirectorySeparatorChar}{ScriptSectionMigration}{Path.DirectorySeparatorChar}")
-                .Select(_ => new FileInfo(_));
+                .Select(_ => new FileInfo(_)).ToList();
+            _logger.LogInformation($"Database migration contains {migrationScripts.Count} scripts");
 
             using IServiceScope scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<WafflerDbContext>();
             var executedScripts = await context.DatabaseMigrations.Select(_ => _.ScriptName).ToListAsync();
-
             var newScripts = migrationScripts.Where(n => executedScripts.Any(e => e == n.Name) == false).ToList();
+            _logger.LogInformation($"{newScripts.Count} new migration scripts found");
 
             foreach (var script in newScripts)
             {
