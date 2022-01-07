@@ -33,7 +33,7 @@ const TradeChart = () => {
     let syncActive = true;
     let fromDate = new Date();
     let toDate = new Date();
-    fromDate.setDate(fromDate.getDate() - 30);
+    fromDate.setDate(fromDate.getDate() - 90);
 
     const [loading, setLoading] = useState(true);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });

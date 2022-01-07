@@ -17,7 +17,7 @@ import TradeRuleConditionService from '../../../services/traderulecondition.serv
 
 import './form.css';
 
-const TradeRuleConditionForm = ({ data, tradeRuleConditionAttributes, updateTradeRuleConditions }) => {
+const TradeRuleConditionForm = ({ data, tradeRuleConditionAttributes, updateTradeRuleConditions, runningTest }) => {
     const [loading, setLoading] = useState(false);
     const [statusMessage, setStatusMessage] = useState({open: false, text: '', severity: ''});
     const [tradeRuleCondition, setTradeRuleCondition] = useState(data);
@@ -169,6 +169,7 @@ const TradeRuleConditionForm = ({ data, tradeRuleConditionAttributes, updateTrad
                         <TradeRuleConditionActionMenu
                             saveTradeRuleCondition={saveTradeRuleCondition}
                             deleteTradeRuleCondition={deleteTradeRuleCondition}
+                            runningTest={runningTest}
                         />
                     </div>
                 </div>

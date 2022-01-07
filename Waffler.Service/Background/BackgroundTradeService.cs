@@ -7,8 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using Waffler.Domain;
 using Waffler.Service.Infrastructure;
+using Waffler.Service.Util;
 
 namespace Waffler.Service.Background
 {
@@ -23,8 +23,6 @@ namespace Waffler.Service.Background
 
         private Timer _timer;
         private bool InProgress = false;
-
-        public readonly TimeSpan ValidSyncOffser = TimeSpan.FromMinutes(15);
 
         public BackgroundTradeService(
             ILogger<BackgroundTradeService> logger,
@@ -74,7 +72,7 @@ namespace Waffler.Service.Background
                     _logger.LogInformation($"- Getting last candlestick");
                     var lastCandleStick = await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow);
 
-                    if (IsDataSynced(lastCandleStick))
+                    if (DataSyncHandler.IsDataSynced(lastCandleStick))
                     {
                         _logger.LogInformation($"- Data synced, last period {lastCandleStick.PeriodDateTime}, analyse trade rules...");
                         var tradeRules = await _tradeRuleService.GetTradeRulesAsync();
@@ -118,11 +116,6 @@ namespace Waffler.Service.Background
                 _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
             }
             InProgress = false;
-        }
-
-        private bool IsDataSynced(CandleStickDTO lastCandleStick)
-        {
-            return lastCandleStick != null && Math.Abs((decimal)(DateTime.UtcNow - lastCandleStick.PeriodDateTime).TotalMinutes) < (int)ValidSyncOffser.TotalMinutes; 
         }
     }
 }

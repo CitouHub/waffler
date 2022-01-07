@@ -15,7 +15,7 @@ namespace Waffler.Domain
             SetupBitpandaMaps();
 
             CreateMap<ProfileDTO, WafflerProfile>().ReverseMap()
-                .ForMember(dest => dest.ApiKey, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.ApiKey) == false ? "[Youy api key is set but will not be displayed here]" : null));
+                .ForMember(dest => dest.ApiKey, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.ApiKey) == false ? "[Your api key is set but will not be displayed here]" : null));
             CreateMap<CandleStickDTO, CandleStick>().ReverseMap();
             CreateMap<TradeRuleCondition, TradeRuleConditionDTO>()
                 .ForMember(dest => dest.TradeRuleConditionComparatorName, opt => opt.MapFrom(src => src.TradeRuleConditionComparator != null ? src.TradeRuleConditionComparator.Name : null))

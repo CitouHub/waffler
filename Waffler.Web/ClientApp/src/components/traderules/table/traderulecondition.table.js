@@ -9,26 +9,36 @@ import TradeRuleConditionForm from '../form/traderulecondition.form';
 
 import '../table.css';
 
-function Row({ row, tradeRuleConditionAttributes, updateTradeRuleConditions }) {
+function Row({ row, tradeRuleConditionAttributes, updateTradeRuleConditions, runningTest }) {
     return (
         <React.Fragment>
             <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
                 <TableCell align="right">
-                    <TradeRuleConditionForm data={row} tradeRuleConditionAttributes={tradeRuleConditionAttributes} updateTradeRuleConditions={updateTradeRuleConditions} />
+                    <TradeRuleConditionForm
+                        data={row}
+                        tradeRuleConditionAttributes={tradeRuleConditionAttributes}
+                        updateTradeRuleConditions={updateTradeRuleConditions}
+                        runningTest={runningTest}
+                    />
                 </TableCell>
             </TableRow>
         </React.Fragment>
     );
 }
 
-export default function TradeRuleConditionTable({ tradeRuleConditions, tradeRuleConditionAttributes, updateTradeRuleConditions }) {
+export default function TradeRuleConditionTable({ tradeRuleConditions, tradeRuleConditionAttributes, updateTradeRuleConditions, runningTest }) {
     return (
         <div className='trade-rule-condition mb-4'>
             <TableContainer component={Paper}>
                 <Table aria-label="collapsible table">
                     <TableBody>
                         {tradeRuleConditions.map((tradeRuleCondition) => (
-                            <Row key={tradeRuleCondition.id} row={tradeRuleCondition} tradeRuleConditionAttributes={tradeRuleConditionAttributes} updateTradeRuleConditions={updateTradeRuleConditions} />
+                            <Row key={tradeRuleCondition.id}
+                                row={tradeRuleCondition}
+                                tradeRuleConditionAttributes={tradeRuleConditionAttributes}
+                                updateTradeRuleConditions={updateTradeRuleConditions}
+                                runningTest={runningTest}
+                            />
                         ))}
                     </TableBody>
                 </Table>

@@ -18,7 +18,7 @@ import TradeRuleService from '../../services/traderule.service';
 const TradeOrders = () => {
     let fromDate = new Date();
     let toDate = new Date();
-    fromDate.setDate(fromDate.getDate() - 30);
+    fromDate.setDate(fromDate.getDate() - 90);
 
     const [loading, setLoading] = useState(true);
     const [tradeOrders, setTradeOrders] = useState([]);

@@ -74,7 +74,9 @@ namespace Waffler.Service.Background
                     var _tradeRuleService = scope.ServiceProvider.GetRequiredService<ITradeRuleService>();
                     var _tradeService = scope.ServiceProvider.GetRequiredService<ITradeService>();
 
+                    var originalTradeRule = await _tradeRuleService.GetTradeRuleAsync(tradeRuleTestRequest.TradeRuleId);
                     var testReady = await _tradeService.SetupTestTradeAsync(tradeRuleTestRequest.TradeRuleId);
+
                     if (testReady)
                     {
                         var tradeRule = await _tradeRuleService.GetTradeRuleAsync(tradeRuleTestRequest.TradeRuleId);
@@ -108,7 +110,7 @@ namespace Waffler.Service.Background
                             _logger.LogInformation($"- - Condition: {conditionName} = {fullfilled}/{conditions}");
                         }
 
-                        var updated = await _tradeRuleService.UpdateTradeRuleAsync(tradeRule);
+                        var updated = await _tradeRuleService.UpdateTradeRuleAsync(originalTradeRule);
                         if (updated)
                         {
                             _logger.LogInformation($"Trade rule test finished and trade rule reset");

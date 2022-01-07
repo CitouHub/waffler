@@ -77,7 +77,7 @@ namespace Waffler.Service
 
             return GetPriceTrendAsync(tradeType,
                 (Variable.CandleStickValueType)tradeRuleCondition.FromCandleStickValueTypeId, fromPeriod.From, fromPeriod.To,
-                (Variable.CandleStickValueType)tradeRuleCondition.FromCandleStickValueTypeId, toPeriod.From, toPeriod.To);
+                (Variable.CandleStickValueType)tradeRuleCondition.ToCandleStickValueTypeId, toPeriod.From, toPeriod.To);
         }
 
         public PeriodDTO GetPeriod(Variable.TradeRuleConditionPeriodDirection direction, DateTime dateTime, int periodMinutes)

@@ -15,7 +15,6 @@ import TradeRules from './components/traderules/traderules';
 import TradeOrders from './components/tradeorders/tradeorders';
 import Profile from './components/profile/profile';
 import TradeRuleBuyStatistics from './components/statistics/traderule/buy/traderule.statistics.buy';
-import AuthenticationManager from './util/authentication.manager';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import './app.css';

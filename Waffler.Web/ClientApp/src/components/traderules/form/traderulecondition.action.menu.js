@@ -48,7 +48,7 @@ const StyledMenu = styled((props) => (
     },
 }));
 
-const TradeRuleConditionActionMenu = ({ saveTradeRuleCondition, deleteTradeRuleCondition }) => {
+const TradeRuleConditionActionMenu = ({ saveTradeRuleCondition, deleteTradeRuleCondition, runningTest }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
 
@@ -76,14 +76,14 @@ const TradeRuleConditionActionMenu = ({ saveTradeRuleCondition, deleteTradeRuleC
                 <MenuItem onClick={e => {
                     saveTradeRuleCondition();
                     setAnchorEl(null);
-                }} disableRipple>
+                }} disableRipple disabled={runningTest}>
                     <SaveIcon />
                     Save
                 </MenuItem>
                 <MenuItem onClick={e => {
                     deleteTradeRuleCondition();
                     setAnchorEl(null);
-                }} disableRipple>
+                }} disableRipple disabled={runningTest}>
                     <DeleteIcon />
                     Delete
                 </MenuItem>

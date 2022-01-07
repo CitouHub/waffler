@@ -57,22 +57,6 @@ namespace Waffler.Test.Service.Background
         }
 
         [Fact]
-        public async Task HandleTradeRules_DataSyncedNotSynced()
-        {
-            //Setup
-            var lastCandleStick = CandleStickHelper.GetCandleStickDTO();
-            lastCandleStick.PeriodDateTime = DateTime.UtcNow.AddMinutes(-1 * _backgroundTradeService.ValidSyncOffser.TotalMinutes);
-            _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(lastCandleStick);
-
-            //Act
-            await _backgroundTradeService.HandleTradeRulesAsync(new CancellationToken());
-
-            //Asert
-            _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Any<DateTime>());
-            _ = _tradeRuleService.DidNotReceive().GetTradeRulesAsync();
-        }
-
-        [Fact]
         public async Task HandleTradeRules_TestInProgress()
         {
             //Setup

@@ -28,7 +28,7 @@ const TradeRuleBuyStatistics = () => {
         setloadingPeriod(true);
         CandleStickService.getFirstPeriod().then(result => {
             let date = new Date();
-            date.setDate(date.getDate() - 30);
+            date.setDate(date.getDate() - 90);
 
             if (result) {
                 date = new Date(result);

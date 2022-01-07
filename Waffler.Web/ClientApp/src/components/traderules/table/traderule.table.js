@@ -77,7 +77,7 @@ function Row({ row, tradeRuleAttributes, updateTradeRules }) {
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{ margin: 1 }}>
-                            <TradeRuleCondition tradeRuleId={row.id}/>
+                            <TradeRuleCondition tradeRuleId={row.id} runningTest={runningTest}/>
                         </Box>
                     </Collapse>
                 </TableCell>

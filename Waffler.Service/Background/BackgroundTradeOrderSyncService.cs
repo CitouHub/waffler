@@ -14,6 +14,7 @@ using Waffler.Common;
 using Waffler.Domain;
 using Waffler.Service.Infrastructure;
 using static Waffler.Common.Variable;
+using Waffler.Service.Util;
 
 namespace Waffler.Service.Background
 {
@@ -44,7 +45,7 @@ namespace Waffler.Service.Background
 
         protected override Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            if(!cancellationToken.IsCancellationRequested)
+            if (!cancellationToken.IsCancellationRequested)
             {
                 _fetchTimer = new Timer(async _ => await FetchOrderDataAsync(cancellationToken), null, TimeSpan.FromSeconds(0), RequestPeriod);
                 _updateTimer = new Timer(async _ => await UpdateOrderDataAsync(cancellationToken), null, TimeSpan.FromSeconds(0), RequestPeriod);
@@ -76,16 +77,20 @@ namespace Waffler.Service.Background
                     var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
                     var _tradeOrderService = scope.ServiceProvider.GetRequiredService<ITradeOrderService>();
                     var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
+                    var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
                     var profile = await _profileService.GetProfileAsync();
 
-                    if (profile != null && cancellationToken.IsCancellationRequested == false)
+                    _logger.LogInformation($"- Getting last candlestick");
+                    var lastCandleStick = await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow);
+
+                    if (profile != null && DataSyncHandler.IsDataSynced(lastCandleStick) && cancellationToken.IsCancellationRequested == false)
                     {
                         _logger.LogInformation($"- Getting trade orders");
                         var orders = await _tradeOrderService.GetActiveTradeOrdersAsync();
 
-                        foreach(var order in orders) 
+                        foreach (var order in orders)
                         {
                             if (cancellationToken.IsCancellationRequested)
                             {
@@ -95,7 +100,7 @@ namespace Waffler.Service.Background
                             _logger.LogInformation($"- Updating trade order {order}");
                             var bp_order = await _bitpandaService.GetOrderAsync(order.OrderId);
 
-                            if(bp_order != null)
+                            if (bp_order != null)
                             {
                                 var tradeOrderDTO = _mapper.Map<TradeOrderDTO>(bp_order);
                                 tradeOrderDTO.Id = order.Id;
@@ -164,9 +169,9 @@ namespace Waffler.Service.Background
                         {
                             _logger.LogInformation($"- Fetch successfull, {bp_orders.Count()} orders found");
                             var tradeOrdersDTO = _mapper.Map<List<TradeOrderDTO>>(bp_orders);
-                            foreach(var tradeOrder in tradeOrdersDTO)
+                            foreach (var tradeOrder in tradeOrdersDTO)
                             {
-                                if(cancellationToken.IsCancellationRequested)
+                                if (cancellationToken.IsCancellationRequested)
                                 {
                                     break;
                                 }
@@ -179,7 +184,7 @@ namespace Waffler.Service.Background
                                     _fetchTimer.Change(RequestPeriod, RequestPeriod);
                                 }
                             }
-                            
+
                             _logger.LogInformation($"- Data save successfull");
                         }
                     }

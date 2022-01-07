@@ -35,13 +35,12 @@ BEGIN
 		(SELECT AVG(OpenPrice) FROM CandleStick AS CS WHERE CS.PeriodDateTime = MIN(CandleStick.PeriodDateTime)),
 		(SELECT AVG(ClosePrice) FROM CandleStick AS CS WHERE CS.PeriodDateTime = MAX(CandleStick.PeriodDateTime)),
 		SUM(Volume),
-		DATEADD(MINUTE, (DATEDIFF(MINUTE, 0, PeriodDateTime) / @PeriodDateTimeGroup + 1) * @PeriodDateTimeGroup, 0) AS PeriodDateTime
+		DATEADD(MINUTE, (DATEDIFF(MINUTE, @FromPeriodDateTime, PeriodDateTime) / @PeriodDateTimeGroup + 1) * @PeriodDateTimeGroup, @FromPeriodDateTime) AS PeriodDateTime
 	FROM CandleStick
-	WHERE CandleStick.TradeTypeId = 1
+	WHERE CandleStick.TradeTypeId = @TradeTypeId
 		AND CandleStick.PeriodDateTime >= @FromPeriodDateTime 
 		AND CandleStick.PeriodDateTime <= @ToPeriodDateTime
-	GROUP BY DATEADD(MINUTE, (DATEDIFF(MINUTE, 0, PeriodDateTime) / @PeriodDateTimeGroup + 1)* @PeriodDateTimeGroup, 0)
-	ORDER BY DATEADD(MINUTE, (DATEDIFF(MINUTE, 0, PeriodDateTime) / @PeriodDateTimeGroup + 1)* @PeriodDateTimeGroup, 0) ASC
+	GROUP BY DATEADD(MINUTE, (DATEDIFF(MINUTE, @FromPeriodDateTime, PeriodDateTime) / @PeriodDateTimeGroup + 1) * @PeriodDateTimeGroup, @FromPeriodDateTime)
 
 	SELECT * FROM @CandleSticks ORDER BY PeriodDateTime
 END

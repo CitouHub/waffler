@@ -8,7 +8,7 @@ import TradeRuleConditionService from '../../services/traderulecondition.service
 
 import './table.css';
 
-const TradeRuleConditions = ({ tradeRuleId }) => {
+const TradeRuleConditions = ({ tradeRuleId, runningTest }) => {
     const [loading, setLoading] = useState(true);
     const [tradeRuleConditions, setTradeRuleConditions] = useState([]);
     const [tradeRuleConditionAttributes, setTradeRuleConditionAttributes] = useState({});
@@ -49,6 +49,7 @@ const TradeRuleConditions = ({ tradeRuleId }) => {
                     tradeRuleConditions={tradeRuleConditions}
                     tradeRuleConditionAttributes={tradeRuleConditionAttributes}
                     updateTradeRuleConditions={updateTradeRuleConditions}
+                    runningTest={runningTest}
                 />
             }
         </div>

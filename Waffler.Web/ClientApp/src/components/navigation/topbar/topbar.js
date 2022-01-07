@@ -21,7 +21,7 @@ const TopBar = () => {
             <img src={waffle} alt="Logo" className="waffle-small" />
             <div className="d-flex">
                 <div className="title">
-                    {loading == false && latestRelease !== Config.version() && <p>{latestRelease}<br />available</p>}
+                    {loading === false && latestRelease !== Config.version() && <p>{latestRelease}<br />available</p>}
                 </div>
                 <div className="title">
                     <h4>waffler<br /><span className="version">{Config.version()}</span></h4>
