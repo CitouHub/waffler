@@ -29,7 +29,7 @@ IF OBJECTPROPERTY(object_id('dbo.TradeOrderStatus'), N'IsTable') = 1 DROP TABLE 
 GO
 IF OBJECTPROPERTY(object_id('dbo.TradeAction'), N'IsTable') = 1 DROP TABLE [dbo].[TradeAction]
 GO
-IF OBJECTPROPERTY(object_id('dbo.MigrationHistory'), N'IsTable') = 1 DROP TABLE [dbo].[MigrationHistory]
+IF OBJECTPROPERTY(object_id('dbo.DatabaseMigration'), N'IsTable') = 1 DROP TABLE [dbo].[DatabaseMigration]
 GO
 
 -- Create new tables
@@ -154,7 +154,7 @@ CREATE TABLE [dbo].[TradeRule](
 	[TradeMinIntervalMinutes] [int] NOT NULL,
 	[TradeOrderExpirationMinutes] [int] NULL,
 	[LastTrigger] [datetime2](0) NOT NULL DEFAULT('1900-01-01'),
-	[TestTradeInProgress] [bit] NOT NULL DEFAULT(0)
+	[IsDeleted] [bit] NOT NULL DEFAULT(0)
  CONSTRAINT [TradeRule_PK] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -250,7 +250,8 @@ CREATE TABLE [dbo].[WafflerProfile](
 	[UpdateByUser] [int] NULL,
 	[Password] [nvarchar](500) NOT NULL,
 	[ApiKey] [nvarchar](4000) NULL,
-	[CandleStickSyncFromDate] [date] NOT NULL
+	[CandleStickSyncFromDate] [date] NOT NULL,
+	[SessionKey] [nvarchar](50) NULL
  CONSTRAINT [WafflerProfile_PK] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

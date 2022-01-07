@@ -32,6 +32,12 @@ export default {
     }).then((response) => {
         return Request.handleResponse(response)
     }),
+    getTradeRuleForExport: async (tradeRuleId) => await Request.send({
+        url: `/traderule/export/${tradeRuleId}`,
+        method: 'GET'
+    }).then((response) => {
+        return Request.handleResponse(response)
+    }),
     getTradeRuleAttributes: async () => await Request.send({
         url: `/traderule/attribute`,
         method: 'GET'

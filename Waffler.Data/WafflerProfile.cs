@@ -15,5 +15,6 @@ namespace Waffler.Data
         public string Password { get; set; }
         public string ApiKey { get; set; }
         public DateTime CandleStickSyncFromDate { get; set; }
+        public string SessionKey { get; set; }
     }
 }

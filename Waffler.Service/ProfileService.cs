@@ -121,6 +121,12 @@ namespace Waffler.Service
             if (profile != null)
             {
                 profileDto.Password = profile.Password; //Keep password
+                if(string.IsNullOrEmpty(profileDto.ApiKey) == false && profileDto.ApiKey.StartsWith("[") && profileDto.ApiKey.EndsWith("]"))
+                {
+                    //Keep api key if placeholder is provided
+                    profileDto.ApiKey = profile.ApiKey;
+                }
+
                 _mapper.Map(profileDto, profile);
                 profile.UpdateByUser = 1;
                 profile.UpdateDate = DateTime.UtcNow;

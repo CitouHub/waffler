@@ -27,6 +27,7 @@ namespace Waffler.Test.Service.Background
         private readonly ITradeService _tradeService = Substitute.For<ITradeService>();
         private readonly ICandleStickService _candleStickService = Substitute.For<ICandleStickService>();
         private readonly IDatabaseSetupSignal _databaseSetupSignal = Substitute.For<IDatabaseSetupSignal>();
+        private readonly ITradeRuleTestQueue _tradeRuleTestQueue = Substitute.For<ITradeRuleTestQueue>();
         private readonly BackgroundTradeService _backgroundTradeService;
 
         public BackgroundTradeServiceTest()
@@ -49,9 +50,11 @@ namespace Waffler.Test.Service.Background
             _serviceScope.ServiceProvider.GetService<ITradeRuleService>().Returns(_tradeRuleService);
             _serviceScope.ServiceProvider.GetService<ITradeService>().Returns(_tradeService);
             _serviceScope.ServiceProvider.GetService<ICandleStickService>().Returns(_candleStickService);
+            _serviceScope.ServiceProvider.GetService<ITradeRuleTestQueue>().Returns(_tradeRuleTestQueue);
             _serviceScope.ServiceProvider.GetRequiredService<ITradeRuleService>().Returns(_tradeRuleService);
             _serviceScope.ServiceProvider.GetRequiredService<ITradeService>().Returns(_tradeService);
             _serviceScope.ServiceProvider.GetRequiredService<ICandleStickService>().Returns(_candleStickService);
+            _serviceScope.ServiceProvider.GetRequiredService<ITradeRuleTestQueue>().Returns(_tradeRuleTestQueue);
 
             _backgroundTradeService = new BackgroundTradeService(logger, _serviceProvider, _databaseSetupSignal);
         }
@@ -64,8 +67,11 @@ namespace Waffler.Test.Service.Background
             lastCandleStick.PeriodDateTime = DateTime.UtcNow;
             _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(lastCandleStick);
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
-            tradeRule.TestTradeInProgress = true;
             _tradeRuleService.GetTradeRulesAsync().Returns(Enumerable.Repeat(tradeRule, 1).ToList());
+            var tradeRuleTestStatus = TradeRuleTestQueueHelper.GetTradeRuleTestStatusDTO();
+            tradeRuleTestStatus.FromDate = tradeRuleTestStatus.FromDate.AddDays(-1);
+            tradeRuleTestStatus.CurrentPositionDate = tradeRuleTestStatus.FromDate;
+            _tradeRuleTestQueue.GetTradeRuleTestStatus(Arg.Is(tradeRule.Id)).Returns(tradeRuleTestStatus);
 
             //Act
             await _backgroundTradeService.HandleTradeRulesAsync(new CancellationToken());

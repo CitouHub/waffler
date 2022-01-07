@@ -96,6 +96,26 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
+        public async Task CopyTradeRule_DeletedTradeRule()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeRuleService = new TradeRuleService(_logger, context, _mapper);
+            var tradeRule = TradeRuleHelper.GetTradeRule();
+            tradeRule.IsDeleted = true;
+            context.TradeRules.Add(tradeRule);
+            context.SaveChanges();
+            tradeRule = context.TradeRules.FirstOrDefault();
+
+            //Act
+            var success = await tradeRuleService.CopyTradeRuleAsync(tradeRule.Id);
+
+            //Assert
+            Assert.False(success);
+            Assert.Single(context.TradeRules.ToList());
+        }
+
+        [Fact]
         public async Task CopyTradeRule_NoConditions()
         {
             //Setup
@@ -152,6 +172,24 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
+        public async Task GetTradeRules_TradeRuleIsDeleted()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeRuleService = new TradeRuleService(_logger, context, _mapper);
+            var tradeRule = TradeRuleHelper.GetTradeRule();
+            tradeRule.IsDeleted = true;
+            context.TradeRules.Add(tradeRule);
+            context.SaveChanges();
+
+            //Act
+            var tradeRules = await tradeRuleService.GetTradeRulesAsync();
+
+            //Assert
+            Assert.Empty(tradeRules);
+        }
+
+        [Fact]
         public async Task GetTradeRules()
         {
             //Setup
@@ -200,6 +238,25 @@ namespace Waffler.Test.Service
 
             //Assert
             Assert.Null(tradeRule);
+        }
+
+        [Fact]
+        public async Task GetTradeRule_TradeRuleDoesIsDeleted()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeRuleService = new TradeRuleService(_logger, context, _mapper);
+            var tradeRule = TradeRuleHelper.GetTradeRule();
+            tradeRule.IsDeleted = true;
+            context.TradeRules.Add(tradeRule);
+            context.SaveChanges();
+            tradeRule = context.TradeRules.FirstOrDefault();
+
+            //Act
+            var tradeRuleDto = await tradeRuleService.GetTradeRuleAsync(tradeRule.Id);
+
+            //Assert
+            Assert.Null(tradeRuleDto);
         }
 
         [Fact]
@@ -277,7 +334,6 @@ namespace Waffler.Test.Service
             Assert.True(success);
             Assert.Equal(DateTime.MinValue, tradeRule.LastTrigger);
             Assert.Equal((short)Variable.TradeRuleStatus.Test, tradeRule.TradeRuleStatusId);
-            Assert.True(tradeRule.TestTradeInProgress);
         }
 
         [Fact]
@@ -346,7 +402,7 @@ namespace Waffler.Test.Service
 
             //Assert
             Assert.True(success);
-            Assert.Null(context.TradeRules.FirstOrDefault(_ => _.Id == tradeRule.Id));
+            Assert.NotNull(context.TradeRules.FirstOrDefault(_ => _.Id == tradeRule.Id && _.IsDeleted));
         }
 
         [Fact]
@@ -368,8 +424,7 @@ namespace Waffler.Test.Service
 
             //Assert
             Assert.True(success);
-            Assert.Null(context.TradeRules.FirstOrDefault(_ => _.Id == tradeRule.Id));
-            Assert.Null(context.TradeRuleConditions.FirstOrDefault(_ => _.TradeRuleId == tradeRule.Id));
+            Assert.NotNull(context.TradeRules.FirstOrDefault(_ => _.Id == tradeRule.Id && _.IsDeleted));
         }
     }
 }

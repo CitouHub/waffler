@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using Waffler.Common;
 using Waffler.Domain.Converter;
 
@@ -24,7 +25,6 @@ namespace Waffler.Domain
         public int TradeMinIntervalMinutes { get; set; }
         public int? TradeOrderExpirationMinutes { get; set; }
         public DateTime LastTrigger { get; set; }
-        public bool TestTradeInProgress { get; set; }
 
         public List<TradeRuleConditionDTO> TradeRuleConditions { get; set; }
 

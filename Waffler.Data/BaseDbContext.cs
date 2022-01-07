@@ -371,6 +371,8 @@ namespace Waffler.Data
                 entity.Property(e => e.Password)
                     .IsRequired()
                     .HasMaxLength(500);
+
+                entity.Property(e => e.SessionKey).HasMaxLength(50);
             });
 
             OnModelCreatingPartial(modelBuilder);

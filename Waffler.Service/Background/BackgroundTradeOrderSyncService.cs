@@ -77,15 +77,12 @@ namespace Waffler.Service.Background
                     var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
                     var _tradeOrderService = scope.ServiceProvider.GetRequiredService<ITradeOrderService>();
                     var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
-                    var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
                     var profile = await _profileService.GetProfileAsync();
 
-                    _logger.LogInformation($"- Getting last candlestick");
-                    var lastCandleStick = await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow);
-
-                    if (profile != null && DataSyncHandler.IsDataSynced(lastCandleStick) && cancellationToken.IsCancellationRequested == false)
+                    if (profile != null && string.IsNullOrEmpty(profile.ApiKey) == false && 
+                        cancellationToken.IsCancellationRequested == false)
                     {
                         _logger.LogInformation($"- Getting trade orders");
                         var orders = await _tradeOrderService.GetActiveTradeOrdersAsync();
@@ -149,11 +146,17 @@ namespace Waffler.Service.Background
                     var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
                     var _tradeOrderService = scope.ServiceProvider.GetRequiredService<ITradeOrderService>();
                     var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
+                    var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
                     var profile = await _profileService.GetProfileAsync();
 
-                    if (profile != null && cancellationToken.IsCancellationRequested == false)
+                    _logger.LogInformation($"- Getting last candlestick");
+                    var lastCandleStick = await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow);
+
+                    if (profile != null && string.IsNullOrEmpty(profile.ApiKey) == false &&
+                        DataSyncHandler.IsDataSynced(lastCandleStick) &&
+                        cancellationToken.IsCancellationRequested == false)
                     {
                         _logger.LogInformation($"- Getting last order");
                         var period = (await _tradeOrderService.GetLastTradeOrderAsync(DateTime.UtcNow))?.OrderDateTime ??

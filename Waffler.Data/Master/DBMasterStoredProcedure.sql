@@ -81,8 +81,9 @@ BEGIN
 		INSERT INTO @IncludedStatuses VALUES(10)
 	END
 
-	SELECT ISNULL(TradeRuleId, 0) AS TradeRuleId,
-		ISNULL(TradeRule.Name, 'Manual') AS TradeRuleName,
+	SELECT TradeRuleId AS TradeRuleId,
+		TradeRule.Name AS TradeRuleName,
+		TradeRule.IsDeleted AS TradeRuleIsDeleted,
 		COUNT(*) AS Orders,
 		ROUND(SUM(TradeOrder.Amount), 8) AS TotalAmount,
 		ROUND(SUM(FilledAmount), 8) AS TotalFilledAmount,
@@ -96,8 +97,9 @@ BEGIN
 	WHERE TradeOrder.TradeActionId = 1
 		AND TradeOrder.OrderDateTime >= @FromPeriodDateTime
 		AND TradeOrder.OrderDateTime <= @ToPeriodDateTime 
-	GROUP BY ISNULL(TradeRuleId, 0),
-		ISNULL(TradeRule.Name, 'Manual')
+	GROUP BY TradeRuleId,
+		TradeRule.Name,
+		TradeRule.IsDeleted
 	ORDER BY ISNULL(TradeRuleId, 0) ASC
 END
 GO

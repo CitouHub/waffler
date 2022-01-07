@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -10,6 +11,7 @@ using AutoMapper;
 using Waffler.Domain;
 using Waffler.Data;
 using Waffler.Common;
+using Waffler.Domain.Export;
 
 namespace Waffler.Service
 {
@@ -26,6 +28,8 @@ namespace Waffler.Service
         Task<Dictionary<string, List<CommonAttributeDTO>>> GetTradeRuleAttributesAsync();
 
         Task<TradeRuleDTO> GetTradeRuleAsync(int tradeRuleId);
+
+        Task<TradeRuleExportDTO> GetTradeRuleAsyncForExport(int tradeRuleId);
 
         Task<bool> UpdateTradeRuleAsync(TradeRuleDTO tradeRuleDTO);
 
@@ -100,7 +104,7 @@ namespace Waffler.Service
         {
             var tradeRule = await _context.TradeRules
                 .Include(_ => _.TradeRuleConditions)
-                .FirstOrDefaultAsync(_ => _.Id == tradeRuleId);
+                .FirstOrDefaultAsync(_ => _.Id == tradeRuleId && _.IsDeleted == false);
             if (tradeRule != null)
             {
                 var copyTradeRule = _mapper.Map<TradeRuleDTO>(tradeRule);
@@ -142,6 +146,7 @@ namespace Waffler.Service
                 .Include(_ => _.TradeRuleStatus)
                 .Include(_ => _.TradeRuleConditions)
                 .Include(_ => _.CandleStickValueType)
+                .Where(_ => _.IsDeleted == false)
                 .ToListAsync();
             return _mapper.Map<List<TradeRuleDTO>>(tradeRules);
         }
@@ -177,8 +182,14 @@ namespace Waffler.Service
         {
             var tradeRule = await _context.TradeRules
                 .Include(_ => _.TradeRuleConditions)
-                .FirstOrDefaultAsync(_ => _.Id == tradeRuleId);
+                .FirstOrDefaultAsync(_ => _.Id == tradeRuleId && _.IsDeleted == false);
             return _mapper.Map<TradeRuleDTO>(tradeRule);
+        }
+
+        public async Task<TradeRuleExportDTO> GetTradeRuleAsyncForExport(int tradeRuleId)
+        {
+            var tradeRule = await GetTradeRuleAsync(tradeRuleId);
+            return _mapper.Map<TradeRuleExportDTO>(tradeRule);
         }
 
         public async Task<bool> SetupTradeRuleTestAsync(int tradeRuleId)
@@ -188,7 +199,6 @@ namespace Waffler.Service
             {
                 tradeRule.LastTrigger = DateTime.MinValue;
                 tradeRule.TradeRuleStatusId = (short)Variable.TradeRuleStatus.Test;
-                tradeRule.TestTradeInProgress = true;
                 tradeRule.UpdateByUser = 1;
                 tradeRule.UpdateDate = DateTime.UtcNow;
 
@@ -222,7 +232,10 @@ namespace Waffler.Service
             var tradeRule = await _context.TradeRules.FindAsync(tradeRuleId);
             if (tradeRule != null)
             {
-                _context.TradeRules.Remove(tradeRule);
+                tradeRule.IsDeleted = true;
+                tradeRule.UpdateByUser = 1;
+                tradeRule.UpdateDate = DateTime.UtcNow;
+
                 await _context.SaveChangesAsync();
 
                 return true;

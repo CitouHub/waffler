@@ -219,6 +219,20 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
+        public async Task GetBitpandaApiKey_NoProfile()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var profileService = new ProfileService(_logger, context, _mapper, _bitpandaService);
+
+            //Act
+            var apiKey = await profileService.GetBitpandaApiKeyAsync();
+
+            //Assert
+            Assert.Null(apiKey);
+        }
+
+        [Fact]
         public async Task UpdateProfile_Updated()
         {
             //Setup
@@ -240,17 +254,46 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task GetBitpandaApiKey_NoProfile()
+        public async Task UpdateProfile_PasswordKept()
         {
             //Setup
             var context = DatabaseHelper.GetContext();
+            var profile = ProfileHelper.GetProfile();
+            profile.Password = "Test password";
+            context.WafflerProfiles.Add(profile);
+            context.SaveChanges();
             var profileService = new ProfileService(_logger, context, _mapper, _bitpandaService);
 
             //Act
-            var apiKey = await profileService.GetBitpandaApiKeyAsync();
+            var profileDTO = _mapper.Map<ProfileDTO>(profile);
+            var success = await profileService.UpdateProfileAsync(profileDTO);
 
             //Assert
-            Assert.Null(apiKey);
+            Assert.True(success);
+            Assert.Single(context.WafflerProfiles);
+            Assert.Equal(profile.Password, context.WafflerProfiles.FirstOrDefault().Password);
+        }
+
+        [Fact]
+        public async Task UpdateProfile_ApiKeyKept()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var profile = ProfileHelper.GetProfile();
+            profile.ApiKey = Guid.NewGuid().ToString();
+            context.WafflerProfiles.Add(profile);
+            context.SaveChanges();
+            var profileService = new ProfileService(_logger, context, _mapper, _bitpandaService);
+
+            //Act
+            var profileDTO = _mapper.Map<ProfileDTO>(profile);
+            profileDTO.ApiKey = "[placeholder api key]";
+            var success = await profileService.UpdateProfileAsync(profileDTO);
+
+            //Assert
+            Assert.True(success);
+            Assert.Single(context.WafflerProfiles);
+            Assert.Equal(profile.ApiKey, context.WafflerProfiles.FirstOrDefault().ApiKey);
         }
 
         [Fact]

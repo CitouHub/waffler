@@ -102,18 +102,20 @@ namespace Waffler.Test.Service
             var toPeriodMinutes = 60;
             var fromPeriod = _statisticsService.GetPeriod(fromTradeRuleConditionPeriodDirection, from, fromPeriodMinutes);
             var toPeriod = _statisticsService.GetPeriod(toTradeRuleConditionPeriodDirection, to, toPeriodMinutes);
-            var fromCandleSticks = GetCandleSticks(Variable.CandleStickValueType.HighPrice, fromPrice, fromPeriod);
-            var toCandleSticks = GetCandleSticks(Variable.CandleStickValueType.HighPrice, toPrice, toPeriod);
+            var fromCandleStickValueType = Variable.CandleStickValueType.OpenPrice;
+            var toCandleStickValueType = Variable.CandleStickValueType.ClosePrice;
+            var fromCandleSticks = GetCandleSticks(fromCandleStickValueType, fromPrice, fromPeriod);
+            var toCandleSticks = GetCandleSticks(toCandleStickValueType, toPrice, toPeriod);
 
             _candleStickService.GetCandleSticksAsync(Arg.Is(fromPeriod.From), Arg.Is(fromPeriod.To), Arg.Is(Variable.TradeType.BTC_EUR), Arg.Is(fromPeriodMinutes)).Returns(fromCandleSticks);
             _candleStickService.GetCandleSticksAsync(Arg.Is(toPeriod.From), Arg.Is(toPeriod.To), Arg.Is(Variable.TradeType.BTC_EUR), Arg.Is(toPeriodMinutes)).Returns(toCandleSticks);
 
             var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
-            tradeRuleCondition.FromCandleStickValueTypeId = (short)Variable.CandleStickValueType.HighPrice;
+            tradeRuleCondition.FromCandleStickValueTypeId = (short)fromCandleStickValueType;
             tradeRuleCondition.FromMinutes = -1 * (int)(to - from).TotalMinutes;
             tradeRuleCondition.FromPeriodMinutes = fromPeriodMinutes;
             tradeRuleCondition.FromTradeRuleConditionPeriodDirectionId = (short)fromTradeRuleConditionPeriodDirection;
-            tradeRuleCondition.ToCandleStickValueTypeId = (short)Variable.CandleStickValueType.HighPrice;
+            tradeRuleCondition.ToCandleStickValueTypeId = (short)toCandleStickValueType;
             tradeRuleCondition.ToMinutes = 0;
             tradeRuleCondition.ToPeriodMinutes = toPeriodMinutes;
             tradeRuleCondition.ToTradeRuleConditionPeriodDirectionId = (short)toTradeRuleConditionPeriodDirection;

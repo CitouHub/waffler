@@ -71,7 +71,7 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, setRunning
         if (loading === false) {
             setLoading(true);
 
-            TradeRuleService.getTradeRule(tradeRule.id).then((result) => {
+            TradeRuleService.getTradeRuleForExport(tradeRule.id).then((result) => {
                 exportFile(result);
                 setLoading(false);
             });
@@ -82,14 +82,12 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, setRunning
         TradeRuleService.startTradeRuleTest({ ...tradeRuleTest, tradeRuleId: tradeRule.id }).then((result) => {
             setStartTestDialogOpen(false);
             setRunningTest(true);
-            setTradeRule({ ...tradeRule, testTradeInProgress: true });
         });
     }
 
     const stopTradeRuleTest = () => {
         TradeRuleService.abortTradeRuleTest(tradeRule.id).then(() => {
             setRunningTest(false);
-            setTradeRule({ ...tradeRule, testTradeInProgress: false });
         });
     }
 

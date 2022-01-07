@@ -1,11 +1,11 @@
 Buy big dip:    This rule triggers on a 10% drop over 7 days then one day of stablility (no more the 2% change).
-                The price is set to the last known closing price and the amount is set to 75 Euro.
+                The price is set to the last known closing price and the purchase amount is set to 50 Euro.
                 This rule can trigger once per day and any placed orders are active for one day, after which they will expire.
 
-Buy small dip:  This rule triggers on a 3% drop over 3 hours then 3 hours of stablility (no more then 1% change).
-                The price is set to 0.5% under the last known closing price and the amount is set to 25 Euro.
+Buy small dip:  This rule triggers on a 3% drop over 3 hours then 1 hours of stablility (no more then 1% change).
+                The price is set to 0.5% under the last known closing price and the purchase amount is set to 25 Euro.
                 This rule can trigger once every other hour and any placed orders are active for 3 hours, after which they will expire.
 
-Buy weekly:     This rule triggers once a week with no conditions
-                The price is set to 0.5% under the last known closing price and the amount is set to 25 Euro.
+Buy weekly:     This rule triggers once a week without any failing conditions
+                The price is set to 0.5% under the last known closing price and the purchase amount is set to 25 Euro.
                 Any placed orders are active for one day, after which they will expire.

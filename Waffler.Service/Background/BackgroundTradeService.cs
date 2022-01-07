@@ -45,6 +45,12 @@ namespace Waffler.Service.Background
             }
         }
 
+        public bool TestInProgress(ITradeRuleTestQueue tradeRuleTestQueue, int tradeRuleId)
+        {
+            var tradeRuleTestStatus = tradeRuleTestQueue.GetTradeRuleTestStatus(tradeRuleId);
+            return tradeRuleTestStatus != null && tradeRuleTestStatus.Progress < 100;
+        }
+
         public async Task HandleTradeRulesAsync(CancellationToken cancellationToken)
         {
             lock (StartUpLock)
@@ -68,6 +74,7 @@ namespace Waffler.Service.Background
                     var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _tradeRuleService = scope.ServiceProvider.GetRequiredService<ITradeRuleService>();
                     var _tradeService = scope.ServiceProvider.GetRequiredService<ITradeService>();
+                    var _tradeRuleTestQueue = scope.ServiceProvider.GetRequiredService<ITradeRuleTestQueue>();
 
                     _logger.LogInformation($"- Getting last candlestick");
                     var lastCandleStick = await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow);
@@ -77,7 +84,7 @@ namespace Waffler.Service.Background
                         _logger.LogInformation($"- Data synced, last period {lastCandleStick.PeriodDateTime}, analyse trade rules...");
                         var tradeRules = await _tradeRuleService.GetTradeRulesAsync();
 
-                        foreach (var tradeRule in tradeRules.Where(_ => _.TestTradeInProgress == false))
+                        foreach (var tradeRule in tradeRules.Where(_ => TestInProgress(_tradeRuleTestQueue, _.Id) == false))
                         {
                             if (cancellationToken.IsCancellationRequested == false)
                             {

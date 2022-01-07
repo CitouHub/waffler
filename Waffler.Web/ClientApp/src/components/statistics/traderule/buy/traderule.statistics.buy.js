@@ -71,7 +71,7 @@ const TradeRuleBuyStatistics = () => {
                     <span className={"trend-change " + (trend.change < 0 ? 'trend-down' : 'trend-up')}>{trend.change} %</span>
                 </div>}
             </div>}
-            <div className='mt-4'>
+            {statistics && statistics.length > 0 && <div className='mt-4'>
                 <table className='stat-table'>
                     <thead>
                         <tr>
@@ -85,7 +85,7 @@ const TradeRuleBuyStatistics = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {statistics && statistics.length > 0 && statistics.map(function (stat) {
+                        {statistics.map(function (stat) {
                             return (
                                 <tr key={stat.tradeRuleId}>
                                     <th>{stat.tradeRuleName}</th>
@@ -100,7 +100,10 @@ const TradeRuleBuyStatistics = () => {
                         })}
                     </tbody>
                 </table>
-            </div>
+            </div>}
+            {statistics && statistics.length == 0 && <div className='mt-4'>
+                <h5 className="text-center">No statistics available</h5>
+            </div>}
         </div>
     )
 };

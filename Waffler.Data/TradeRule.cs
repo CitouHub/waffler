@@ -29,7 +29,7 @@ namespace Waffler.Data
         public int TradeMinIntervalMinutes { get; set; }
         public int? TradeOrderExpirationMinutes { get; set; }
         public DateTime LastTrigger { get; set; }
-        public bool TestTradeInProgress { get; set; }
+        public bool IsDeleted { get; set; }
 
         public virtual CandleStickValueType CandleStickValueType { get; set; }
         public virtual TradeAction TradeAction { get; set; }

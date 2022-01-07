@@ -126,7 +126,7 @@ const TradeOrders = () => {
                     />
                 </div>
             }
-            {tradeOrders && tradeOrders.length > 0 && <div className='mt-4'>
+            {tradeOrders && tradeOrdersDisplay.length > 0 && <div className='mt-4'>
                 <TableContainer component={Paper}>
                     <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
                         <TableHead>
@@ -162,6 +162,9 @@ const TradeOrders = () => {
                         </TableBody>
                     </Table>
                 </TableContainer>
+            </div>}
+            {tradeOrders && tradeOrdersDisplay.length == 0 && <div className='mt-4'>
+                <h5 className="text-center">No orders found</h5>
             </div>}
         </div>
     )

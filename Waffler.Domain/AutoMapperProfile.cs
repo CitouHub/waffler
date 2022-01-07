@@ -4,6 +4,8 @@ using AutoMapper;
 
 using Waffler.Data;
 using Waffler.Data.ComplexModel;
+using Waffler.Domain.ComplexMapping;
+using Waffler.Domain.Export;
 using Waffler.Domain.Statistics;
 
 namespace Waffler.Domain
@@ -34,7 +36,7 @@ namespace Waffler.Domain
                 .ForMember(dest => dest.TradeActionName, opt => opt.MapFrom(src => src.TradeAction != null ? src.TradeAction.Name : null))
                 .ForMember(dest => dest.TradeOrderStatusName, opt => opt.MapFrom(src => src.TradeOrderStatus != null ? src.TradeOrderStatus.Name : null))
                 .ForMember(dest => dest.TradeRuleId, opt => opt.MapFrom(src => src.TradeRule != null ? src.TradeRuleId : 0))
-                .ForMember(dest => dest.TradeRuleName, opt => opt.MapFrom(src => src.TradeRule != null ? src.TradeRule.Name : "Manual"))
+                .ForMember(dest => dest.TradeRuleName, opt => opt.MapFrom(src => TradeOrderMapper.GetTradeRuleName(src)))
                 .ReverseMap()
                 .ForMember(dest => dest.TradeAction, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeOrderStatus, opt => opt.Ignore())
@@ -53,6 +55,9 @@ namespace Waffler.Domain
                 .ForMember(dest => dest.TradeRuleStatus, opt => opt.Ignore())
                 .ForMember(dest => dest.TradeType, opt => opt.Ignore())
                 .ForMember(dest => dest.CandleStickValueType, opt => opt.Ignore());
+            
+            CreateMap<TradeRuleDTO, TradeRuleExportDTO>();
+            CreateMap<TradeRuleConditionDTO, TradeRuleConditionExportDTO>();
 
             CreateMap<TradeAction, CommonAttributeDTO>();
             CreateMap<CandleStickValueType, CommonAttributeDTO>();
@@ -65,7 +70,9 @@ namespace Waffler.Domain
             CreateMap<TradeType, CommonAttributeDTO>();
 
             CreateMap<sp_getCandleSticks_Result, CandleStickDTO>();
-            CreateMap<sp_getTradeRuleBuyStatistics_Result, TradeRuleBuyStatisticsDTO>();
+            CreateMap<sp_getTradeRuleBuyStatistics_Result, TradeRuleBuyStatisticsDTO>()
+                .ForMember(dest => dest.TradeRuleId, opt => opt.MapFrom(src => src.TradeRuleId != null ? src.TradeRuleId : 0))
+                .ForMember(dest => dest.TradeRuleName, opt => opt.MapFrom(src => TradeRuleBuyStatisticsMapper.GetTradeRuleName(src)));
         }
 
         private void SetupBitpandaMaps()

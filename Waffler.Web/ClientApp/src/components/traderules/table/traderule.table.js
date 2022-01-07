@@ -21,7 +21,7 @@ let unmount = false;
 function Row({ row, tradeRuleAttributes, updateTradeRules }) {
     const [open, setOpen] = useState(false);
     const [traderRuleTestStatus, setTraderRuleTestStatus] = useState({});
-    const [runningTest, setRunningTest] = useState(row.testTradeInProgress);
+    const [runningTest, setRunningTest] = useState(true);
 
     useEffect(() => {
         getTradeRuleTestStatus(row.id);
@@ -40,11 +40,14 @@ function Row({ row, tradeRuleAttributes, updateTradeRules }) {
                     setTraderRuleTestStatus(result);
 
                     if (result.progress < 100 && result.aborted === false) {
+                        setRunningTest(true);
                         setTimeout(() => getTradeRuleTestStatus(tradeRuleId), 800);
                     } else {
                         setRunningTest(false);
                         setTraderRuleTestStatus({});
                     }
+                } else {
+                    setRunningTest(false);
                 }
             });
         }
