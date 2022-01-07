@@ -125,7 +125,7 @@ namespace Waffler.Test.Service.Background
             //Asert
             _ = _tradeRuleTestQueue.Received().InitTradeRuleTestRun(request);
             _ = _tradeService.Received().SetupTestTradeAsync(Arg.Is(TestTradeRuleId));
-            _ = _tradeRuleService.DidNotReceive().GetTradeRuleAsync(Arg.Any<int>());
+            _ = _tradeRuleService.Received(1).GetTradeRuleAsync(Arg.Is(TestTradeRuleId));
             _tradeRuleTestQueue.Received().CloseTest(Arg.Is(TestTradeRuleId));
         }
 
@@ -150,7 +150,7 @@ namespace Waffler.Test.Service.Background
             //Asert
             _ = _tradeRuleTestQueue.Received().InitTradeRuleTestRun(request);
             _ = _tradeService.Received().SetupTestTradeAsync(Arg.Is(TestTradeRuleId));
-            _ = _tradeRuleService.Received().GetTradeRuleAsync(Arg.Any<int>());
+            _ = _tradeRuleService.Received(2).GetTradeRuleAsync(Arg.Is(TestTradeRuleId));
             _ = _tradeService.DidNotReceive().HandleTradeRuleAsync(Arg.Is<TradeRuleDTO>(_ => _.Id == TestTradeRuleId), Arg.Any<DateTime>());
             _ = _tradeRuleService.Received().UpdateTradeRuleAsync(Arg.Is<TradeRuleDTO>(_ => _.Id == TestTradeRuleId));
             _tradeRuleTestQueue.Received().CloseTest(Arg.Is(TestTradeRuleId));
@@ -187,7 +187,7 @@ namespace Waffler.Test.Service.Background
             var iterations = (int)Math.Ceiling((request.ToDate.AddMinutes(request.MinuteStep) - request.FromDate).TotalMinutes / request.MinuteStep);
             _ = _tradeRuleTestQueue.Received().InitTradeRuleTestRun(request);
             _ = _tradeService.Received().SetupTestTradeAsync(Arg.Is(TestTradeRuleId));
-            _ = _tradeRuleService.Received().GetTradeRuleAsync(Arg.Is(TestTradeRuleId));
+            _ = _tradeRuleService.Received(2).GetTradeRuleAsync(Arg.Is(TestTradeRuleId));
             _ = _tradeRuleTestQueue.Received().IsTestAborted(Arg.Is(TestTradeRuleId));
             _ = _tradeService.Received(iterations).HandleTradeRuleAsync(Arg.Is<TradeRuleDTO>(_ => _.Id == TestTradeRuleId), Arg.Any<DateTime>());
             _ = _tradeRuleService.Received().UpdateTradeRuleAsync(Arg.Is<TradeRuleDTO>(_ => _.Id == TestTradeRuleId));

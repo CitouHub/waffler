@@ -27,6 +27,7 @@ namespace Waffler.Test.Service.Background
         private readonly IProfileService _profileService = Substitute.For<IProfileService>();
         private readonly ITradeOrderService _tradeOrderService = Substitute.For<ITradeOrderService>();
         private readonly IBitpandaService _bitpandaService = Substitute.For<IBitpandaService>();
+        private readonly ICandleStickService _candleStickService = Substitute.For<ICandleStickService>();
         private readonly BackgroundTradeOrderSyncService _backgroundTradeOrderSyncService;
 
         public BackgroundTradeOrderSyncServiceTest()
@@ -50,11 +51,15 @@ namespace Waffler.Test.Service.Background
             _serviceScope.ServiceProvider.GetService<IProfileService>().Returns(_profileService);
             _serviceScope.ServiceProvider.GetService<ITradeOrderService>().Returns(_tradeOrderService);
             _serviceScope.ServiceProvider.GetService<IBitpandaService>().Returns(_bitpandaService);
+            _serviceScope.ServiceProvider.GetService<ICandleStickService>().Returns(_candleStickService);
             _serviceScope.ServiceProvider.GetService<IMapper>().Returns(_mapper);
             _serviceScope.ServiceProvider.GetRequiredService<IProfileService>().Returns(_profileService);
             _serviceScope.ServiceProvider.GetRequiredService<ITradeOrderService>().Returns(_tradeOrderService);
             _serviceScope.ServiceProvider.GetRequiredService<IBitpandaService>().Returns(_bitpandaService);
+            _serviceScope.ServiceProvider.GetRequiredService<ICandleStickService>().Returns(_candleStickService);
             _serviceScope.ServiceProvider.GetRequiredService<IMapper>().Returns(_mapper);
+
+            _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(CandleStickHelper.GetCandleStickDTO());
 
             _backgroundTradeOrderSyncService = new BackgroundTradeOrderSyncService(logger, _serviceProvider, databaseSetupSignal);
         }
@@ -74,8 +79,8 @@ namespace Waffler.Test.Service.Background
         public async Task FetchOrderData_NoPreviousTradeOrderData_NoBitpandaOrderData()
         {
             //Setup
-            var profile = ProfileHelper.GetProfile();
-            _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
+            var profile = ProfileHelper.GetProfileDTO();
+            _profileService.GetProfileAsync().Returns(profile);
 
             //Act
             await _backgroundTradeOrderSyncService.FetchOrderDataAsync(new CancellationToken());
@@ -94,7 +99,6 @@ namespace Waffler.Test.Service.Background
         public async Task FetchOrderData_PreviousTradeOrderData_NoBitpandaOrderData()
         {
             //Setup
-            var profile = ProfileHelper.GetProfile();
             _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
             var tradeOrder = TradeOrderHelper.GetTradeOrderDTO();
             tradeOrder.OrderDateTime = DateTime.UtcNow.AddDays(-10);
@@ -118,8 +122,8 @@ namespace Waffler.Test.Service.Background
         {
             //Setup
             var nbrOfOrders = 10;
-            var profile = ProfileHelper.GetProfile();
-            _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
+            var profile = ProfileHelper.GetProfileDTO();
+            _profileService.GetProfileAsync().Returns(profile);
             _bitpandaService.GetOrdersAsync(
                 Arg.Is(Bitpanda.InstrumentCode.BTC_EUR),
                 Arg.Is<DateTime>(_ => _.Date == profile.CandleStickSyncFromDate.Date),
@@ -188,7 +192,6 @@ namespace Waffler.Test.Service.Background
         internal async Task UpdateOrderData_ActiveOrder_BitpandaOrderData()
         {
             //Setup
-            var profile = ProfileHelper.GetProfile();
             _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
             var tradeOrderDTO = TradeOrderHelper.GetTradeOrderDTO();
             _tradeOrderService.GetActiveTradeOrdersAsync()
