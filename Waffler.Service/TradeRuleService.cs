@@ -236,6 +236,11 @@ namespace Waffler.Service
                 tradeRule.UpdateByUser = 1;
                 tradeRule.UpdateDate = DateTime.UtcNow;
 
+                var tradeOrders = _context.TradeOrders.Where(_ => 
+                    _.TradeRuleId == tradeRule.Id && 
+                    _.TradeOrderStatusId == (short)Variable.TradeOrderStatus.Test);
+                _context.TradeOrders.RemoveRange(tradeOrders);
+
                 await _context.SaveChangesAsync();
 
                 return true;

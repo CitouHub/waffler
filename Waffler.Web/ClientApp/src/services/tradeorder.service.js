@@ -13,4 +13,10 @@ export default {
     }).then((response) => {
         return Request.handleResponse(response)
     }),
+    anyTradeOrders: async (tradeRuleId) => await Request.send({
+        url: `/tradeorder/any/${tradeRuleId}`,
+        method: 'GET'
+    }).then((response) => {
+        return Request.handleResponse(response)
+    }),
 }

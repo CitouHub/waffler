@@ -21,10 +21,10 @@ const TopBar = () => {
             <img src={waffle} alt="Logo" className="waffle-small" />
             <div className="d-flex">
                 <div className="title">
-                    {loading === false && latestRelease !== Config.version() && <p>{latestRelease}<br />available</p>}
-                </div>
-                <div className="title">
-                    <h4>waffler<br /><span className="version">{Config.version()}</span></h4>
+                    <h4>waffler<br />
+                        <span className="version">{Config.version()}</span>
+                        {loading === false && latestRelease !== Config.version() && <React.Fragment><br /><span className="latest-version">{latestRelease} available</span></React.Fragment>}
+                    </h4>
                 </div>
             </div>
         </div>

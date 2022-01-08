@@ -23,6 +23,7 @@ namespace Waffler.Service
         Task<TradeOrderDTO> GetLastTradeOrderAsync(DateTime toPeriodDateTime);
         Task<bool> UpdateTradeOrderAsync(TradeOrderDTO tradeOrdersDTO);
         Task<IEnumerable<CommonAttributeDTO>> GetTradeOrderStatusesAsync();
+        Task<bool> AnyTradeOrders(int tradeRuleId);
     }
 
     public class TradeOrderService : ITradeOrderService
@@ -108,6 +109,13 @@ namespace Waffler.Service
         {
             var tradeOrderStatuses = await _context.TradeOrderStatuses.ToArrayAsync();
             return _mapper.Map<List<CommonAttributeDTO>>(tradeOrderStatuses);
+        }
+
+        public async Task<bool> AnyTradeOrders(int tradeRuleId)
+        {
+            return await _context.TradeOrders.AnyAsync(_ => 
+                _.TradeRuleId == tradeRuleId && 
+                _.TradeOrderStatusId != (short)Variable.TradeOrderStatus.Test);
         }
     }
 }

@@ -20,15 +20,14 @@
         line-height: 0.5;
     }
 
-    .title p {
-        vertical-align: middle;
-        display: table-cell;
-        line-height: 1;
-        color: #4caf50;
-    }
-
 .version {
-    font-size: 10px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.latest-version {
+    font-size: 12px;
+    color: #4caf50;
 }
 
 .waffle-small {

@@ -426,5 +426,35 @@ namespace Waffler.Test.Service
             Assert.True(success);
             Assert.NotNull(context.TradeRules.FirstOrDefault(_ => _.Id == tradeRule.Id && _.IsDeleted));
         }
+
+        [Fact]
+        public async Task DeleteTradeRule_TradeOrders()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeRuleService = new TradeRuleService(_logger, context, _mapper);
+            context.TradeRules.Add(TradeRuleHelper.GetTradeRule());
+            context.SaveChanges();
+            var tradeRule = context.TradeRules.FirstOrDefault();
+
+            var liveOrder = TradeOrderHelper.GetTradeOrder();
+            liveOrder.TradeRuleId = tradeRule.Id;
+            liveOrder.TradeOrderStatusId = (short)Variable.TradeOrderStatus.Open;
+            var testOrder = TradeOrderHelper.GetTradeOrder();
+            testOrder.TradeRuleId = tradeRule.Id;
+            testOrder.TradeOrderStatusId = (short)Variable.TradeOrderStatus.Test;
+            context.TradeOrders.Add(liveOrder);
+            context.TradeOrders.Add(testOrder);
+            context.SaveChanges();
+
+            //Act
+            var success = await tradeRuleService.DeleteTradeRuleAsync(tradeRule.Id);
+
+            //Assert
+            Assert.True(success);
+            Assert.NotNull(context.TradeRules.FirstOrDefault(_ => _.Id == tradeRule.Id && _.IsDeleted));
+            Assert.NotNull(context.TradeOrders.FirstOrDefault(_ => _.Id == liveOrder.Id));
+            Assert.Null(context.TradeRules.FirstOrDefault(_ => _.Id == testOrder.Id));
+        }
     }
 }

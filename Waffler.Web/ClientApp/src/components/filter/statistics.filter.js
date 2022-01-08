@@ -9,7 +9,7 @@ const StatisticsFilter = ({ updateFilter, filter }) => {
     return (
         <div className="d-flex">
             <DateSpanFilter filter={filter} updateFilter={updateFilter} />
-            <div className="mr-4 mt-2 mb-2">
+            <div className="ml-4 mr-4 mt-2 mb-2">
                 <FormControl>
                     <InputLabel id="filter-statisticsMode-label">Include</InputLabel>
                     <Select sx={{ width: 220 }} labelId="filter-statisticsMode-label" id="filter-statisticsMode-select" value={filter.statisticsMode} label="Include"

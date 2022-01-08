@@ -10,19 +10,34 @@ import TradeRuleActionMenu from './traderule.action.menu';
 import LoadingBar from '../../utils/loadingbar';
 import NotificationMessage from '../../utils/notification.message'
 import TradeRuleTestDialog from '../../utils/dialog/traderuletest.dialog';
+import ConfirmDialog from '../../utils/dialog/confirm.dialog';
 
 import TradeRuleService from '../../../services/traderule.service';
+import TradeOrderService from '../../../services/tradeorder.service';
 
 import './form.css';
 
 const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, setRunningTest, runningTest }) => {
     const [loading, setLoading] = useState(false);
     const [startTestDialogOpen, setStartTestDialogOpen] = useState(false);
+    const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
     const [statusMessage, setStatusMessage] = useState({ open: false, text: '', severity: '' });
     const [tradeRule, setTradeRule] = useState(data);
 
-    const deleteTradeRule = () => {
+    const tryDeleteTradeRule = () => {
         if (loading === false && runningTest === false) {
+            TradeOrderService.anyTradeOrders(tradeRule.id).then((result) => {
+                if (result === true) {
+                    setConfirmDeleteDialogOpen(true);
+                } else {
+                    deleteTradeRule();
+                }
+            });
+        }
+    }
+
+    const deleteTradeRule = () => {
+        if (runningTest === false) {
             setLoading(true);
             TradeRuleService.deleteTradeRule(tradeRule.id).then((result) => {
                 if (result === true) {
@@ -203,7 +218,7 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, setRunning
                             saveTradeRule={saveTradeRule}
                             copyTradeRule={copyTradeRule}
                             exportTradeRule={exportTradeRule}
-                            deleteTradeRule={deleteTradeRule}
+                            deleteTradeRule={tryDeleteTradeRule}
                             startTradeRuleTest={() => setStartTestDialogOpen(true)}
                             stopTradeRuleTest={() => stopTradeRuleTest()}
                         />
@@ -216,6 +231,12 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, setRunning
                     text={statusMessage.text}
                     severity={statusMessage.severity} />
                 <TradeRuleTestDialog dialogOpen={startTestDialogOpen} setDialogOpen={setStartTestDialogOpen} startTradeRuleTest={startTradeRuleTest} />
+                <ConfirmDialog
+                    dialogOpen={confirmDeleteDialogOpen}
+                    setDialogOpen={setConfirmDeleteDialogOpen}
+                    information='This trade rule has live orders connected to it.'
+                    message='Are you sure you want to delete it?'
+                    confirm={deleteTradeRule} />
             </div>
         )
     } else {

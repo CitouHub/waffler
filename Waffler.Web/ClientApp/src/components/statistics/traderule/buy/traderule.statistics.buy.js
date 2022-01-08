@@ -101,7 +101,7 @@ const TradeRuleBuyStatistics = () => {
                     </tbody>
                 </table>
             </div>}
-            {statistics && statistics.length == 0 && <div className='mt-4'>
+            {statistics && statistics.length === 0 && <div className='mt-4'>
                 <h5 className="text-center">No statistics available</h5>
             </div>}
         </div>

@@ -289,5 +289,94 @@ namespace Waffler.Test.Service
             Assert.True(success);
             Assert.NotNull(context.TradeOrders.FirstOrDefault(_ => _.OrderId == tradeOrderDTO.OrderId));
         }
+
+        [Fact]
+        public async Task AnyTradeOrders_False_TradeRuleDoesNotExist()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+
+            //Act
+            var anyTradeOrders = await tradeOrderService.AnyTradeOrders(-1);
+
+            //Assert
+            Assert.False(anyTradeOrders);
+        }
+
+        [Fact]
+        public async Task AnyTradeOrders_False_NoOrders()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+            context.TradeRules.Add(TradeRuleHelper.GetTradeRule());
+            context.SaveChanges();
+            var tradeRule = context.TradeRules.FirstOrDefault();
+
+            //Act
+            var anyTradeOrders = await tradeOrderService.AnyTradeOrders(tradeRule.Id);
+
+            //Assert
+            Assert.False(anyTradeOrders);
+        }
+
+        [Fact]
+        public async Task AnyTradeOrders_False_OnlyTestOrders()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+            context.TradeRules.Add(TradeRuleHelper.GetTradeRule());
+            context.SaveChanges();
+            var tradeRule = context.TradeRules.FirstOrDefault();
+            var testOrder = TradeOrderHelper.GetTradeOrder();
+            testOrder.TradeRuleId = tradeRule.Id;
+            testOrder.TradeOrderStatusId = (short)Variable.TradeOrderStatus.Test;
+            context.TradeOrders.Add(testOrder);
+            context.SaveChanges();
+
+            //Act
+            var anyTradeOrders = await tradeOrderService.AnyTradeOrders(tradeRule.Id);
+
+            //Assert
+            Assert.False(anyTradeOrders);
+        }
+
+        [Theory]
+        [InlineData(Variable.TradeOrderStatus.Closed)]
+        [InlineData(Variable.TradeOrderStatus.Failed)]
+        [InlineData(Variable.TradeOrderStatus.Filled)]
+        [InlineData(Variable.TradeOrderStatus.FilledClosed)]
+        [InlineData(Variable.TradeOrderStatus.FilledFully)]
+        [InlineData(Variable.TradeOrderStatus.FilledRejected)]
+        [InlineData(Variable.TradeOrderStatus.Open)]
+        [InlineData(Variable.TradeOrderStatus.Rejected)]
+        [InlineData(Variable.TradeOrderStatus.StopTriggered)]
+        public async Task AnyTradeOrders_True(Variable.TradeOrderStatus liveTradeOrderStatus)
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+            context.TradeRules.Add(TradeRuleHelper.GetTradeRule());
+            context.SaveChanges();
+            var tradeRule = context.TradeRules.FirstOrDefault();
+
+            var liveOrder = TradeOrderHelper.GetTradeOrder();
+            liveOrder.TradeRuleId = tradeRule.Id;
+            liveOrder.TradeOrderStatusId = (short)liveTradeOrderStatus;
+            var testOrder = TradeOrderHelper.GetTradeOrder();
+            testOrder.TradeRuleId = tradeRule.Id;
+            testOrder.TradeOrderStatusId = (short)Variable.TradeOrderStatus.Test;
+            context.TradeOrders.Add(liveOrder);
+            context.TradeOrders.Add(testOrder);
+            context.SaveChanges();
+
+            //Act
+            var anyTradeOrders = await tradeOrderService.AnyTradeOrders(tradeRule.Id);
+
+            //Assert
+            Assert.True(anyTradeOrders);
+        }
     }
 }

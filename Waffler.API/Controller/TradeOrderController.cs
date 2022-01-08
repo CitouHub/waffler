@@ -29,6 +29,13 @@ namespace Waffler.API.Controller
         }
 
         [HttpGet]
+        [Route("any/{tradeRuleId}")]
+        public async Task<bool> AnyTradeOrders(int tradeRuleId)
+        {
+            return await _tradeOrderService.AnyTradeOrders(tradeRuleId);
+        }
+
+        [HttpGet]
         [Route("status")]
         public async Task<IEnumerable<CommonAttributeDTO>> GetTradeOrderStatusesAsync()
         {

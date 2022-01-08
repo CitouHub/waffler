@@ -161,7 +161,7 @@ const TradeOrders = () => {
                     </Table>
                 </TableContainer>
             </div>}
-            {tradeOrders && tradeOrdersDisplay.length == 0 && <div className='mt-4'>
+            {tradeOrders && tradeOrdersDisplay.length === 0 && <div className='mt-4'>
                 <h5 className="text-center">No orders found</h5>
             </div>}
         </div>

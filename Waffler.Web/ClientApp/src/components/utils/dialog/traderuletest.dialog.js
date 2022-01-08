@@ -1,11 +1,11 @@
 ﻿import React, { useState } from 'react';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import DateSpanFilter from '../../filter/datespan.filter'
 
 import './dialog.css';
 
@@ -29,32 +29,7 @@ const TradeRuleTestDialog = ({ dialogOpen, setDialogOpen, startTradeRuleTest }) 
                         Select the time span for which to run the test
                     </DialogContentText>
                     <div className='d-flex mt-4'>
-                        <div className='mr-2'>
-                            <TextField
-                                id="trt-fromDate"
-                                label="From"
-                                type="date"
-                                defaultValue={tradeRuleTest?.fromDate.toJSON().slice(0, 10)}
-                                sx={{ width: 220 }}
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                onChange={e => setTradeRuleTest({ ...tradeRuleTest, fromDate: new Date(e.target.value) })}
-                            />
-                        </div>
-                        <div>
-                            <TextField
-                                id="trt-toDate"
-                                label="To"
-                                type="date"
-                                defaultValue={tradeRuleTest?.toDate.toJSON().slice(0, 10)}
-                                sx={{ width: 220 }}
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                onChange={e => setTradeRuleTest({ ...tradeRuleTest, toDate: new Date(e.target.value) })}
-                            />
-                        </div>
+                        <DateSpanFilter filter={tradeRuleTest} updateFilter={setTradeRuleTest} />
                     </div>
                 </DialogContent>
                 <DialogActions>
