@@ -57,5 +57,8 @@ Waffler is now running on `http://waffler.local:8088`, enjoy!
 ## Trade rules
 I'm experimeted a bit in designing some default trade rules. If you want to use these for your instance of Waffler you'll be able to find them in the 'Waffler.TradeRules' folder. After you've set up Waffler you can just import them in the `Trade rule` view.
 
+## Upgrading Waffler
+When using Waffler you'll be notified in the top bar if a new version has been released. If you get this notification and would like to upgrade Waffler to the latest version then you can do so by running `sh waffler-upgrade.sh`. This upgrade-script is located in the `Waffler.Docker` folder. It will stop, pull, and re-start the Waffler docker containers with the latest version.
+
 ## Final thoughts
 I'm running Waffler on my own Raspberry Pi 4 which is also acting as my Lightning Node with Umbrel. The Sell-functionality is, in the spirit of HODL, by default disable, who wants to sell BTC? If, however, you want to enable it. Open your docker-compose file and change `Bitpanda__OrderFeature__Sell=false` to `Bitpanda__OrderFeature__Sell=true`. Oh! And the sell logic is not implemented yet so... yeah, don't sell your BTC :D
