@@ -1,15 +1,24 @@
 # Waffler
 Waffler is a trade-aid application which acts on the Bitpanda platform via your own API-key. You can get your own API-key via your Bitpanda account here [Bitpanda API](https://exchange.bitpanda.com/account/keys). The idea is to set up rules for when to buy crypto assets based on price trends. To give Waffler its full functionality you need to provide an API key with both `Read` and `Trade` permissions.
 
+## Demo
+Here is a short demonstration of the applicaiton  
+[Waffler demo part 1](https://www.youtube.com/watch?v=dtT1fKV4TK8)  
+[Waffler demo part 2](https://www.youtube.com/watch?v=6dFr9D0gjGc)
+
 ## Running Waffler on your Raspberry Pi
-Seting up Waffler on your own Raspberry Pi should be quite streight forward. Copy and run the docker-compose file `docker-compose.gh.arm64.yml` on your Raspberry Pi
+Setting up Waffler on your own Raspberry Pi should be quite streight forward. So login to your Raspberry Pi and follow the instructions. First, in order to get access to the docker images for Waffler you need to login to `ghcr.io` to do this you run the following command:
+```
+docker login ghcr.io -u CitouHub -p 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
+```
+Now you have copy the docker-compose file `docker-compose.gh.arm64.yml` to your Raspberry Pi. Once this is done, run the following command:
 ```
 docker-compose --file docker-compose.gh.arm64.yml up -d
 ```
-In order to make the application work properly localy on your network, you'll also have to setup Avahi on your Raspberry Pi
+In order to make the application work properly localy on your network, you'll also have to setup `Avahi` on your Raspberry Pi
 ```
-apt-get update
-apt-get install avahi-utils
+sudo apt-get update
+sudo apt-get install avahi-utils
 ```
 Put the following in `/etc/systemd/system/avahi-alias@.service`
 ```
@@ -31,7 +40,7 @@ To make Waffler available as `waffler.local` on your local network (this will no
 ```
 sudo systemctl enable --now avahi-alias@waffler.local.service
 ```
-To make sure that Waffler starts when you restart your Raspberry Pi put the following in `/etc/systemd/system/waffler.service`
+Lastly, to make sure that Waffler starts when you restart your Raspberry Pi put the following in `/etc/systemd/system/waffler.service`
 ```
 [Unit]
 Description=Docker Compose Waffler
@@ -56,6 +65,9 @@ Waffler is now running on `http://waffler.local:8088`, enjoy!
 
 ## Trade rules
 I'm experimeted a bit in designing some default trade rules. If you want to use these for your instance of Waffler you'll be able to find them in the 'Waffler.TradeRules' folder. After you've set up Waffler you can just import them in the `Trade rule` view.
+
+## Upgrading Waffler
+When using Waffler you'll be notified in the top bar if a new version has been released. If you get this notification and would like to upgrade Waffler to the latest version then you can do so by running `sh waffler-upgrade.sh`. This upgrade-script is located in the `Waffler.Docker` folder. It will stop, pull, and re-start the Waffler docker containers with the latest version.
 
 ## Final thoughts
 I'm running Waffler on my own Raspberry Pi 4 which is also acting as my Lightning Node with Umbrel. The Sell-functionality is, in the spirit of HODL, by default disable, who wants to sell BTC? If, however, you want to enable it. Open your docker-compose file and change `Bitpanda__OrderFeature__Sell=false` to `Bitpanda__OrderFeature__Sell=true`. Oh! And the sell logic is not implemented yet so... yeah, don't sell your BTC :D
