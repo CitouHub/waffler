@@ -7,14 +7,18 @@ Here is a short demonstration of the applicaiton
 [Waffler demo part 2](https://www.youtube.com/watch?v=6dFr9D0gjGc)
 
 ## Running Waffler on your Raspberry Pi
-Seting up Waffler on your own Raspberry Pi should be quite streight forward. Copy and run the docker-compose file `docker-compose.gh.arm64.yml` on your Raspberry Pi
+Setting up Waffler on your own Raspberry Pi should be quite streight forward. So login to your Raspberry Pi and follow the instructions. First, in order to get access to the docker images for Waffler you need to login to `ghcr.io` to do this you run the following command:
+```
+docker login ghcr.io -u CitouHub -p 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
+```
+Now you have copy the docker-compose file `docker-compose.gh.arm64.yml` to your Raspberry Pi. Once this is done, run the following command:
 ```
 docker-compose --file docker-compose.gh.arm64.yml up -d
 ```
-In order to make the application work properly localy on your network, you'll also have to setup Avahi on your Raspberry Pi
+In order to make the application work properly localy on your network, you'll also have to setup `Avahi` on your Raspberry Pi
 ```
-apt-get update
-apt-get install avahi-utils
+sudo apt-get update
+sudo apt-get install avahi-utils
 ```
 Put the following in `/etc/systemd/system/avahi-alias@.service`
 ```
@@ -36,7 +40,7 @@ To make Waffler available as `waffler.local` on your local network (this will no
 ```
 sudo systemctl enable --now avahi-alias@waffler.local.service
 ```
-To make sure that Waffler starts when you restart your Raspberry Pi put the following in `/etc/systemd/system/waffler.service`
+Lastly, to make sure that Waffler starts when you restart your Raspberry Pi put the following in `/etc/systemd/system/waffler.service`
 ```
 [Unit]
 Description=Docker Compose Waffler
