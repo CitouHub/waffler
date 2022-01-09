@@ -65,5 +65,8 @@ I'm experimeted a bit in designing some default trade rules. If you want to use 
 ## Upgrading Waffler
 When using Waffler you'll be notified in the top bar if a new version has been released. If you get this notification and would like to upgrade Waffler to the latest version then you can do so by running `sh waffler-upgrade.sh`. This upgrade-script is located in the `Waffler.Docker` folder. It will stop, pull, and re-start the Waffler docker containers with the latest version.
 
+## Disclaimer
+Waffler is an experimental application for educational purposes only. I will not take any responibility for what you, or anyone else, does with this application and your own crypto assets. So be careful when using the application!
+
 ## Final thoughts
 I'm running Waffler on my own Raspberry Pi 4 which is also acting as my Lightning Node with Umbrel. The Sell-functionality is, in the spirit of HODL, by default disable, who wants to sell BTC? If, however, you want to enable it. Open your docker-compose file and change `Bitpanda__OrderFeature__Sell=false` to `Bitpanda__OrderFeature__Sell=true`. Oh! And the sell logic is not implemented yet so... yeah, don't sell your BTC :D
