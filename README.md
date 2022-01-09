@@ -63,7 +63,7 @@ Waffler is now running on `http://waffler.local:8088`, enjoy!
 I'm experimeted a bit in designing some default trade rules. If you want to use these for your instance of Waffler you'll be able to find them in the 'Waffler.TradeRules' folder. After you've set up Waffler you can just import them in the `Trade rule` view.
 
 ## Upgrading Waffler
-When using Waffler you'll be notified in the top bar if a new version has been released. If you get this notification and would like to upgrade Waffler to the latest version then you can do so by running `sh waffler-upgrade.sh`. This upgrade-script is located in the `Waffler.Docker` folder. It will stop, pull, and re-start the Waffler docker containers with the latest version.
+When using Waffler you'll be notified in the top bar if a new version has been released. If you get this notification and would like to upgrade Waffler to the latest version then you can do so by running `sh waffler-upgrade.sh`. It will stop, pull, and re-start the Waffler docker containers with the latest version.
 
 ## Disclaimer
 Waffler is an experimental application for educational purposes only. I will not take any responibility for what you, or anyone else, does with this application and your own crypto assets. So be careful when using the application!
