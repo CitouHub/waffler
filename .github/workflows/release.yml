@@ -95,7 +95,7 @@ jobs:
         run: docker tag $REGISTRY/$OWNER/$API_IMAGE_NAME_ARM64:$RELEASE_TAG_INPUT $REGISTRY/$OWNER/$API_IMAGE_NAME_ARM64:latest
 
       - name: Push image for API
-        run: docker push --all-tags ghcr.io/citou-ab/$API_IMAGE_NAME_ARM64
+        run: docker push --all-tags $REGISTRY/$OWNER/$API_IMAGE_NAME_ARM64
         
   build_push_web_armv7:
     runs-on: ubuntu-18.04
