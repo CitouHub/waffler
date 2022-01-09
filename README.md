@@ -7,11 +7,7 @@ Here is a short demonstration of the applicaiton
 [Waffler demo part 2](https://www.youtube.com/watch?v=6dFr9D0gjGc)
 
 ## Running Waffler on your Raspberry Pi
-Setting up Waffler on your own Raspberry Pi should be quite streight forward. So login to your Raspberry Pi and follow the instructions. First, in order to get access to the docker images for Waffler you need to login to `ghcr.io` to do this you run the following command:
-```
-docker login ghcr.io -u CitouHub -p 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
-```
-Now you have copy the docker-compose file `docker-compose.gh.arm64.yml` to your Raspberry Pi. Once this is done, run the following command:
+Setting up Waffler on your own Raspberry Pi should be quite streight forward. So login to your Raspberry Pi and follow the instructions. First, you have copy the docker-compose file `docker-compose.gh.arm64.yml` to your Raspberry Pi. Once this is done, run the following command:
 ```
 docker-compose --file docker-compose.gh.arm64.yml up -d
 ```
