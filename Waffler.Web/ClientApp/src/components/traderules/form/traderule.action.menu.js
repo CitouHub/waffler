@@ -53,7 +53,7 @@ const StyledMenu = styled((props) => (
     },
 }));
 
-const TradeRuleActionMenu = ({ runningTest, saveTradeRule, copyTradeRule, exportTradeRule, deleteTradeRule, startTradeRuleTest, stopTradeRuleTest}) => {
+const TradeRuleActionMenu = ({ runningTest, saveTradeRule, copyTradeRule, exportTradeRule, deleteTradeRule, startTradeRuleTest, stopTradeRuleTest, deleteTestTradeOrders}) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
 
@@ -120,6 +120,13 @@ const TradeRuleActionMenu = ({ runningTest, saveTradeRule, copyTradeRule, export
                 }} disableRipple disabled={!runningTest}>
                     <StopCircleIcon />
                     Stop test
+                </MenuItem>
+                <MenuItem onClick={e => {
+                    deleteTestTradeOrders();
+                    setAnchorEl(null);
+                }} disableRipple disabled={runningTest}>
+                    <DeleteIcon />
+                    Delete test orders
                 </MenuItem>
             </StyledMenu>
         </div>

@@ -24,6 +24,7 @@ namespace Waffler.Service
         Task<bool> UpdateTradeOrderAsync(TradeOrderDTO tradeOrdersDTO);
         Task<IEnumerable<CommonAttributeDTO>> GetTradeOrderStatusesAsync();
         Task<bool> AnyTradeOrders(int tradeRuleId);
+        Task DeleteTestTradeOrdersAsync(int tradeRuleId);
     }
 
     public class TradeOrderService : ITradeOrderService
@@ -116,6 +117,19 @@ namespace Waffler.Service
             return await _context.TradeOrders.AnyAsync(_ => 
                 _.TradeRuleId == tradeRuleId && 
                 _.TradeOrderStatusId != (short)Variable.TradeOrderStatus.Test);
+        }
+
+        public async Task DeleteTestTradeOrdersAsync(int tradeRuleId)
+        {
+            var testTradeOrders = await _context.TradeOrders.Where(_ =>
+                _.TradeRuleId == tradeRuleId &&
+                _.TradeOrderStatusId == (short)Variable.TradeOrderStatus.Test).ToListAsync();
+
+            if(testTradeOrders.Any())
+            {
+                _context.TradeOrders.RemoveRange(testTradeOrders);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

@@ -19,4 +19,10 @@ export default {
     }).then((response) => {
         return Request.handleResponse(response)
     }),
+    deleteTestTradeOrders: async (tradeRuleId) => await Request.send({
+        url: `/tradeorder/test/${tradeRuleId}`,
+        method: 'DELETE'
+    }).then((response) => {
+        return Request.handleResponse(response)
+    }),
 }

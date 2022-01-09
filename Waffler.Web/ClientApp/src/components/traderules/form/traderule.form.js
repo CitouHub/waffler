@@ -48,6 +48,20 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, setRunning
         }
     }
 
+    const deleteTestTradeOrders = () => {
+        if (runningTest === false) {
+            setLoading(true);
+            TradeOrderService.deleteTestTradeOrders(tradeRule.id).then(() => {
+                setLoading(false);
+                setStatusMessage({
+                    open: true,
+                    text: 'Test orders removed',
+                    severity: 'success'
+                });
+            });
+        }
+    }
+
     const saveTradeRule = () => {
         if (loading === false && runningTest === false) {
             setLoading(true);
@@ -221,6 +235,7 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, setRunning
                             deleteTradeRule={tryDeleteTradeRule}
                             startTradeRuleTest={() => setStartTestDialogOpen(true)}
                             stopTradeRuleTest={() => stopTradeRuleTest()}
+                            deleteTestTradeOrders={deleteTestTradeOrders}
                         />
                     </div>
                 </div>

@@ -1,11 +1,8 @@
-# These images are private so to download them you first need to login to Github using the following command:
-# docker login ghcr.io -u CitouHub -p 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
-
 version: "3"
 
 services:
   web:
-    image: ghcr.io/citou-ab/waffler-web:latest
+    image: ghcr.io/citouhub/waffler-web:latest
     depends_on:
       - api
     ports:

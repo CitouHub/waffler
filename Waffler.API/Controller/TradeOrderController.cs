@@ -41,5 +41,12 @@ namespace Waffler.API.Controller
         {
             return await _tradeOrderService.GetTradeOrderStatusesAsync();
         }
+
+        [HttpDelete]
+        [Route("test/{tradeRuleId}")]
+        public async Task DeleteTestTradeOrdersAsync(int tradeRuleId)
+        {
+            await _tradeOrderService.DeleteTestTradeOrdersAsync(tradeRuleId);
+        }
     }
 }

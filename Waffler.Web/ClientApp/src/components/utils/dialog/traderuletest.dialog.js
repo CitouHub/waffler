@@ -31,6 +31,9 @@ const TradeRuleTestDialog = ({ dialogOpen, setDialogOpen, startTradeRuleTest }) 
                     <div className='d-flex mt-4'>
                         <DateSpanFilter filter={tradeRuleTest} updateFilter={setTradeRuleTest} />
                     </div>
+                    <DialogContentText>
+                        (When running a new test previous test orders for this trade rule will be removed)
+                    </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <div className='dialog-control'>
