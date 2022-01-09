@@ -15,7 +15,7 @@ services:
     volumes:
       - ./https:/https:ro
   api:
-    image: ghcr.io/citou-ab/waffler-api-arm64:latest
+    image: ghcr.io/citouhub/waffler-api-arm64:latest
     depends_on:
       - db
     ports:
