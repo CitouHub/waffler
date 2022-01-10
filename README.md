@@ -59,6 +59,9 @@ sudo systemctl enable --now waffler.service
 ```
 Waffler is now running on `http://waffler.local:8088`, enjoy!
 
+## Ports
+You are welcome to change the ports which Waffler uses, you can do so in the docker-compose file. For the API `5005:80`, set `5005` to the port you would like to use. If you change this you also need to set the port in the URL-setting used by the web application, `API__BaseUrl=http://waffler.local:5005/`. You can do the same for the port used by the web application, `8088:80`.
+
 ## Trade rules
 I'm experimeted a bit in designing some default trade rules. If you want to use these for your instance of Waffler you'll be able to find them in the 'Waffler.TradeRules' folder. After you've set up Waffler you can just import them in the `Trade rule` view.
 
