@@ -54,75 +54,6 @@ namespace Waffler.Service.Background
             return Task.CompletedTask;
         }
 
-        public async Task UpdateOrderDataAsync(CancellationToken cancellationToken)
-        {
-            lock (UpdateStartLock)
-            {
-                if (UpdateInProgress)
-                {
-                    return;
-                }
-
-                UpdateInProgress = true;
-            }
-
-            _logger.LogInformation($"Waiting for database to be ready");
-            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
-            try
-            {
-                _logger.LogInformation($"Syncing order data");
-                using (IServiceScope scope = _serviceProvider.CreateScope())
-                {
-                    _logger.LogInformation($"- Setting up scoped services");
-                    var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
-                    var _tradeOrderService = scope.ServiceProvider.GetRequiredService<ITradeOrderService>();
-                    var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
-                    var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
-
-                    var profile = await _profileService.GetProfileAsync();
-
-                    if (profile != null && string.IsNullOrEmpty(profile.ApiKey) == false && 
-                        cancellationToken.IsCancellationRequested == false)
-                    {
-                        _logger.LogInformation($"- Getting trade orders");
-                        var orders = await _tradeOrderService.GetActiveTradeOrdersAsync();
-
-                        foreach (var order in orders)
-                        {
-                            if (cancellationToken.IsCancellationRequested)
-                            {
-                                break;
-                            }
-
-                            _logger.LogInformation($"- Updating trade order {order}");
-                            var bp_order = await _bitpandaService.GetOrderAsync(order.OrderId);
-
-                            if (bp_order != null)
-                            {
-                                var tradeOrderDTO = _mapper.Map<TradeOrderDTO>(bp_order);
-                                tradeOrderDTO.Id = order.Id;
-                                tradeOrderDTO.TradeRuleId = order.TradeRuleId;
-                                await _tradeOrderService.UpdateTradeOrderAsync(tradeOrderDTO);
-                                _logger.LogInformation($"- Trade order {order} updated");
-                            }
-                            else
-                            {
-                                _logger.LogWarning($"- Trade order {order.OrderId} not found");
-                            }
-
-                            _updateTimer.Change(RequestPeriod, RequestPeriod);
-                        }
-                    }
-                }
-                _logger.LogInformation($"Syncing order data finished");
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
-            }
-            FetchInProgress = false;
-        }
-
         public async Task FetchOrderDataAsync(CancellationToken cancellationToken)
         {
             lock (FetchStartLock)
@@ -189,6 +120,75 @@ namespace Waffler.Service.Background
                             }
 
                             _logger.LogInformation($"- Data save successfull");
+                        }
+                    }
+                }
+                _logger.LogInformation($"Syncing order data finished");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
+            }
+            FetchInProgress = false;
+        }
+
+        public async Task UpdateOrderDataAsync(CancellationToken cancellationToken)
+        {
+            lock (UpdateStartLock)
+            {
+                if (UpdateInProgress)
+                {
+                    return;
+                }
+
+                UpdateInProgress = true;
+            }
+
+            _logger.LogInformation($"Waiting for database to be ready");
+            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
+            try
+            {
+                _logger.LogInformation($"Syncing order data");
+                using (IServiceScope scope = _serviceProvider.CreateScope())
+                {
+                    _logger.LogInformation($"- Setting up scoped services");
+                    var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
+                    var _tradeOrderService = scope.ServiceProvider.GetRequiredService<ITradeOrderService>();
+                    var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
+                    var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
+
+                    var profile = await _profileService.GetProfileAsync();
+
+                    if (profile != null && string.IsNullOrEmpty(profile.ApiKey) == false &&
+                        cancellationToken.IsCancellationRequested == false)
+                    {
+                        _logger.LogInformation($"- Getting trade orders");
+                        var orders = await _tradeOrderService.GetActiveTradeOrdersAsync();
+
+                        foreach (var order in orders)
+                        {
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                break;
+                            }
+
+                            _logger.LogInformation($"- Updating trade order {order}");
+                            var bp_order = await _bitpandaService.GetOrderAsync(order.OrderId);
+
+                            if (bp_order != null)
+                            {
+                                var tradeOrderDTO = _mapper.Map<TradeOrderDTO>(bp_order);
+                                tradeOrderDTO.Id = order.Id;
+                                tradeOrderDTO.TradeRuleId = order.TradeRuleId;
+                                await _tradeOrderService.UpdateTradeOrderAsync(tradeOrderDTO);
+                                _logger.LogInformation($"- Trade order {order} updated");
+                            }
+                            else
+                            {
+                                _logger.LogWarning($"- Trade order {order.OrderId} not found");
+                            }
+
+                            _updateTimer.Change(RequestPeriod, RequestPeriod);
                         }
                     }
                 }

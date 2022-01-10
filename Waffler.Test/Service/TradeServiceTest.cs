@@ -625,5 +625,39 @@ namespace Waffler.Test
 
             _ = _tradeRuleService.Received().UpdateTradeRuleAsync(Arg.Is(tradeRule));
         }
+
+        [Fact]
+        public async Task HandleTradeRule_CorrectOrderDate()
+        {
+            //Setup
+            var currentPeriodDateTime = DateTime.UtcNow;
+            var tradeRuleCondition = TradeRuleConditionHelper.GetTradeRuleConditionDTO();
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
+            tradeRule.Amount = 100;
+            tradeRule.PriceDeltaPercent = -1;
+            tradeRule.TradeRuleStatusId = (short)Variable.TradeRuleStatus.Active;
+            tradeRule.TradeRuleConditions = new List<TradeRuleConditionDTO>();
+            tradeRule.TradeRuleConditions.Add(tradeRuleCondition);
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
+            var orderSubmitted = BitpandaHelper.GetOrderSubmitted();
+            orderSubmitted.Time = currentPeriodDateTime.AddMinutes(1);
+
+            _tradeRuleService.GetTradeRuleAsync(Arg.Is(TestTradeRuleId)).Returns(tradeRule);
+            _candleStickService.GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime)).Returns(candleStick);
+            _statisticsService.GetPriceTrendAsync(Arg.Is(currentPeriodDateTime), Arg.Any<Variable.TradeType>(), Arg.Is(tradeRuleCondition))
+                .Returns(StatisticsHelper.GetTrendDTO(-2));
+            _bitpandaService.TryPlaceOrderAsync(Arg.Is(tradeRule), Arg.Any<decimal>(), Arg.Any<decimal>()).Returns(orderSubmitted);
+
+            //Act
+            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
+
+            //Assert
+            Assert.True(result.TradeRuleCondtionEvaluations.All(_ => _.IsFullfilled == true));
+            _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime));
+            _ = _statisticsService.Received().GetPriceTrendAsync(Arg.Is(currentPeriodDateTime), Arg.Any<Variable.TradeType>(), Arg.Is(tradeRuleCondition));
+            _ = _tradeOrderService.Received().AddTradeOrderAsync(Arg.Is<TradeOrderDTO>(_ => _.OrderDateTime == orderSubmitted.Time));
+            _ = _bitpandaService.Received().TryPlaceOrderAsync(Arg.Is(tradeRule), Arg.Any<decimal>(), Arg.Any<decimal>());
+            _ = _tradeRuleService.Received().UpdateTradeRuleAsync(Arg.Is(tradeRule));
+        }
     }
 }
