@@ -22,6 +22,7 @@ namespace Waffler.Service
         Task<int> RemoveTestTradeOrdersAsync(int tradeRuleId);
         Task<TradeOrderDTO> GetLastTradeOrderAsync(DateTime toPeriodDateTime);
         Task<bool> UpdateTradeOrderAsync(TradeOrderDTO tradeOrdersDTO);
+        Task<bool> SetTradeRuleAsync(int tradeOrderId, int tradeRuleId);
         Task<IEnumerable<CommonAttributeDTO>> GetTradeOrderStatusesAsync();
         Task<bool> AnyTradeOrders(int tradeRuleId);
         Task DeleteTestTradeOrdersAsync(int tradeRuleId);
@@ -101,6 +102,26 @@ namespace Waffler.Service
                 await _context.SaveChangesAsync();
 
                 return true;
+            }
+
+            return false;
+        }
+
+        public async Task<bool> SetTradeRuleAsync(int tradeOrderId, int tradeRuleId)
+        {
+            var tradeOrder = await _context.TradeOrders.FindAsync(tradeOrderId);
+            if (tradeOrder != null && tradeOrder.TradeRuleId == null)
+            {
+                if(_context.TradeRules.Any(_ => _.Id == tradeRuleId))
+                {
+                    tradeOrder.TradeRuleId = tradeRuleId;
+                    tradeOrder.UpdateByUser = 1;
+                    tradeOrder.UpdateDate = DateTime.UtcNow;
+
+                    await _context.SaveChangesAsync();
+
+                    return true;
+                }
             }
 
             return false;

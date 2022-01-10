@@ -6,12 +6,17 @@ namespace Waffler.Domain.ComplexMapping
     {
         public static string GetTradeRuleName(TradeOrder tradeOrder)
         {
-            if(tradeOrder.TradeRule == null)
+            if(tradeOrder.TradeRuleId == null || tradeOrder.TradeRuleId == 0)
             {
                 return "Manual";
             }
 
-            return tradeOrder.TradeRule.Name + (tradeOrder.TradeRule.IsDeleted ? " (Deleted)" : "");
+            if(tradeOrder.TradeRule != null)
+            {
+                return tradeOrder.TradeRule.Name + (tradeOrder.TradeRule.IsDeleted ? " (Deleted)" : "");
+            }
+
+            return null;
         }
     }
 }

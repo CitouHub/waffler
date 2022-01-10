@@ -5,12 +5,14 @@ import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
 import { timeFormat } from "d3-time-format";
 
 import LoadingBar from '../utils/loadingbar';
 import TradeFilter from '../filter/trade.filter';
+import TradeRuleDialog from "../utils/dialog/traderule.dialog";
 
 import TradeOrderService from '../../services/tradeorder.service';
 import TradeRuleService from '../../services/traderule.service';
@@ -27,6 +29,7 @@ const TradeOrders = () => {
     const [selectedTradeRules, setSelectedTradeRules] = useState([]);
     const [tradeOrderStatuses, setTradeOrderStatuses] = useState([]);
     const [selectedTradeOrderStatuses, setSelectedTradeOrderStatuses] = useState([]);
+    const [selectedTradeOrder, setSelectedTradeOrder] = useState({});
     const [filter, setFilter] = useState({
         fromDate: fromDate,
         toDate: toDate
@@ -83,6 +86,16 @@ const TradeOrders = () => {
             setTradeOrdersDisplay(tradeOrdersUpdate);
         }
     }, [selectedTradeRules, selectedTradeOrderStatuses, tradeOrders]);
+
+    const setTradeRule = (tradeOrderId, tradeRuleId) => {
+        setLoading(true);
+        TradeOrderService.setTradeRule(tradeOrderId, tradeRuleId).then((success) => {
+            if (success === true) {
+                updateTradeOrders();
+            }
+            setLoading(false);
+        });
+    }
 
     const StyledTableCell = styled(TableCell)(({ theme }) => ({
         [`&.${tableCellClasses.head}`]: {
@@ -148,7 +161,10 @@ const TradeOrders = () => {
                                     <StyledTableCell component="th" scope="tradeOrder">
                                         {dateFormat(tradeOrder.orderDateTime)}
                                     </StyledTableCell>
-                                    <StyledTableCell>{tradeOrder.tradeRuleName}</StyledTableCell>
+                                    <StyledTableCell>
+                                        {tradeOrder.tradeRuleName}
+                                        {tradeOrder.tradeRuleId == 0 && <HelpOutlineIcon sx={{ height: '16px', cursor: 'pointer' }} onClick={() => setSelectedTradeOrder(tradeOrder)} />}
+                                    </StyledTableCell>
                                     <StyledTableCell>{tradeOrder.tradeActionName}</StyledTableCell>
                                     <StyledTableCell>{tradeOrder.tradeOrderStatusName}</StyledTableCell>
                                     <StyledTableCell>{tradeOrder.price}</StyledTableCell>
@@ -160,6 +176,11 @@ const TradeOrders = () => {
                         </TableBody>
                     </Table>
                 </TableContainer>
+                <TradeRuleDialog
+                    tradeOrder={selectedTradeOrder}
+                    closeDialog={() => setSelectedTradeOrder({})}
+                    tradeRules={tradeRules}
+                    setTradeRule={setTradeRule} />
             </div>}
             {tradeOrders && tradeOrdersDisplay.length === 0 && <div className='mt-4'>
                 <h5 className="text-center">No orders found</h5>

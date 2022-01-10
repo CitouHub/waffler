@@ -291,6 +291,96 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
+        public async Task SetTradeRule_WrongTradeOrderId()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderDTO = TradeOrderHelper.GetTradeOrderDTO();
+            tradeOrderDTO.Id = 1;
+            tradeOrderDTO.TradeRuleId = null;
+            var tradeOrder = _mapper.Map<TradeOrder>(tradeOrderDTO);
+            context.TradeOrders.Add(tradeOrder);
+            context.SaveChanges();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+
+            //Act
+            var success = await tradeOrderService.SetTradeRuleAsync(-1, 1);
+
+            //Assert
+            Assert.False(success);
+        }
+
+        [Fact]
+        public async Task SetTradeRule_NonManual()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderDTO = TradeOrderHelper.GetTradeOrderDTO();
+            tradeOrderDTO.Id = 1;
+            tradeOrderDTO.TradeRuleId = 1;
+            var tradeOrder = _mapper.Map<TradeOrder>(tradeOrderDTO);
+            context.TradeOrders.Add(tradeOrder);
+            context.SaveChanges();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+
+            //Act
+            var success = await tradeOrderService.SetTradeRuleAsync(tradeOrderDTO.Id, 2);
+
+            //Assert
+            Assert.False(success);
+        }
+
+        [Fact]
+        public async Task SetTradeRule_WrongTradeRuleId()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeRule = TradeRuleHelper.GetTradeRule();
+            context.TradeRules.Add(tradeRule);
+            context.SaveChanges();
+
+            var tradeOrderDTO = TradeOrderHelper.GetTradeOrderDTO();
+            tradeOrderDTO.Id = 1;
+            tradeOrderDTO.TradeRuleId = null;
+            var tradeOrder = _mapper.Map<TradeOrder>(tradeOrderDTO);
+            context.TradeOrders.Add(tradeOrder);
+            context.SaveChanges();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+
+            //Act
+            var success = await tradeOrderService.SetTradeRuleAsync(tradeOrderDTO.Id, -1);
+
+            //Assert
+            Assert.False(success);
+            Assert.Null(context.TradeOrders.FirstOrDefault(_ => _.Id == tradeOrderDTO.Id && _.TradeRuleId == tradeRule.Id));
+        }
+
+        [Fact]
+        public async Task SetTradeRule_Updated()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeRule = TradeRuleHelper.GetTradeRule();
+            context.TradeRules.Add(tradeRule);
+            context.SaveChanges();
+
+            var tradeOrderDTO = TradeOrderHelper.GetTradeOrderDTO();
+            tradeOrderDTO.Id = 1;
+            tradeOrderDTO.TradeRuleId = null;
+            var tradeOrder = _mapper.Map<TradeOrder>(tradeOrderDTO);
+            context.TradeOrders.Add(tradeOrder);
+            context.SaveChanges();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+
+            //Act
+            var success = await tradeOrderService.SetTradeRuleAsync(tradeOrderDTO.Id, tradeRule.Id);
+
+            //Assert
+            Assert.True(success);
+            Assert.NotNull(context.TradeOrders.FirstOrDefault(_ => _.Id == tradeOrderDTO.Id && _.TradeRuleId == tradeRule.Id));
+        }
+
+        [Fact]
         public async Task AnyTradeOrders_False_TradeRuleDoesNotExist()
         {
             //Setup

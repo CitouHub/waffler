@@ -19,6 +19,12 @@ export default {
     }).then((response) => {
         return Request.handleResponse(response)
     }),
+    setTradeRule: async (tradeOrderId, tradeRuleId) => await Request.send({
+        url: `/tradeorder/${tradeOrderId}/traderule/${tradeRuleId}`,
+        method: 'PUT'
+    }).then((response) => {
+        return Request.handleResponse(response)
+    }),
     deleteTestTradeOrders: async (tradeRuleId) => await Request.send({
         url: `/tradeorder/test/${tradeRuleId}`,
         method: 'DELETE'

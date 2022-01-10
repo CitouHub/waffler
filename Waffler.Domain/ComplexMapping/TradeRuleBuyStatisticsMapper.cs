@@ -6,7 +6,7 @@ namespace Waffler.Domain.ComplexMapping
     {
         public static string GetTradeRuleName(sp_getTradeRuleBuyStatistics_Result tradeRuleBuyStatistics)
         {
-            if (tradeRuleBuyStatistics.TradeRuleId == null)
+            if (tradeRuleBuyStatistics.TradeRuleId == null || tradeRuleBuyStatistics.TradeRuleId == 0)
             {
                 return "Manual";
             }

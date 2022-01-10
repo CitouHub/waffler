@@ -35,7 +35,7 @@ namespace Waffler.Domain
             CreateMap<TradeOrder, TradeOrderDTO>()
                 .ForMember(dest => dest.TradeActionName, opt => opt.MapFrom(src => src.TradeAction != null ? src.TradeAction.Name : null))
                 .ForMember(dest => dest.TradeOrderStatusName, opt => opt.MapFrom(src => src.TradeOrderStatus != null ? src.TradeOrderStatus.Name : null))
-                .ForMember(dest => dest.TradeRuleId, opt => opt.MapFrom(src => src.TradeRule != null ? src.TradeRuleId : 0))
+                .ForMember(dest => dest.TradeRuleId, opt => opt.MapFrom(src => src.TradeRuleId != null ? src.TradeRuleId : 0))
                 .ForMember(dest => dest.TradeRuleName, opt => opt.MapFrom(src => TradeOrderMapper.GetTradeRuleName(src)))
                 .ReverseMap()
                 .ForMember(dest => dest.TradeAction, opt => opt.Ignore())

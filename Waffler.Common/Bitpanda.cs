@@ -128,7 +128,7 @@ namespace Waffler.Common
             {
                 Status.OPEN => true,
                 Status.STOP_TRIGGERED => false,
-                Status.FILLED => false,
+                Status.FILLED => true,
                 Status.FILLED_FULLY => false,
                 Status.FILLED_CLOSED => false,
                 Status.FILLED_REJECTED => false,
