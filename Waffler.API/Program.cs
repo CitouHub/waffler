@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+using Waffler.Common.LogProvider;
 
 namespace Waffler.API
 {
@@ -15,6 +18,7 @@ namespace Waffler.API
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+            .ConfigureLogging(builder => builder.ClearProviders().AddCustomLogger());
     }
 }

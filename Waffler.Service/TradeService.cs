@@ -41,7 +41,7 @@ namespace Waffler.Service
             _tradeOrderService = tradeOrderService;
             _bitpandaService = bitpandaService;
             _statisticsService = statisticsService;
-            _logger.LogDebug("TradeService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
         public async Task<TradeRuleEvaluationDTO> HandleTradeRuleAsync(TradeRuleDTO tradeRule, DateTime currentPeriodDateTime)
@@ -61,7 +61,7 @@ namespace Waffler.Service
                 };
                 foreach (var tradeRuleCondition in tradeRule.TradeRuleConditions.Where(_ => _.IsOn == true))
                 {
-                    _logger.LogInformation($" - Checking condition \"{tradeRuleCondition.Description}\"");
+                    _logger.LogInformation($"Checking condition \"{tradeRuleCondition.Description}\"");
                     var trend = await _statisticsService.GetPriceTrendAsync(
                         currentPeriodDateTime,
                         (TradeType)tradeRule.TradeTypeId,
@@ -75,7 +75,7 @@ namespace Waffler.Service
                     };
                     if (trend != null)
                     {
-                        _logger.LogInformation($" - Trend {trend}");
+                        _logger.LogInformation($"Trend {trend}");
                         conditionResult.IsFullfilled = EvaluateCondition(tradeRuleCondition, trend.Change);
                     }
 
@@ -83,14 +83,14 @@ namespace Waffler.Service
                 }
 
                 var tradeConditionOperator = (TradeConditionOperator)tradeRule.TradeConditionOperatorId;
-                _logger.LogInformation($" - Evaluating result ({tradeConditionOperator}) {tradeRuleResult}");
+                _logger.LogInformation($"Evaluating result ({tradeConditionOperator}) {tradeRuleResult}");
                 var ruleFullfilled = EvaluateRule(tradeRuleResult.TradeRuleCondtionEvaluations, tradeConditionOperator);
-                _logger.LogInformation($" - Rule fullfilled: {ruleFullfilled}");
+                _logger.LogInformation($"Rule fullfilled: {ruleFullfilled}");
 
                 if (ruleFullfilled)
                 {
                     var tradeAction = (TradeAction)tradeRule.TradeActionId;
-                    _logger.LogInformation($" - Trade action: {tradeAction}");
+                    _logger.LogInformation($"Trade action: {tradeAction}");
                     switch (tradeAction)
                     {
                         case TradeAction.Buy:
@@ -132,7 +132,7 @@ namespace Waffler.Service
                         case TradeAction.Sell:
                             throw new NotImplementedException();
                     }
-                    _logger.LogInformation($" - Trade complete!");
+                    _logger.LogInformation($"Trade complet!");
                 }
 
                 return tradeRuleResult;

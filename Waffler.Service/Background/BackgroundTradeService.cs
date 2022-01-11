@@ -32,7 +32,7 @@ namespace Waffler.Service.Background
             _logger = logger;
             _serviceProvider = serviceProvider;
             _databaseSetupSignal = databaseSetupSignal;
-            _logger.LogDebug("BackgroundTradeService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -53,10 +53,12 @@ namespace Waffler.Service.Background
 
         public async Task HandleTradeRulesAsync(CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Analysing price trends for trade rules");
             lock (StartUpLock)
             {
                 if (InProgress)
                 {
+                    _logger.LogInformation($"Analysing price trends for trade rules already in progress");
                     return;
                 }
 
@@ -67,36 +69,40 @@ namespace Waffler.Service.Background
             await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
             try
             {
-                _logger.LogInformation($"Running trade analysis");
+                _logger.LogInformation($"Setting up scoped services");
                 using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
-                    _logger.LogInformation($"- Setting up scoped services");
                     var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _tradeRuleService = scope.ServiceProvider.GetRequiredService<ITradeRuleService>();
                     var _tradeService = scope.ServiceProvider.GetRequiredService<ITradeService>();
                     var _tradeRuleTestQueue = scope.ServiceProvider.GetRequiredService<ITradeRuleTestQueue>();
 
-                    _logger.LogInformation($"- Getting last candlestick");
+                    _logger.LogInformation($"Preparing analyse");
                     var lastCandleStick = await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow);
 
                     if (DataSyncHandler.IsDataSynced(lastCandleStick))
                     {
-                        _logger.LogInformation($"- Data synced, last period {lastCandleStick.PeriodDateTime}, analyse trade rules...");
+                        _logger.LogInformation($"Getting trade rules");
                         var tradeRules = await _tradeRuleService.GetTradeRulesAsync();
 
                         foreach (var tradeRule in tradeRules.Where(_ => TestInProgress(_tradeRuleTestQueue, _.Id) == false))
                         {
+                            _logger.LogInformation($"Analysing trade rule {tradeRule.Name}");
                             if (cancellationToken.IsCancellationRequested == false)
                             {
                                 var result = await _tradeService.HandleTradeRuleAsync(tradeRule, lastCandleStick.PeriodDateTime);
                                 
                                 if(result != null)
                                 {
-                                    _logger.LogInformation($"- Trade rule analyse result: {result.Id}:{result.Name}");
+                                    _logger.LogInformation($"Trade rule analyse result: {result.Id}:{result.Name}");
                                     foreach (var tradeRuleCondition in result.TradeRuleCondtionEvaluations)
                                     {
-                                        _logger.LogInformation($"- - Condition: {tradeRuleCondition.Id}:{tradeRuleCondition.Description} = {tradeRuleCondition.IsFullfilled}");
+                                        _logger.LogInformation($"Condition: {tradeRuleCondition.Id}: {tradeRuleCondition.Description} = {tradeRuleCondition.IsFullfilled}");
                                     }
+                                } 
+                                else
+                                {
+                                    _logger.LogInformation($"Trade rule not applicable");
                                 }
                             }
 
@@ -105,24 +111,19 @@ namespace Waffler.Service.Background
                     }
                     else
                     {
-                        if (lastCandleStick == null)
-                        {
-                            _logger.LogWarning($"- Data not synced, no data available");
-                        }
-                        else
-                        {
-                            _logger.LogWarning($"- Data not synced, last period {lastCandleStick.PeriodDateTime}");
-                            _timer.Change(RetryRequestPeriod, RequestPeriod);
-                        }
+                        _logger.LogWarning($"Unable to do analasys, insufficient data");
+                        _timer.Change(RetryRequestPeriod, RequestPeriod);
                     }
                 }
-                _logger.LogInformation($"Running trade analysis finished");
             } 
             catch(Exception e)
             {
                 _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
             }
+
             InProgress = false;
+
+            _logger.LogInformation($"Analysing price trends for trade rules finished");
         }
     }
 }

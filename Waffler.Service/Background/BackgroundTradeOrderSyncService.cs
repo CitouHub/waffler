@@ -40,26 +40,28 @@ namespace Waffler.Service.Background
             _logger = logger;
             _serviceProvider = serviceProvider;
             _databaseSetupSignal = databaseSetupSignal;
-            _logger.LogDebug("BackgroundOrderSyncService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
-        protected override Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
+            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
+
             if (!cancellationToken.IsCancellationRequested)
             {
                 _fetchTimer = new Timer(async _ => await FetchOrderDataAsync(cancellationToken), null, TimeSpan.FromSeconds(0), RequestPeriod);
                 _updateTimer = new Timer(async _ => await UpdateOrderDataAsync(cancellationToken), null, TimeSpan.FromSeconds(0), RequestPeriod);
             }
-
-            return Task.CompletedTask;
         }
 
         public async Task FetchOrderDataAsync(CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Fetch trade orders");
             lock (FetchStartLock)
             {
                 if (FetchInProgress)
                 {
+                    _logger.LogWarning($"Fetch trade orders already in progress");
                     return;
                 }
 
@@ -70,38 +72,36 @@ namespace Waffler.Service.Background
             await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
             try
             {
-                _logger.LogInformation($"Syncing order data");
+                _logger.LogInformation($"Setting up scoped services");
                 using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
-                    _logger.LogInformation($"- Setting up scoped services");
                     var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
                     var _tradeOrderService = scope.ServiceProvider.GetRequiredService<ITradeOrderService>();
                     var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
                     var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
+                    _logger.LogInformation($"Preparing fetch");
                     var profile = await _profileService.GetProfileAsync();
-
-                    _logger.LogInformation($"- Getting last candlestick");
                     var lastCandleStick = await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow);
 
                     if (profile != null && string.IsNullOrEmpty(profile.ApiKey) == false &&
                         DataSyncHandler.IsDataSynced(lastCandleStick) &&
                         cancellationToken.IsCancellationRequested == false)
                     {
-                        _logger.LogInformation($"- Getting last order");
+                        _logger.LogInformation($"Getting last order");
                         var period = (await _tradeOrderService.GetLastTradeOrderAsync(DateTime.UtcNow))?.OrderDateTime ??
                             profile.CandleStickSyncFromDate;
                         period = period.AddSeconds(1);
 
-                        _logger.LogInformation($"- Fetch order data history");
+                        _logger.LogInformation($"Fetch order data history");
                         var bp_orders = await _bitpandaService.GetOrdersAsync(
                             Bitpanda.GetInstrumentCode(TradeType.BTC_EUR),
                             period, DateTime.UtcNow);
 
                         if (bp_orders != null && bp_orders.Any() && cancellationToken.IsCancellationRequested == false)
                         {
-                            _logger.LogInformation($"- Fetch successfull, {bp_orders.Count()} orders found");
+                            _logger.LogInformation($"Fetch successfull, {bp_orders.Count()} orders found");
                             var tradeOrdersDTO = _mapper.Map<List<TradeOrderDTO>>(bp_orders);
                             foreach (var tradeOrder in tradeOrdersDTO)
                             {
@@ -111,7 +111,7 @@ namespace Waffler.Service.Background
                                 }
 
                                 await _tradeOrderService.AddTradeOrderAsync(tradeOrder);
-                                _logger.LogInformation($"- Trade order {tradeOrder} added");
+                                _logger.LogInformation($"Trade order {tradeOrder} added");
 
                                 if (_fetchTimer != null)
                                 {
@@ -119,25 +119,33 @@ namespace Waffler.Service.Background
                                 }
                             }
 
-                            _logger.LogInformation($"- Data save successfull");
+                            _logger.LogInformation($"Trade order save successfull");
                         }
+                    } 
+                    else
+                    {
+                        _logger.LogWarning($"Fetch trade orders could not be started");
                     }
                 }
-                _logger.LogInformation($"Syncing order data finished");
             }
             catch (Exception e)
             {
                 _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
             }
+
             FetchInProgress = false;
+
+            _logger.LogInformation($"Fetch trade orders finished");
         }
 
         public async Task UpdateOrderDataAsync(CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Update trade orders");
             lock (UpdateStartLock)
             {
                 if (UpdateInProgress)
                 {
+                    _logger.LogWarning($"Update trade orders already in progress");
                     return;
                 }
 
@@ -148,21 +156,21 @@ namespace Waffler.Service.Background
             await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
             try
             {
-                _logger.LogInformation($"Syncing order data");
+                _logger.LogInformation($"Setting up scoped services");
                 using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
-                    _logger.LogInformation($"- Setting up scoped services");
                     var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
                     var _tradeOrderService = scope.ServiceProvider.GetRequiredService<ITradeOrderService>();
                     var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
                     var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
+                    _logger.LogInformation($"Preparing update");
                     var profile = await _profileService.GetProfileAsync();
 
                     if (profile != null && string.IsNullOrEmpty(profile.ApiKey) == false &&
                         cancellationToken.IsCancellationRequested == false)
                     {
-                        _logger.LogInformation($"- Getting trade orders");
+                        _logger.LogInformation($"Getting trade orders");
                         var orders = await _tradeOrderService.GetActiveTradeOrdersAsync();
 
                         foreach (var order in orders)
@@ -172,7 +180,7 @@ namespace Waffler.Service.Background
                                 break;
                             }
 
-                            _logger.LogInformation($"- Updating trade order {order}");
+                            _logger.LogInformation($"Updating trade order {order}");
                             var bp_order = await _bitpandaService.GetOrderAsync(order.OrderId);
 
                             if (bp_order != null)
@@ -181,24 +189,30 @@ namespace Waffler.Service.Background
                                 tradeOrderDTO.Id = order.Id;
                                 tradeOrderDTO.TradeRuleId = order.TradeRuleId;
                                 await _tradeOrderService.UpdateTradeOrderAsync(tradeOrderDTO);
-                                _logger.LogInformation($"- Trade order {order} updated");
+                                _logger.LogInformation($"Trade order {order} updated");
                             }
                             else
                             {
-                                _logger.LogWarning($"- Trade order {order.OrderId} not found");
+                                _logger.LogWarning($"Trade order {order.OrderId} not found");
                             }
 
                             _updateTimer.Change(RequestPeriod, RequestPeriod);
                         }
+                    } 
+                    else
+                    {
+                        _logger.LogWarning($"Update trade orders could not be started");
                     }
                 }
-                _logger.LogInformation($"Syncing order data finished");
             }
             catch (Exception e)
             {
                 _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
             }
+
             FetchInProgress = false;
+
+            _logger.LogInformation($"Update trade orders finished");
         }
     }
 }

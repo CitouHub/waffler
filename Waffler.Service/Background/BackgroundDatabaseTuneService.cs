@@ -40,17 +40,17 @@ namespace Waffler.Service.Background
             var time = configuration.GetValue<string>("Database:Service:IndexFragmentationAnalasys:TriggerTime").Split(':');
             TriggerTime = DateTime.UtcNow.Date.AddHours(int.Parse(time[0])).AddMinutes(int.Parse(time[1]));
 
-            _logger.LogDebug("BackgroundDatabaseTuneService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
-        protected override Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            if(!cancellationToken.IsCancellationRequested)
+            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
+
+            if (!cancellationToken.IsCancellationRequested)
             {
                 _timer = new Timer(async _ => await HandleDatabaseFragmentationAsync(cancellationToken), null, GetNextTriggerTime(DateTime.UtcNow), Timeout.Infinite);
             }
-
-            return Task.CompletedTask;
         }
 
         public int GetNextTriggerTime(DateTime fromTime)
@@ -66,10 +66,12 @@ namespace Waffler.Service.Background
 
         public async Task HandleDatabaseFragmentationAsync(CancellationToken cancellationToken)
         {
-            lock(StartUpLock)
+            _logger.LogInformation($"Analysing index fragmentation");
+            lock (StartUpLock)
             {
                 if (InProgress)
                 {
+                    _logger.LogWarning($"Analysing index fragmentation already in progress");
                     return;
                 }
 
@@ -80,32 +82,32 @@ namespace Waffler.Service.Background
             await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
             try
             {
-                _logger.LogInformation($"Running index fragmentation analasys");
+                _logger.LogInformation($"Setting up scoped services");
                 using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
-                    _logger.LogInformation($"- Setting up scoped services");
                     var _context = scope.ServiceProvider.GetRequiredService<WafflerDbContext>();
 
                     var indexes = await _context.sp_getIndexFragmentation();
+                    _logger.LogInformation($"{indexes} database indexes found");
                     var fragmentedIndexes = indexes.Where(_ => _.Fragmentation > FragmentationLimit).ToList();
-                    if(fragmentedIndexes.Count > 0)
+                    _logger.LogInformation($"{fragmentedIndexes} fragmented database indexes found");
+                    if (fragmentedIndexes.Count > 0)
                     {
                         _databaseSetupSignal.SetDatabaseBusy();
                         foreach (var index in indexes.Where(_ => _.Fragmentation > FragmentationLimit))
                         {
-                            _logger.LogInformation($"- Rebuilding index {index.IndexName} on table {index.TableName}");
+                            _logger.LogInformation($"Rebuilding index {index.IndexName} on table {index.TableName}");
                             await _context.RebuildIndex(index.TableName, index.IndexName);
-                            _logger.LogInformation($"- Reorganizing index {index.IndexName} on table {index.TableName}");
+                            _logger.LogInformation($"Reorganizing index {index.IndexName} on table {index.TableName}");
                             await _context.ReorganizeIndex(index.TableName, index.IndexName);
                         }
                         _databaseSetupSignal.SetDatabaseReady();
                     } 
                     else
                     {
-                        _logger.LogInformation($"- No index fragmentation");
+                        _logger.LogInformation($"No fragmented indexes found");
                     }
                 }
-                _logger.LogInformation($"fragmentation analasys finished");
 
                 if (_timer != null)
                 {
@@ -116,7 +118,10 @@ namespace Waffler.Service.Background
             {
                 _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
             }
+
             InProgress = false;
+
+            _logger.LogInformation($"Analysing index fragmentation finished");
         }
     }
 }
