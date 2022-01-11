@@ -96,8 +96,8 @@ namespace Waffler.Service
                         case TradeAction.Buy:
                             Guid? orderId = Guid.NewGuid();
                             var orderDate = currentPeriodDateTime;
-                            var price = GetPrice(tradeRule.CandleStickValueTypeId, candleStick, tradeRule.PriceDeltaPercent);
-                            var amount = Math.Round(tradeRule.Amount / price, Bitpanda.DecimalPrecision);
+                            var price = Math.Round(GetPrice(tradeRule.CandleStickValueTypeId, candleStick, tradeRule.PriceDeltaPercent), Bitpanda.PriceDecimalPrecision);
+                            var amount = Math.Round(tradeRule.Amount / price, Bitpanda.AmountDecimalPrecision);
                             if (tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Active)
                             {
                                 var order = await _bitpandaService.TryPlaceOrderAsync(tradeRule, amount, price);
