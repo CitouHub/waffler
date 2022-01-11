@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 
 using Waffler.API.Security;
 using Waffler.Domain;
@@ -15,13 +13,11 @@ namespace Waffler.API.Controller
     [Route("v1/[controller]")]
     public class ProfileController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
         private readonly IProfileService _profileService;
         private readonly IGithubService _githubService;
 
-        public ProfileController(IConfiguration configuration, IProfileService profileService, IGithubService githubService)
+        public ProfileController(IProfileService profileService, IGithubService githubService)
         {
-            _configuration = configuration;
             _profileService = profileService;
             _githubService = githubService;
         }
@@ -36,8 +32,6 @@ namespace Waffler.API.Controller
         [HttpPost]
         public async Task<bool> CreateProfileAsync([FromBody]ProfileDTO newProfile)
         {
-            var defaultOffset = _configuration.GetValue<int>("Profile:DefaultCandleStickSyncOffsetDays");
-            newProfile.CandleStickSyncFromDate = DateTime.UtcNow.AddDays(-1 * defaultOffset);
             return await _profileService.CreateProfileAsync(newProfile);
         }
 

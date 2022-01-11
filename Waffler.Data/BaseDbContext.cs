@@ -24,6 +24,7 @@ namespace Waffler.Data
         public virtual DbSet<TradeConditionOperator> TradeConditionOperators { get; set; }
         public virtual DbSet<TradeOrder> TradeOrders { get; set; }
         public virtual DbSet<TradeOrderStatus> TradeOrderStatuses { get; set; }
+        public virtual DbSet<TradeOrderSyncStatus> TradeOrderSyncStatuses { get; set; }
         public virtual DbSet<TradeRule> TradeRules { get; set; }
         public virtual DbSet<TradeRuleCondition> TradeRuleConditions { get; set; }
         public virtual DbSet<TradeRuleConditionComparator> TradeRuleConditionComparators { get; set; }
@@ -193,6 +194,17 @@ namespace Waffler.Data
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<TradeOrderSyncStatus>(entity =>
+            {
+                entity.ToTable("TradeOrderSyncStatus");
+
+                entity.Property(e => e.CurrentPosition).HasPrecision(0);
+
+                entity.Property(e => e.InsertByUser).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.InsertDate).HasDefaultValueSql("(getutcdate())");
             });
 
             modelBuilder.Entity<TradeRule>(entity =>

@@ -14,8 +14,8 @@ using Waffler.Common;
 using Waffler.Domain;
 using Waffler.Service.Infrastructure;
 using static Waffler.Common.Variable;
-using Waffler.Service.Util;
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
 namespace Waffler.Service.Background
 {
     public class BackgroundTradeOrderSyncService : BackgroundService
@@ -23,6 +23,7 @@ namespace Waffler.Service.Background
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundTradeOrderSyncService> _logger;
         private readonly IDatabaseSetupSignal _databaseSetupSignal;
+        private readonly ITradeOrderSyncSignal _tradeOrderSyncSignal;
         private readonly TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
         private readonly object FetchStartLock = new object();
         private readonly object UpdateStartLock = new object();
@@ -35,11 +36,13 @@ namespace Waffler.Service.Background
         public BackgroundTradeOrderSyncService(
             ILogger<BackgroundTradeOrderSyncService> logger,
             IServiceProvider serviceProvider,
-            IDatabaseSetupSignal databaseSetupSignal)
+            IDatabaseSetupSignal databaseSetupSignal,
+            ITradeOrderSyncSignal tradeOrderSyncSignal)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
             _databaseSetupSignal = databaseSetupSignal;
+            _tradeOrderSyncSignal = tradeOrderSyncSignal;
             _logger.LogDebug("Instantiated");
         }
 
@@ -78,58 +81,89 @@ namespace Waffler.Service.Background
                     var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
                     var _tradeOrderService = scope.ServiceProvider.GetRequiredService<ITradeOrderService>();
                     var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
-                    var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
                     _logger.LogInformation($"Preparing fetch");
                     var profile = await _profileService.GetProfileAsync();
-                    var lastCandleStick = await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow);
+
+                    _logger.LogInformation($"Starting sync");
+                    _tradeOrderSyncSignal.StartSync();
 
                     if (profile != null && string.IsNullOrEmpty(profile.ApiKey) == false &&
-                        DataSyncHandler.IsDataSynced(lastCandleStick) &&
                         cancellationToken.IsCancellationRequested == false)
                     {
-                        _logger.LogInformation($"Getting last order");
-                        var period = (await _tradeOrderService.GetLastTradeOrderAsync(DateTime.UtcNow))?.OrderDateTime ??
-                            profile.CandleStickSyncFromDate;
-                        period = period.AddSeconds(1);
+                        _logger.LogInformation($"Getting current trade order sync position");
+                        var fromDate = await _tradeOrderService.GetTradeOrderSyncPositionAsync();
+                        var requestDays = 5;
 
-                        _logger.LogInformation($"Fetch order data history");
-                        var bp_orders = await _bitpandaService.GetOrdersAsync(
-                            Bitpanda.GetInstrumentCode(TradeType.BTC_EUR),
-                            period, DateTime.UtcNow);
-
-                        if (bp_orders != null && bp_orders.Any() && cancellationToken.IsCancellationRequested == false)
+                        if(fromDate != null)
                         {
-                            _logger.LogInformation($"Fetch successfull, {bp_orders.Count()} orders found");
-                            var tradeOrdersDTO = _mapper.Map<List<TradeOrderDTO>>(bp_orders);
-                            foreach (var tradeOrder in tradeOrdersDTO)
+                            var toDate = fromDate.Value;
+                            while (fromDate <= DateTime.UtcNow && cancellationToken.IsCancellationRequested == false && _tradeOrderSyncSignal.IsAbortRequested() == false)
                             {
-                                if (cancellationToken.IsCancellationRequested)
+                                toDate = toDate.AddDays(requestDays);
+                                _logger.LogInformation($"Fetch order data history");
+                                var bp_orders = await _bitpandaService.GetOrdersAsync(
+                                    Bitpanda.GetInstrumentCode(TradeType.BTC_EUR),
+                                    fromDate.Value, toDate);
+
+                                if (bp_orders != null && bp_orders.Any() && cancellationToken.IsCancellationRequested == false)
                                 {
-                                    break;
+                                    _logger.LogInformation($"Fetch successfull, {bp_orders.Count()} orders found");
+                                    var tradeOrdersDTO = _mapper.Map<List<TradeOrderDTO>>(bp_orders);
+                                    foreach (var tradeOrder in tradeOrdersDTO)
+                                    {
+                                        if (cancellationToken.IsCancellationRequested)
+                                        {
+                                            break;
+                                        }
+
+                                        var tradeOrderExists = await _tradeOrderService.TradeOrderExistsAsync(tradeOrder.OrderId);
+                                        if (tradeOrderExists == false)
+                                        {
+                                            await _tradeOrderService.AddTradeOrderAsync(tradeOrder);
+                                            _logger.LogInformation($"Trade order {tradeOrder} added");
+                                        }
+                                        else
+                                        {
+                                            _logger.LogInformation($"Trade order {tradeOrder} exists already");
+                                        }
+                                    }
+
+                                    if (_fetchTimer != null)
+                                    {
+                                        var dueTime = RequestPeriod;
+                                        if (_tradeOrderSyncSignal.IsAbortRequested())
+                                        {
+                                            dueTime = TimeSpan.FromSeconds(10);
+                                        }
+                                        _fetchTimer.Change(RequestPeriod, RequestPeriod);
+                                    }
+
+                                    _logger.LogInformation($"Trade order save successfull");
+                                }
+                                else
+                                {
+                                    _logger.LogInformation($"No new trade orders could be found");
                                 }
 
-                                await _tradeOrderService.AddTradeOrderAsync(tradeOrder);
-                                _logger.LogInformation($"Trade order {tradeOrder} added");
-
-                                if (_fetchTimer != null)
-                                {
-                                    _fetchTimer.Change(RequestPeriod, RequestPeriod);
-                                }
+                                fromDate = fromDate.Value.AddDays(requestDays);
                             }
 
-                            _logger.LogInformation($"Trade order save successfull");
+                            await _tradeOrderService.SetTradeOrderSyncPositionAsync(fromDate.Value);
                         } 
                         else
                         {
-                            _logger.LogInformation($"No new trade orders could be found");
+                            _logger.LogWarning($"Fetch trade order has no position reference");
                         }
                     } 
                     else
                     {
                         _logger.LogWarning($"Fetch trade orders could not be started");
                     }
+
+                    _logger.LogInformation($"Stopping sync");
+                    _tradeOrderSyncSignal.CloseSync();
                 }
             }
             catch (Exception e)

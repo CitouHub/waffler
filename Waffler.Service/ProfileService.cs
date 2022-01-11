@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using Waffler.Data;
@@ -32,18 +33,20 @@ namespace Waffler.Service
 
     public class ProfileService : IProfileService
     {
+        private readonly IConfiguration _configuration;
         private readonly ILogger<ProfileService> _logger;
         private readonly WafflerDbContext _context;
         private readonly IMapper _mapper;
         private readonly IBitpandaService _bitpandaService;
 
-        public ProfileService(ILogger<ProfileService> logger, WafflerDbContext context, IMapper mapper, IBitpandaService bitpandaService)
+        public ProfileService(IConfiguration configuration, ILogger<ProfileService> logger, WafflerDbContext context, IMapper mapper, IBitpandaService bitpandaService)
         {
+            _configuration = configuration;
             _logger = logger;
             _context = context;
             _mapper = mapper;
             _bitpandaService = bitpandaService;
-            _logger.LogDebug("ProfileService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
         public string GetHashedPassword(string password)
@@ -66,12 +69,23 @@ namespace Waffler.Service
         {
             if (await HasProfileAsync() == false)
             {
+                var defaultOffset = _configuration.GetValue<int>("Profile:DefaultCandleStickSyncOffsetDays");
+                profile.CandleStickSyncFromDate = DateTime.UtcNow.AddDays(-1 * defaultOffset);
+
                 profile.Password = GetHashedPassword(profile.Password);
                 var wafflerProfile = _mapper.Map<WafflerProfile>(profile);
                 wafflerProfile.InsertByUser = 1;
                 wafflerProfile.InsertDate = DateTime.UtcNow;
-
                 await _context.WafflerProfiles.AddAsync(wafflerProfile);
+
+                var tradeOrderSyncStatus = new TradeOrderSyncStatus
+                {
+                    CurrentPosition = wafflerProfile.CandleStickSyncFromDate,
+                    InsertByUser = 1,
+                    InsertDate = DateTime.UtcNow
+                };
+                await _context.TradeOrderSyncStatuses.AddAsync(tradeOrderSyncStatus);
+
                 await _context.SaveChangesAsync();
 
                 return true;

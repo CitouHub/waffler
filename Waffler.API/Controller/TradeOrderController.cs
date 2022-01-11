@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Waffler.API.Security;
 using Waffler.Domain;
 using Waffler.Service;
+using Waffler.Service.Infrastructure;
 
 namespace Waffler.API.Controller
 {
@@ -16,10 +17,14 @@ namespace Waffler.API.Controller
     public class TradeOrderController : ControllerBase
     {
         private readonly ITradeOrderService _tradeOrderService;
+        private readonly IProfileService _profileService;
+        private readonly ITradeOrderSyncSignal _tradeOrderSyncSignal;
 
-        public TradeOrderController(ITradeOrderService tradeOrderService)
+        public TradeOrderController(ITradeOrderService tradeOrderService, IProfileService profileService, ITradeOrderSyncSignal tradeOrderSyncSignal)
         {
             _tradeOrderService = tradeOrderService;
+            _profileService = profileService;
+            _tradeOrderSyncSignal = tradeOrderSyncSignal;
         }
 
         [HttpGet]
@@ -30,9 +35,9 @@ namespace Waffler.API.Controller
 
         [HttpGet]
         [Route("any/{tradeRuleId}")]
-        public async Task<bool> AnyTradeOrders(int tradeRuleId)
+        public async Task<bool> AnyTradeOrdersAsync(int tradeRuleId)
         {
-            return await _tradeOrderService.AnyTradeOrders(tradeRuleId);
+            return await _tradeOrderService.AnyTradeOrdersAsync(tradeRuleId);
         }
 
         [HttpGet]
@@ -54,6 +59,20 @@ namespace Waffler.API.Controller
         public async Task DeleteTestTradeOrdersAsync(int tradeRuleId)
         {
             await _tradeOrderService.DeleteTestTradeOrdersAsync(tradeRuleId);
+        }
+
+        [HttpPost]
+        [Route("sync/reset")]
+        public async Task ResetTradeOrderAsync()
+        {
+            if (_tradeOrderSyncSignal.IsActive())
+            {
+                _tradeOrderSyncSignal.Abort();
+                await _tradeOrderSyncSignal.AwaitAbortAsync();
+            }
+
+            var profile = await _profileService.GetProfileAsync();
+            await _tradeOrderService.SetTradeOrderSyncPositionAsync(profile.CandleStickSyncFromDate);
         }
     }
 }

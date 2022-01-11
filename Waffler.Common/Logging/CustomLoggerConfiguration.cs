@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace Waffler.Common.LogProvider
+using Microsoft.Extensions.Logging;
+
+namespace Waffler.Common.Logging
 {
     public class CustomLoggerConfiguration
     {

@@ -187,68 +187,6 @@ namespace Waffler.Test.Service
             Assert.NotNull(context.TradeOrders.FirstOrDefault(_ => _.OrderId == tradeOrder3.OrderId));
         }
 
-        [Theory]
-        [InlineData(Variable.TradeOrderStatus.Open, false)]
-        [InlineData(Variable.TradeOrderStatus.StopTriggered, false)]
-        [InlineData(Variable.TradeOrderStatus.Filled, false)]
-        [InlineData(Variable.TradeOrderStatus.FilledFully, false)]
-        [InlineData(Variable.TradeOrderStatus.FilledClosed, false)]
-        [InlineData(Variable.TradeOrderStatus.FilledRejected, false)]
-        [InlineData(Variable.TradeOrderStatus.Rejected, false)]
-        [InlineData(Variable.TradeOrderStatus.Closed, false)]
-        [InlineData(Variable.TradeOrderStatus.Failed, false)]
-        [InlineData(Variable.TradeOrderStatus.Test, true)]
-        public async Task GetLastTradeOrder_ExcludeTestOrders(Variable.TradeOrderStatus tradeOrderStatus, bool expectedExclude)
-        {
-            //Setup
-            var context = DatabaseHelper.GetContext();
-            var tradeOrder = TradeOrderHelper.GetTradeOrder();
-            tradeOrder.OrderDateTime = DateTime.UtcNow;
-            tradeOrder.TradeOrderStatusId = (short)tradeOrderStatus;
-            context.TradeOrders.Add(tradeOrder);
-            context.SaveChanges();
-            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
-
-            //Act
-            var lastTradeOrder = await tradeOrderService.GetLastTradeOrderAsync(tradeOrder.OrderDateTime);
-
-            //Assert
-            if (expectedExclude)
-            {
-                Assert.Null(lastTradeOrder);
-            }
-            else
-            {
-                Assert.Equal(tradeOrder.OrderId, lastTradeOrder.OrderId);
-            }
-        }
-
-        [Theory]
-        [InlineData("2021-01-01 12:00", "2021-01-01 12:01", "2021-01-01 12:01", "2021-01-01 12:01")]
-        [InlineData("2021-01-01 12:00", "2021-01-01 12:01", "2021-01-02 12:00", "2021-01-01 12:01")]
-        [InlineData("2021-01-01 12:00", "2021-01-01 12:01", "2021-01-01 12:00", "2021-01-01 12:00")]
-        public async Task GetLastCandleStick(DateTime orderDate1, DateTime orderDate2, DateTime toPeriodDateTime, DateTime expectedPeriod)
-        {
-            //Setup
-            var context = DatabaseHelper.GetContext();
-            var tradeOrder1 = TradeOrderHelper.GetTradeOrder();
-            var tradeOrder2 = TradeOrderHelper.GetTradeOrder();
-            tradeOrder1.OrderDateTime = orderDate1;
-            tradeOrder1.TradeOrderStatusId = (short)Variable.TradeOrderStatus.Open;
-            tradeOrder2.OrderDateTime = orderDate2;
-            tradeOrder2.TradeOrderStatusId = (short)Variable.TradeOrderStatus.Open;
-            context.TradeOrders.Add(tradeOrder1);
-            context.TradeOrders.Add(tradeOrder2);
-            context.SaveChanges();
-            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
-
-            //Act
-            var tradeOrder = await tradeOrderService.GetLastTradeOrderAsync(toPeriodDateTime);
-
-            //Assert
-            Assert.Equal(expectedPeriod, tradeOrder.OrderDateTime);
-        }
-
         [Fact]
         public async Task UpdateTradeOrder_WrongTradeOrderId()
         {
@@ -388,7 +326,7 @@ namespace Waffler.Test.Service
             var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
 
             //Act
-            var anyTradeOrders = await tradeOrderService.AnyTradeOrders(-1);
+            var anyTradeOrders = await tradeOrderService.AnyTradeOrdersAsync(-1);
 
             //Assert
             Assert.False(anyTradeOrders);
@@ -405,7 +343,7 @@ namespace Waffler.Test.Service
             var tradeRule = context.TradeRules.FirstOrDefault();
 
             //Act
-            var anyTradeOrders = await tradeOrderService.AnyTradeOrders(tradeRule.Id);
+            var anyTradeOrders = await tradeOrderService.AnyTradeOrdersAsync(tradeRule.Id);
 
             //Assert
             Assert.False(anyTradeOrders);
@@ -427,7 +365,7 @@ namespace Waffler.Test.Service
             context.SaveChanges();
 
             //Act
-            var anyTradeOrders = await tradeOrderService.AnyTradeOrders(tradeRule.Id);
+            var anyTradeOrders = await tradeOrderService.AnyTradeOrdersAsync(tradeRule.Id);
 
             //Assert
             Assert.False(anyTradeOrders);
@@ -463,7 +401,7 @@ namespace Waffler.Test.Service
             context.SaveChanges();
 
             //Act
-            var anyTradeOrders = await tradeOrderService.AnyTradeOrders(tradeRule.Id);
+            var anyTradeOrders = await tradeOrderService.AnyTradeOrdersAsync(tradeRule.Id);
 
             //Assert
             Assert.True(anyTradeOrders);

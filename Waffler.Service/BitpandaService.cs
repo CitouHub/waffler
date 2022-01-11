@@ -68,7 +68,7 @@ namespace Waffler.Service
             _logger = logger;
             _httpClient = httpClientFactory.CreateClient("Bitpanda");
             _apiKey = context.WafflerProfiles.OrderBy(_ => _.Id)?.FirstOrDefault()?.ApiKey;
-            _logger.LogDebug("BitpandaService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
         public async Task<AccountDTO> GetAccountAsync()

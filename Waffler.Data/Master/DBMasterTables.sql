@@ -31,6 +31,8 @@ IF OBJECTPROPERTY(object_id('dbo.TradeAction'), N'IsTable') = 1 DROP TABLE [dbo]
 GO
 IF OBJECTPROPERTY(object_id('dbo.DatabaseMigration'), N'IsTable') = 1 DROP TABLE [dbo].[DatabaseMigration]
 GO
+IF OBJECTPROPERTY(object_id('dbo.TradeOrderSyncStatus'), N'IsTable') = 1 DROP TABLE [dbo].[TradeOrderSyncStatus]
+GO
 
 -- Create new tables
 -- =====================================================================
@@ -317,6 +319,19 @@ CREATE TABLE [dbo].[DatabaseMigration](
 	[UpdateByUser] [int] NULL,
 	[ScriptName] [nvarchar](500) NOT NULL,
  CONSTRAINT [DatabaseMigration_PK] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)
+
+CREATE TABLE [dbo].[TradeOrderSyncStatus](
+	[Id] [smallint] IDENTITY(1,1) NOT NULL,
+	[InsertDate] [datetime2](7) NOT NULL DEFAULT(GETUTCDATE()),
+	[InsertByUser] [int] NOT NULL DEFAULT(1),
+	[UpdateDate] [datetime2](7) NULL,
+	[UpdateByUser] [int] NULL,
+	[CurrentPosition] [datetime2](0) NULL,
+	CONSTRAINT [TradeOrderSyncStatus_PK] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)

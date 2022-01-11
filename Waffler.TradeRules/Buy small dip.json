@@ -5,7 +5,7 @@
     "tradeRuleStatusId": 2,
     "candleStickValueTypeId": 4,
     "name": "Buy small dip",
-    "amount": 25,
+    "amount": 35,
     "priceDeltaPercent": -0.5,
     "tradeMinIntervalMinutes": 240,
     "tradeOrderExpirationMinutes": 240,

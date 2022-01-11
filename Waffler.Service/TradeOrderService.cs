@@ -20,12 +20,14 @@ namespace Waffler.Service
         Task<List<TradeOrderDTO>> GetTradeOrdersAsync(DateTime from, DateTime to);
         Task<List<TradeOrderDTO>> GetActiveTradeOrdersAsync();
         Task<int> RemoveTestTradeOrdersAsync(int tradeRuleId);
-        Task<TradeOrderDTO> GetLastTradeOrderAsync(DateTime toPeriodDateTime);
         Task<bool> UpdateTradeOrderAsync(TradeOrderDTO tradeOrdersDTO);
         Task<bool> SetTradeRuleAsync(int tradeOrderId, int tradeRuleId);
         Task<IEnumerable<CommonAttributeDTO>> GetTradeOrderStatusesAsync();
-        Task<bool> AnyTradeOrders(int tradeRuleId);
+        Task<bool> AnyTradeOrdersAsync(int tradeRuleId);
         Task DeleteTestTradeOrdersAsync(int tradeRuleId);
+        Task<bool> TradeOrderExistsAsync(Guid orderId);
+        Task<DateTime?> GetTradeOrderSyncPositionAsync();
+        Task SetTradeOrderSyncPositionAsync(DateTime position);
     }
 
     public class TradeOrderService : ITradeOrderService
@@ -81,15 +83,6 @@ namespace Waffler.Service
             return tradeOrders.Count();
         }
 
-        public async Task<TradeOrderDTO> GetLastTradeOrderAsync(DateTime toOrderDateTime)
-        {
-            var tradeOrder = await _context.TradeOrders.Where(_ => 
-                _.OrderDateTime <= toOrderDateTime &&
-                _.TradeOrderStatusId != (short)Variable.TradeOrderStatus.Test)
-                .OrderByDescending(_ => _.OrderDateTime).FirstOrDefaultAsync();
-            return _mapper.Map<TradeOrderDTO>(tradeOrder);
-        }
-
         public async Task<bool> UpdateTradeOrderAsync(TradeOrderDTO tradeOrdersDTO)
         {
             var tradeOrder = await _context.TradeOrders.FindAsync(tradeOrdersDTO.Id);
@@ -133,7 +126,7 @@ namespace Waffler.Service
             return _mapper.Map<List<CommonAttributeDTO>>(tradeOrderStatuses);
         }
 
-        public async Task<bool> AnyTradeOrders(int tradeRuleId)
+        public async Task<bool> AnyTradeOrdersAsync(int tradeRuleId)
         {
             return await _context.TradeOrders.AnyAsync(_ => 
                 _.TradeRuleId == tradeRuleId && 
@@ -149,6 +142,29 @@ namespace Waffler.Service
             if(testTradeOrders.Any())
             {
                 _context.TradeOrders.RemoveRange(testTradeOrders);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<bool> TradeOrderExistsAsync(Guid orderId)
+        {
+            return await _context.TradeOrders.AnyAsync(_ => _.OrderId == orderId);
+        }
+
+        public async Task<DateTime?> GetTradeOrderSyncPositionAsync()
+        {
+            return (await _context.TradeOrderSyncStatuses.FirstOrDefaultAsync())?.CurrentPosition;
+        }
+
+        public async Task SetTradeOrderSyncPositionAsync(DateTime position)
+        {
+            var tradeOrderSyncStatus = await _context.TradeOrderSyncStatuses.FirstOrDefaultAsync();
+            if(tradeOrderSyncStatus != null)
+            {
+                tradeOrderSyncStatus.CurrentPosition = position;
+                tradeOrderSyncStatus.UpdateByUser = 1;
+                tradeOrderSyncStatus.UpdateDate = DateTime.UtcNow;
+
                 await _context.SaveChangesAsync();
             }
         }
