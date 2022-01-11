@@ -1,5 +1,5 @@
 # Waffler
-Waffler is a trade-aid application which acts on the Bitpanda platform via your own API-key. You can get your own API-key via your Bitpanda account here [Bitpanda API](https://exchange.bitpanda.com/account/keys). The idea is to set up rules for when to buy crypto assets based on price trends. To give Waffler its full functionality you need to provide an API key with both `Read` and `Trade` permissions..
+Waffler is a trade-aid application which acts on the Bitpanda platform via your own API-key. You can get your own API-key via your Bitpanda account here [Bitpanda API](https://exchange.bitpanda.com/account/keys). The idea is to set up rules for when to buy crypto assets based on price trends. To give Waffler its full functionality you need to provide an API key with both `Read` and `Trade` permissions.
 
 ## Demo
 Here is a short demonstration of the applicaiton  
