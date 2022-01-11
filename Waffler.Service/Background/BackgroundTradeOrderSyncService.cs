@@ -214,7 +214,7 @@ namespace Waffler.Service.Background
                 _logger.LogError(e, $"Unexpected exception");
             }
 
-            FetchInProgress = false;
+            UpdateInProgress = false;
 
             _logger.LogInformation($"Update trade orders finished");
         }
