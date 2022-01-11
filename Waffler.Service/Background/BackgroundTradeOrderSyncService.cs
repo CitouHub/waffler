@@ -120,6 +120,10 @@ namespace Waffler.Service.Background
                             }
 
                             _logger.LogInformation($"Trade order save successfull");
+                        } 
+                        else
+                        {
+                            _logger.LogInformation($"No new trade orders could be found");
                         }
                     } 
                     else
@@ -130,7 +134,7 @@ namespace Waffler.Service.Background
             }
             catch (Exception e)
             {
-                _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
+                _logger.LogError(e, $"Unexpected exception");
             }
 
             FetchInProgress = false;
@@ -189,7 +193,7 @@ namespace Waffler.Service.Background
                                 tradeOrderDTO.Id = order.Id;
                                 tradeOrderDTO.TradeRuleId = order.TradeRuleId;
                                 await _tradeOrderService.UpdateTradeOrderAsync(tradeOrderDTO);
-                                _logger.LogInformation($"Trade order {order} updated");
+                                _logger.LogInformation($"Trade order {tradeOrderDTO} updated");
                             }
                             else
                             {
@@ -207,7 +211,7 @@ namespace Waffler.Service.Background
             }
             catch (Exception e)
             {
-                _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
+                _logger.LogError(e, $"Unexpected exception");
             }
 
             FetchInProgress = false;

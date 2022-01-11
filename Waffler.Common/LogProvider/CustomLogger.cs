@@ -1,7 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
+
+using Microsoft.Extensions.Logging;
 
 namespace Waffler.Common.LogProvider
 {
@@ -40,13 +39,24 @@ namespace Waffler.Common.LogProvider
                 Console.Write($"{logLevel,-12}|");
 
                 Console.ForegroundColor = originalColor;
-                Console.Write($" {source,35}|");
+                Console.Write($" {source,-35}|");
 
                 Console.ForegroundColor = config.LogLevels[logLevel];
-                Console.Write($"{formatter(state, exception)}");
+                Console.Write($" {formatter(state, exception)}");
 
-                Console.ForegroundColor = originalColor;
-                Console.WriteLine();
+                if(exception != null)
+                {
+                    Console.ForegroundColor = config.LogLevels[logLevel];
+                    var message = exception.Message;
+                    var innerMessage = exception.InnerException?.Message;
+                    Console.WriteLine($" - {message}{(string.IsNullOrEmpty(innerMessage) == false ? $" - {innerMessage}" : "")}");
+                    Console.WriteLine(exception.StackTrace);
+                } 
+                else
+                {
+                    Console.ForegroundColor = originalColor;
+                    Console.WriteLine();
+                }
             }
         }
     }

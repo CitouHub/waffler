@@ -140,7 +140,7 @@ namespace Waffler.Service.Background
             }
             catch (Exception e)
             {
-                _logger.LogError($"Unexpected exception {e.Message} {e.StackTrace}", e);
+                _logger.LogError(e, $"Unexpected exception");
             }
 
             _tradeRuleTestQueue.CloseTest(tradeRuleTestRequest.TradeRuleId);
