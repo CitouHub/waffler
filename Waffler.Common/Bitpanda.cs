@@ -4,7 +4,8 @@ namespace Waffler.Common
 {
     public static class Bitpanda
     {
-        public static short DecimalPrecision = 5;
+        public static short PriceDecimalPrecision = 2;
+        public static short AmountDecimalPrecision = 5;
 
         public static class InstrumentCode
         {

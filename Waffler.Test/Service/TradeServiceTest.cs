@@ -380,8 +380,8 @@ namespace Waffler.Test
             var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
-            var price = candleStick.HighPrice + (candleStick.HighPrice * (deltaPricePercent / 100));
-            var amount = Math.Round(tradeRule.Amount / price, Bitpanda.DecimalPrecision);
+            var price = Math.Round(candleStick.HighPrice + (candleStick.HighPrice * (deltaPricePercent / 100)), Bitpanda.PriceDecimalPrecision);
+            var amount = Math.Round(tradeRule.Amount / price, Bitpanda.AmountDecimalPrecision);
             Assert.True(result.TradeRuleCondtionEvaluations.All(_ => _.IsFullfilled == true));
             _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime));
             _ = _statisticsService.Received().GetPriceTrendAsync(Arg.Is(currentPeriodDateTime), Arg.Any<Variable.TradeType>(), Arg.Is(tradeRuleCondition));
@@ -436,8 +436,8 @@ namespace Waffler.Test
             var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
-            var price = candleStick.LowPrice + (candleStick.LowPrice * (deltaPricePercent / 100));
-            var amount = Math.Round(tradeRule.Amount / price, Bitpanda.DecimalPrecision);
+            var price = Math.Round(candleStick.LowPrice + (candleStick.LowPrice * (deltaPricePercent / 100)), Bitpanda.PriceDecimalPrecision);
+            var amount = Math.Round(tradeRule.Amount / price, Bitpanda.AmountDecimalPrecision);
             Assert.True(result.TradeRuleCondtionEvaluations.All(_ => _.IsFullfilled == true));
             _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime));
             _ = _statisticsService.Received().GetPriceTrendAsync(Arg.Is(currentPeriodDateTime), Arg.Any<Variable.TradeType>(), Arg.Is(tradeRuleCondition));
@@ -492,8 +492,8 @@ namespace Waffler.Test
             var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
-            var price = candleStick.OpenPrice + (candleStick.OpenPrice * (deltaPricePercent / 100));
-            var amount = Math.Round(tradeRule.Amount / price, Bitpanda.DecimalPrecision);
+            var price = Math.Round(candleStick.OpenPrice + (candleStick.OpenPrice * (deltaPricePercent / 100)), Bitpanda.PriceDecimalPrecision);
+            var amount = Math.Round(tradeRule.Amount / price, Bitpanda.AmountDecimalPrecision);
             Assert.True(result.TradeRuleCondtionEvaluations.All(_ => _.IsFullfilled == true));
             _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime));
             _ = _statisticsService.Received().GetPriceTrendAsync(Arg.Is(currentPeriodDateTime), Arg.Any<Variable.TradeType>(), Arg.Is(tradeRuleCondition));
@@ -548,8 +548,8 @@ namespace Waffler.Test
             var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentPeriodDateTime);
 
             //Assert
-            var price = candleStick.ClosePrice + (candleStick.ClosePrice * (deltaPricePercent / 100));
-            var amount = Math.Round(tradeRule.Amount / price, Bitpanda.DecimalPrecision);
+            var price = Math.Round(candleStick.ClosePrice + (candleStick.ClosePrice * (deltaPricePercent / 100)), Bitpanda.PriceDecimalPrecision);
+            var amount = Math.Round(tradeRule.Amount / price, Bitpanda.AmountDecimalPrecision);
             Assert.True(result.TradeRuleCondtionEvaluations.All(_ => _.IsFullfilled == true));
             _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime));
             _ = _statisticsService.Received().GetPriceTrendAsync(Arg.Is(currentPeriodDateTime), Arg.Any<Variable.TradeType>(), Arg.Is(tradeRuleCondition));
@@ -613,7 +613,7 @@ namespace Waffler.Test
 
             //Assert
             var price = orderPrice + (orderPrice * (tradeRule.PriceDeltaPercent / 100));
-            var amount = Math.Round(tradeRule.Amount / price, Bitpanda.DecimalPrecision);
+            var amount = Math.Round(tradeRule.Amount / price, Bitpanda.AmountDecimalPrecision);
             var filledAmount = fullyFilled ? amount : 0;
             Assert.True(result.TradeRuleCondtionEvaluations.All(_ => _.IsFullfilled == true));
             _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Is(currentPeriodDateTime));
