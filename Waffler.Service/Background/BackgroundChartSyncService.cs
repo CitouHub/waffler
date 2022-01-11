@@ -41,25 +41,27 @@ namespace Waffler.Service.Background
             _logger = logger;
             _serviceProvider = serviceProvider;
             _databaseSetupSignal = databaseSetupSignal;
-            _logger.LogDebug("BackgroundChartSyncService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
-        protected override Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            if(!cancellationToken.IsCancellationRequested)
+            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
+
+            if (!cancellationToken.IsCancellationRequested)
             {
                 _timer = new Timer(async _ => await FetchCandleStickDataAsync(cancellationToken), null, TimeSpan.FromSeconds(0), SyncInterval);
             }
-
-            return Task.CompletedTask;
         }
 
         public async Task FetchCandleStickDataAsync(CancellationToken cancellationToken)
         {
-            lock(StartUpLock)
+            _logger.LogInformation($"Syncing candlestick data");
+            lock (StartUpLock)
             {
                 if (InProgress)
                 {
+                    _logger.LogWarning($"Syncing candlestick data already in progress");
                     return;
                 }
                
@@ -70,82 +72,91 @@ namespace Waffler.Service.Background
             await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
             try
             {
-                _logger.LogInformation($"Syncing candlestick data");
+                _logger.LogInformation($"Setting up scoped services");
                 using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
-                    _logger.LogInformation($"- Setting up scoped services");
                     var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
                     var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
                     var _candleStickSyncSignal = scope.ServiceProvider.GetRequiredService<ICandleStickSyncSignal>();
                     var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
+                    _logger.LogInformation($"Setting initial parameters");
                     var syncingData = true;
                     var requestCount = 0;
                     var startTime = DateTime.UtcNow;
                     var profile = await _profileService.GetProfileAsync();
+
+                    _logger.LogInformation($"Starting sync");
                     _candleStickSyncSignal.StartSync();
 
-                    while (profile != null && syncingData && cancellationToken.IsCancellationRequested == false && _candleStickSyncSignal.IsAbortRequested() == false)
+                    if(profile != null)
                     {
-                        _logger.LogInformation($"- Getting last candlestick");
-                        var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow))?.PeriodDateTime ??
-                            profile.CandleStickSyncFromDate;
-                        period = period.AddMilliseconds(1);
-
-                        _logger.LogInformation($"- Fetch data from {period} onward");
-                        var bp_candleSticksDTO = await _bitpandaService.GetCandleSticksAsync(
-                            Bitpanda.GetInstrumentCode(TradeType.BTC_EUR),
-                            Period, PeriodMinutes, period, period.AddMinutes(RequestSpanMinutes.TotalMinutes));
-                        requestCount++;
-
-                        if (bp_candleSticksDTO != null)
+                        while (syncingData == true && cancellationToken.IsCancellationRequested == false && _candleStickSyncSignal.IsAbortRequested() == false)
                         {
-                            var latestPeriod = bp_candleSticksDTO.OrderByDescending(_ => _.Time).FirstOrDefault();
-                            var saveLimit = latestPeriod == null || (DateTime.UtcNow - latestPeriod.Time).TotalMinutes > 60 ? 0 : NearEndSaveLimit;
+                            _logger.LogInformation($"Getting last candlestick");
+                            var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow))?.PeriodDateTime ??
+                                profile.CandleStickSyncFromDate;
+                            period = period.AddMilliseconds(1);
 
-                            if (bp_candleSticksDTO.Count() > saveLimit)
+                            _logger.LogInformation($"Fetch data from {period} onward");
+                            var bp_candleSticksDTO = await _bitpandaService.GetCandleSticksAsync(
+                                Bitpanda.GetInstrumentCode(TradeType.BTC_EUR),
+                                Period, PeriodMinutes, period, period.AddMinutes(RequestSpanMinutes.TotalMinutes));
+                            requestCount++;
+
+                            if (bp_candleSticksDTO != null)
                             {
-                                _logger.LogInformation($"- Fetch successfull, {bp_candleSticksDTO.Count()} new candlesticks found");
-                                var cancleSticksDTO = _mapper.Map<List<CandleStickDTO>>(bp_candleSticksDTO);
-                                await _candleStickService.AddCandleSticksAsync(cancleSticksDTO);
-                                _logger.LogInformation($"- Data save successfull");
+                                var latestPeriod = bp_candleSticksDTO.OrderByDescending(_ => _.Time).FirstOrDefault();
+                                var saveLimit = latestPeriod == null || (DateTime.UtcNow - latestPeriod.Time).TotalMinutes > 60 ? 0 : NearEndSaveLimit;
+
+                                if (bp_candleSticksDTO.Count() > saveLimit)
+                                {
+                                    _logger.LogInformation($"Fetch successfull, {bp_candleSticksDTO.Count()} new candlesticks found");
+                                    var cancleSticksDTO = _mapper.Map<List<CandleStickDTO>>(bp_candleSticksDTO);
+                                    await _candleStickService.AddCandleSticksAsync(cancleSticksDTO);
+                                    _logger.LogInformation($"Data save successfull");
+                                }
+                                else
+                                {
+                                    _logger.LogInformation($"Fetch successfull, no new data found, stop sync");
+                                    syncingData = false;
+                                }
                             }
                             else
                             {
-                                _logger.LogInformation($"- Fetch successfull, no new data found, stop sync");
+                                _logger.LogInformation($"Fetch failed, API unavailable");
                                 syncingData = false;
                             }
-                        }
-                        else
-                        {
-                            _logger.LogInformation($"- Fetch failed, API unavailable");
-                            syncingData = false;
-                        }
 
-                        if (requestCount >= RequestLimit)
-                        {
-                            var sleepTime = 60 * 1000 - (int)(DateTime.UtcNow - startTime).TotalMilliseconds;
-                            _logger.LogInformation($"- Reached request limit, sleep {sleepTime} ms");
-                            Thread.Sleep(sleepTime <= 0 ? 0 : sleepTime);
-                            startTime = DateTime.UtcNow;
-                            requestCount = 0;
-                        }
-
-                        if(_timer != null)
-                        {
-                            var dueTime = SyncInterval;
-                            if (_candleStickSyncSignal.IsAbortRequested())
+                            if (requestCount >= RequestLimit)
                             {
-                                dueTime = TimeSpan.FromSeconds(10);
+                                var sleepTime = 60 * 1000 - (int)(DateTime.UtcNow - startTime).TotalMilliseconds;
+                                _logger.LogInformation($"Reached request limit, sleep {sleepTime} ms");
+                                Thread.Sleep(sleepTime <= 0 ? 0 : sleepTime);
+                                startTime = DateTime.UtcNow;
+                                requestCount = 0;
                             }
-                            _timer.Change(dueTime, SyncInterval);
+
+                            if (_timer != null)
+                            {
+                                var dueTime = SyncInterval;
+                                if (_candleStickSyncSignal.IsAbortRequested())
+                                {
+                                    dueTime = TimeSpan.FromSeconds(10);
+                                }
+                                _timer.Change(dueTime, SyncInterval);
+                            }
                         }
                     }
+                    else
+                    {
+                        _logger.LogWarning($"Unable to start syncing, no profile");
+                    }
 
+                    _logger.LogInformation($"Stopping sync");
                     _candleStickSyncSignal.CloseSync();
                 }
-                _logger.LogInformation($"Syncing candlestick data finished");
             }
             catch (Exception e)
             {
@@ -153,6 +164,8 @@ namespace Waffler.Service.Background
             }
 
             InProgress = false;
+
+            _logger.LogInformation($"Syncing candlestick data finished");
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Waffler.Service.Background
             _serviceProvider = serviceProvider;
             _configuration = configuration;
             _databaseSetupSignal = databaseSetupSignal;
-            _logger.LogDebug("BackgroundDatabaseMigrationService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -60,7 +60,7 @@ namespace Waffler.Service.Background
                 var connectionStringMaster = $"Server={server};Initial Catalog=master;{credentials}";
                 var connectionString = $"Server={server};Initial Catalog={database};{credentials}";
 
-                _logger.LogInformation($"Waiting for database to come online");
+                _logger.LogInformation($"Waiting for master database to come online");
                 await _databaseSetupSignal.AwaitDatabaseOnlineAsync(cancellationToken, new SqlConnection(connectionStringMaster));
 
                 var databaseExists = await DatabaseExists(new SqlConnection(connectionString));
@@ -69,6 +69,7 @@ namespace Waffler.Service.Background
                 {
                     await CreateDatabase(new SqlConnection(connectionStringMaster), database);
 
+                    _logger.LogInformation($"Waiting for database to come online");
                     await _databaseSetupSignal.AwaitDatabaseOnlineAsync(cancellationToken, new SqlConnection(connectionString));
 
                     await RunScript(new SqlConnection(connectionString), ScriptSectionMaster, "DBMasterTables.sql");
@@ -91,7 +92,6 @@ namespace Waffler.Service.Background
         private async Task CreateDatabase(SqlConnection connection, string database)
         {
             _logger.LogInformation($"Database {database} does not exist, creating...");
-            _logger.LogInformation($"ConnectionString: {connection.ConnectionString}");
 
             var createCommand = new SqlCommand($"CREATE DATABASE {database}", connection);
             await connection.OpenAsync();
@@ -106,7 +106,6 @@ namespace Waffler.Service.Background
             try
             {
                 _logger.LogInformation($"Checking database {connection.Database} status");
-                _logger.LogInformation($"ConnectionString: {connection.ConnectionString}");
                 await connection.OpenAsync();
                 var databaseExists = connection.State == ConnectionState.Open;
                 await connection.CloseAsync();
@@ -121,7 +120,6 @@ namespace Waffler.Service.Background
         private async Task RunScript(SqlConnection connection, string section, string script)
         {
             _logger.LogInformation($"Running {script} script on {connection.Database}");
-            _logger.LogInformation($"ConnectionString: {connection.ConnectionString}");
             await connection.OpenAsync();
 
             var currentExecutable = Assembly.GetExecutingAssembly().Location;
@@ -136,6 +134,7 @@ namespace Waffler.Service.Background
 
         private async Task RunMigrationScripts(string connectionString)
         {
+            _logger.LogInformation($"Running database migration scripts");
             var currentExecutable = Assembly.GetExecutingAssembly().Location;
             var currentFolder = Path.GetDirectoryName(currentExecutable);
             var migrationScripts = Directory.GetFiles($"{currentFolder}{Path.DirectorySeparatorChar}{ScriptSectionMigration}{Path.DirectorySeparatorChar}")

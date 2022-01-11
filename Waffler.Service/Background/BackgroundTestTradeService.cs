@@ -31,7 +31,7 @@ namespace Waffler.Service.Background
             _serviceProvider = serviceProvider;
             _tradeRuleTestQueue = tradeRuleTestQueue;
             _databaseSetupSignal = databaseSetupSignal;
-            _logger.LogDebug("BackgroundTestTradeService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -54,6 +54,7 @@ namespace Waffler.Service.Background
             var currentStatus = _tradeRuleTestQueue.GetTradeRuleTestStatus(tradeRuleId);
             if (currentStatus != null && currentStatus.Progress < 100)
             {
+                _logger.LogInformation($"Aborting ongoing test for trade rule {currentStatus.TradeRuleId}");
                 _tradeRuleTestQueue.AbortTest(tradeRuleId);
                 await _tradeRuleTestQueue.AwaitClose(cancellationToken, tradeRuleId);
             }
@@ -61,24 +62,28 @@ namespace Waffler.Service.Background
 
         public async Task RunTradeTest(CancellationToken cancellationToken, TradeRuleTestRequestDTO tradeRuleTestRequest)
         {
+            _logger.LogInformation($"Running new test for trade rule {tradeRuleTestRequest}");
             _logger.LogInformation($"Waiting for database to be ready");
             await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
 
-            _logger.LogInformation($"New trade rule test request found {tradeRuleTestRequest}");
+            _logger.LogInformation($"Initializing test");
             var currentStatus = _tradeRuleTestQueue.InitTradeRuleTestRun(tradeRuleTestRequest);
 
             try
             {
+                _logger.LogInformation($"Setting up scoped services");
                 using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
                     var _tradeRuleService = scope.ServiceProvider.GetRequiredService<ITradeRuleService>();
                     var _tradeService = scope.ServiceProvider.GetRequiredService<ITradeService>();
 
+                    _logger.LogInformation($"Preparing trade rule");
                     var originalTradeRule = await _tradeRuleService.GetTradeRuleAsync(tradeRuleTestRequest.TradeRuleId);
                     var testReady = await _tradeService.SetupTestTradeAsync(tradeRuleTestRequest.TradeRuleId);
 
                     if (testReady)
                     {
+                        _logger.LogInformation($"Starting test");
                         var tradeRule = await _tradeRuleService.GetTradeRuleAsync(tradeRuleTestRequest.TradeRuleId);
 
                         var results = new List<TradeRuleEvaluationDTO>();
@@ -97,7 +102,7 @@ namespace Waffler.Service.Background
                             currentStatus.CurrentPositionDate = currentStatus.CurrentPositionDate.AddMinutes(tradeRuleTestRequest.MinuteStep);
                         }
 
-                        _logger.LogInformation($"- Trade rule test result: {tradeRule.Id}:{tradeRule.Name}");
+                        _logger.LogInformation($"Trade rule test result: {tradeRule.Id}:{tradeRule.Name}");
                         foreach (var tradeRuleCondition in results.SelectMany(_ => _.TradeRuleCondtionEvaluations).GroupBy(_ => new
                         {
                             _.Id,
@@ -107,13 +112,13 @@ namespace Waffler.Service.Background
                             var conditionName = $"{tradeRuleCondition.Key.Id}:{tradeRuleCondition.Key.Description}";
                             var conditions = tradeRuleCondition.Count();
                             var fullfilled = tradeRuleCondition.Count(_ => _.IsFullfilled == true);
-                            _logger.LogInformation($"- - Condition: {conditionName} = {fullfilled}/{conditions}");
+                            _logger.LogInformation($"Condition: {conditionName} = {fullfilled}/{conditions}");
                         }
 
                         var updated = await _tradeRuleService.UpdateTradeRuleAsync(originalTradeRule);
                         if (updated)
                         {
-                            _logger.LogInformation($"Trade rule test finished and trade rule reset");
+                            _logger.LogInformation($"Trade rule test finished, trade rule reset");
                         }
                         else
                         {
@@ -139,6 +144,8 @@ namespace Waffler.Service.Background
             }
 
             _tradeRuleTestQueue.CloseTest(tradeRuleTestRequest.TradeRuleId);
+
+            _logger.LogInformation($"Running new test for trade rule {tradeRuleTestRequest} finished");
         }
     }
 }
