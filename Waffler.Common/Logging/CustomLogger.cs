@@ -2,7 +2,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace Waffler.Common.LogProvider
+namespace Waffler.Common.Logging
 {
     public sealed class CustomLogger : ILogger
     {
@@ -32,7 +32,7 @@ namespace Waffler.Common.LogProvider
             CustomLoggerConfiguration config = _getCurrentConfig();
             if (_name.StartsWith("Waffler"))
             {
-                var source = _name.Substring(_name.LastIndexOf(".") + 1);
+                var source = _name[(_name.LastIndexOf(".") + 1)..];
                 ConsoleColor originalColor = Console.ForegroundColor;
 
                 Console.ForegroundColor = config.LogLevels[logLevel];

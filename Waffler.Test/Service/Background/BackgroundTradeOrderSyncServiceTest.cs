@@ -28,7 +28,7 @@ namespace Waffler.Test.Service.Background
         private readonly IProfileService _profileService = Substitute.For<IProfileService>();
         private readonly ITradeOrderService _tradeOrderService = Substitute.For<ITradeOrderService>();
         private readonly IBitpandaService _bitpandaService = Substitute.For<IBitpandaService>();
-        private readonly ICandleStickService _candleStickService = Substitute.For<ICandleStickService>();
+        private readonly ITradeOrderSyncSignal _tradeOrderSyncSignal = Substitute.For<ITradeOrderSyncSignal>();
         private readonly BackgroundTradeOrderSyncService _backgroundTradeOrderSyncService;
 
         public BackgroundTradeOrderSyncServiceTest()
@@ -52,15 +52,13 @@ namespace Waffler.Test.Service.Background
             _serviceScope.ServiceProvider.GetService<IProfileService>().Returns(_profileService);
             _serviceScope.ServiceProvider.GetService<ITradeOrderService>().Returns(_tradeOrderService);
             _serviceScope.ServiceProvider.GetService<IBitpandaService>().Returns(_bitpandaService);
-            _serviceScope.ServiceProvider.GetService<ICandleStickService>().Returns(_candleStickService);
             _serviceScope.ServiceProvider.GetService<IMapper>().Returns(_mapper);
             _serviceScope.ServiceProvider.GetRequiredService<IProfileService>().Returns(_profileService);
             _serviceScope.ServiceProvider.GetRequiredService<ITradeOrderService>().Returns(_tradeOrderService);
             _serviceScope.ServiceProvider.GetRequiredService<IBitpandaService>().Returns(_bitpandaService);
-            _serviceScope.ServiceProvider.GetRequiredService<ICandleStickService>().Returns(_candleStickService);
             _serviceScope.ServiceProvider.GetRequiredService<IMapper>().Returns(_mapper);
 
-            _backgroundTradeOrderSyncService = new BackgroundTradeOrderSyncService(logger, _serviceProvider, databaseSetupSignal);
+            _backgroundTradeOrderSyncService = new BackgroundTradeOrderSyncService(logger, _serviceProvider, databaseSetupSignal, _tradeOrderSyncSignal);
         }
 
         [Fact]
@@ -71,8 +69,25 @@ namespace Waffler.Test.Service.Background
 
             //Asert
             _ = _profileService.Received().GetProfileAsync();
-            _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Any<DateTime>());
-            _ = _tradeOrderService.DidNotReceive().GetLastTradeOrderAsync(Arg.Any<DateTime>());
+            _ = _tradeOrderService.DidNotReceive().GetTradeOrderSyncPositionAsync();
+            _ = _tradeOrderService.DidNotReceive().SetTradeOrderSyncPositionAsync(Arg.Any<DateTime>());
+        }
+
+        [Fact]
+        public async Task FetchOrderData_AbortRequested()
+        {
+            //Setup
+            _profileService.GetProfileAsync().Returns(ProfileHelper.GetProfileDTO());
+            _tradeOrderSyncSignal.IsAbortRequested().Returns(true);
+
+            //Act
+            await _backgroundTradeOrderSyncService.FetchOrderDataAsync(new CancellationToken());
+
+            //Asert
+            _ = _profileService.Received().GetProfileAsync();
+            _ = _tradeOrderService.Received().GetTradeOrderSyncPositionAsync();
+            _ = _bitpandaService.DidNotReceive().GetOrdersAsync(Arg.Any<string>(), Arg.Any<DateTime>(), Arg.Any<DateTime>());
+            _ = _tradeOrderService.DidNotReceive().SetTradeOrderSyncPositionAsync(Arg.Any<DateTime>());
         }
 
         [Fact]
@@ -82,35 +97,15 @@ namespace Waffler.Test.Service.Background
             var profile = ProfileHelper.GetProfileDTO();
             profile.ApiKey = null;
             _profileService.GetProfileAsync().Returns(profile);
-            _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(CandleStickHelper.GetCandleStickDTO());
+            _tradeOrderService.GetTradeOrderSyncPositionAsync().Returns(DateTime.UtcNow);
 
             //Act
             await _backgroundTradeOrderSyncService.FetchOrderDataAsync(new CancellationToken());
 
             //Asert
             _ = _profileService.Received().GetProfileAsync();
-            _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Any<DateTime>());
-            _ = _tradeOrderService.DidNotReceive().GetLastTradeOrderAsync(Arg.Any<DateTime>());
-        }
-
-        [Fact]
-        public async Task FetchOrderData_DataNotSynced()
-        {
-            //Setup
-            var profile = ProfileHelper.GetProfileDTO();
-            profile.ApiKey = "Test key";
-            _profileService.GetProfileAsync().Returns(profile);
-            var lastCandleStick = CandleStickHelper.GetCandleStickDTO();
-            lastCandleStick.PeriodDateTime = DateTime.UtcNow.AddMinutes(-1 * DataSyncHandler.ValidSyncOffser.TotalMinutes);
-            _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(lastCandleStick);
-
-            //Act
-            await _backgroundTradeOrderSyncService.FetchOrderDataAsync(new CancellationToken());
-
-            //Asert
-            _ = _profileService.Received().GetProfileAsync();
-            _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Any<DateTime>());
-            _ = _tradeOrderService.DidNotReceive().GetLastTradeOrderAsync(Arg.Any<DateTime>());
+            _ = _tradeOrderService.DidNotReceive().GetTradeOrderSyncPositionAsync();
+            _ = _tradeOrderService.DidNotReceive().SetTradeOrderSyncPositionAsync(Arg.Any<DateTime>());
         }
 
         [Fact]
@@ -120,20 +115,21 @@ namespace Waffler.Test.Service.Background
             var profile = ProfileHelper.GetProfileDTO();
             profile.ApiKey = "Test key";
             _profileService.GetProfileAsync().Returns(profile);
-            _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(CandleStickHelper.GetCandleStickDTO());
+            _tradeOrderService.GetTradeOrderSyncPositionAsync().Returns(profile.CandleStickSyncFromDate);
 
             //Act
             await _backgroundTradeOrderSyncService.FetchOrderDataAsync(new CancellationToken());
 
             //Asert
             _ = _profileService.Received().GetProfileAsync();
-            _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Any<DateTime>());
-            _ = _tradeOrderService.Received().GetLastTradeOrderAsync(Arg.Any<DateTime>());
+            _ = _tradeOrderService.Received().GetTradeOrderSyncPositionAsync();
             _ = _bitpandaService.Received().GetOrdersAsync(
                 Arg.Is(Bitpanda.InstrumentCode.BTC_EUR),
                 Arg.Is<DateTime>(_ => _.Date == profile.CandleStickSyncFromDate.Date),
                 Arg.Is<DateTime>(_ => _ > profile.CandleStickSyncFromDate));
+            _ = _tradeOrderService.DidNotReceive().TradeOrderExistsAsync(Arg.Any<Guid>());
             _ = _tradeOrderService.DidNotReceive().AddTradeOrderAsync(Arg.Any<TradeOrderDTO>());
+            _ = _tradeOrderService.Received().SetTradeOrderSyncPositionAsync(Arg.Any<DateTime>());
         }
 
         [Fact]
@@ -145,25 +141,25 @@ namespace Waffler.Test.Service.Background
             _profileService.GetProfileAsync().Returns(profile);
             var tradeOrder = TradeOrderHelper.GetTradeOrderDTO();
             tradeOrder.OrderDateTime = DateTime.UtcNow.AddDays(-10);
-            _tradeOrderService.GetLastTradeOrderAsync(Arg.Any<DateTime>()).Returns(tradeOrder);
-            _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(CandleStickHelper.GetCandleStickDTO());
+            _tradeOrderService.GetTradeOrderSyncPositionAsync().Returns(tradeOrder.OrderDateTime);
 
             //Act
             await _backgroundTradeOrderSyncService.FetchOrderDataAsync(new CancellationToken());
 
             //Asert
             _ = _profileService.Received().GetProfileAsync();
-            _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Any<DateTime>());
-            _ = _tradeOrderService.Received().GetLastTradeOrderAsync(Arg.Any<DateTime>());
+            _ = _tradeOrderService.Received().GetTradeOrderSyncPositionAsync();
             _ = _bitpandaService.Received().GetOrdersAsync(
                 Arg.Is(Bitpanda.InstrumentCode.BTC_EUR),
                 Arg.Is<DateTime>(_ => _.Date == tradeOrder.OrderDateTime.Date),
                 Arg.Is<DateTime>(_ => _ > tradeOrder.OrderDateTime));
+            _ = _tradeOrderService.DidNotReceive().TradeOrderExistsAsync(Arg.Any<Guid>());
             _ = _tradeOrderService.DidNotReceive().AddTradeOrderAsync(Arg.Any<TradeOrderDTO>());
+            _ = _tradeOrderService.Received().SetTradeOrderSyncPositionAsync(Arg.Any<DateTime>());
         }
 
         [Fact]
-        internal async Task FetchOrderData_BitpandaOrderData()
+        public async Task FetchOrderData_BitpandaOrderData()
         {
             //Setup
             var nbrOfOrders = 10;
@@ -175,20 +171,51 @@ namespace Waffler.Test.Service.Background
                 Arg.Is<DateTime>(_ => _.Date == profile.CandleStickSyncFromDate.Date),
                 Arg.Is<DateTime>(_ => _ > profile.CandleStickSyncFromDate))
                 .Returns(Enumerable.Repeat(BitpandaHelper.GetOrder(), nbrOfOrders).ToList());
-            _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(CandleStickHelper.GetCandleStickDTO());
+            _tradeOrderService.GetTradeOrderSyncPositionAsync().Returns(profile.CandleStickSyncFromDate);
+
+            //Act
+            await _backgroundTradeOrderSyncService.FetchOrderDataAsync(new CancellationToken());
+
+            //Asert
+            var daysInterval = _backgroundTradeOrderSyncService.FetchDaysInterval;
+            var nbrOfLoops = (int)Math.Ceiling((decimal)(DateTime.UtcNow - profile.CandleStickSyncFromDate).TotalDays / (decimal)daysInterval);
+            _ = _profileService.Received(1).GetProfileAsync();
+            _ = _tradeOrderService.Received(1).GetTradeOrderSyncPositionAsync();
+            _ = _bitpandaService.Received(nbrOfLoops).GetOrdersAsync(Arg.Is(Bitpanda.InstrumentCode.BTC_EUR), Arg.Any<DateTime>(), Arg.Any<DateTime>());
+            _ = _tradeOrderService.Received(nbrOfOrders).TradeOrderExistsAsync(Arg.Any<Guid>());
+            _ = _tradeOrderService.Received(nbrOfOrders).AddTradeOrderAsync(Arg.Any<TradeOrderDTO>());
+            _ = _tradeOrderService.Received(1).SetTradeOrderSyncPositionAsync(Arg.Is<DateTime>(_ => _.Date >= DateTime.Now.Date));
+        }
+
+        [Fact]
+        public async Task FetchOrderData_ExistingOrder()
+        {
+            //Setup
+            var profile = ProfileHelper.GetProfileDTO();
+            profile.ApiKey = "Test key";
+            _profileService.GetProfileAsync().Returns(profile);
+            var order = BitpandaHelper.GetOrder();
+            _bitpandaService.GetOrdersAsync(
+                Arg.Is(Bitpanda.InstrumentCode.BTC_EUR),
+                Arg.Is<DateTime>(_ => _.Date == profile.CandleStickSyncFromDate.Date),
+                Arg.Is<DateTime>(_ => _ > profile.CandleStickSyncFromDate))
+                .Returns(Enumerable.Repeat(order, 1).ToList());
+            _tradeOrderService.GetTradeOrderSyncPositionAsync().Returns(profile.CandleStickSyncFromDate);
+            _tradeOrderService.TradeOrderExistsAsync(Arg.Is(new Guid(order.Order_id))).Returns(true);
 
             //Act
             await _backgroundTradeOrderSyncService.FetchOrderDataAsync(new CancellationToken());
 
             //Asert
             _ = _profileService.Received().GetProfileAsync();
-            _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Any<DateTime>());
-            _ = _tradeOrderService.Received().GetLastTradeOrderAsync(Arg.Any<DateTime>());
+            _ = _tradeOrderService.Received().GetTradeOrderSyncPositionAsync();
             _ = _bitpandaService.Received().GetOrdersAsync(
                 Arg.Is(Bitpanda.InstrumentCode.BTC_EUR),
                 Arg.Is<DateTime>(_ => _.Date == profile.CandleStickSyncFromDate.Date),
                 Arg.Is<DateTime>(_ => _ > profile.CandleStickSyncFromDate));
-            _ = _tradeOrderService.Received(nbrOfOrders).AddTradeOrderAsync(Arg.Any<TradeOrderDTO>());
+            _ = _tradeOrderService.Received().TradeOrderExistsAsync(Arg.Any<Guid>());
+            _ = _tradeOrderService.DidNotReceive().AddTradeOrderAsync(Arg.Any<TradeOrderDTO>());
+            _ = _tradeOrderService.Received().SetTradeOrderSyncPositionAsync(Arg.Any<DateTime>());
         }
 
         [Fact]
@@ -199,7 +226,7 @@ namespace Waffler.Test.Service.Background
 
             //Asert
             _ = _profileService.Received().GetProfileAsync();
-            _ = _tradeOrderService.DidNotReceive().GetLastTradeOrderAsync(Arg.Any<DateTime>());
+            _ = _tradeOrderService.DidNotReceive().GetTradeOrderSyncPositionAsync();
         }
 
         [Fact]
@@ -215,7 +242,7 @@ namespace Waffler.Test.Service.Background
 
             //Asert
             _ = _profileService.Received().GetProfileAsync();
-            _ = _tradeOrderService.DidNotReceive().GetLastTradeOrderAsync(Arg.Any<DateTime>());
+            _ = _tradeOrderService.DidNotReceive().GetTradeOrderSyncPositionAsync();
         }
 
         [Fact]

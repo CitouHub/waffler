@@ -51,15 +51,13 @@ namespace Waffler.Test.Service.Background
             _serviceScope.ServiceProvider.GetService<IProfileService>().Returns(_profileService);
             _serviceScope.ServiceProvider.GetService<ICandleStickService>().Returns(_candleStickService);
             _serviceScope.ServiceProvider.GetService<IBitpandaService>().Returns(_bitpandaService);
-            _serviceScope.ServiceProvider.GetService<ICandleStickSyncSignal>().Returns(_candleStickSyncSignal);
             _serviceScope.ServiceProvider.GetService<IMapper>().Returns(_mapper);
             _serviceScope.ServiceProvider.GetRequiredService<IProfileService>().Returns(_profileService);
             _serviceScope.ServiceProvider.GetRequiredService<ICandleStickService>().Returns(_candleStickService);
             _serviceScope.ServiceProvider.GetRequiredService<IBitpandaService>().Returns(_bitpandaService);
-            _serviceScope.ServiceProvider.GetRequiredService<ICandleStickSyncSignal>().Returns(_candleStickSyncSignal);
             _serviceScope.ServiceProvider.GetRequiredService<IMapper>().Returns(_mapper);
 
-            _backgroundChartSyncService = new BackgroundChartSyncService(logger, _serviceProvider, _databaseSetupSignal);
+            _backgroundChartSyncService = new BackgroundChartSyncService(logger, _serviceProvider, _databaseSetupSignal, _candleStickSyncSignal);
         }
 
         [Fact]

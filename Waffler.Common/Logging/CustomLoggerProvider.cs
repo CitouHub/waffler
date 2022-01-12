@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Waffler.Common.LogProvider
+namespace Waffler.Common.Logging
 {
     [ProviderAlias("CustomLogger")]
     public sealed class CustomLoggerProvider : ILoggerProvider

@@ -13,16 +13,22 @@ const Balance = () => {
 
     useEffect(() => {
         unmount = false;
-        ProfileService.getBalance().then((value) => {
-            if (unmount === false) {
-                setBalance(value);
-                setLoading(false);
-            }
-        });
+        updateBalance();
         return () => {
             unmount = true;
         }
     }, []);
+
+    const updateBalance = () => {
+        ProfileService.getBalance().then((value) => {
+            if (unmount === false) {
+                setBalance(value);
+                setLoading(false);
+
+                setTimeout(() => updateBalance(), 10000);
+            }
+        });
+    }
 
     let btc = balance.find(({ currencyCode }) => currencyCode === 1);
     let eur = balance.find(({ currencyCode }) => currencyCode === 2);

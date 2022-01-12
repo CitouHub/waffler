@@ -31,4 +31,10 @@ export default {
     }).then((response) => {
         return Request.handleResponse(response)
     }),
+    resetTradeOrderSync: async () => await Request.send({
+        url: `/tradeorder/sync/reset`,
+        method: 'POST'
+    }).then((response) => {
+        return Request.handleResponse(response)
+    }),
 }

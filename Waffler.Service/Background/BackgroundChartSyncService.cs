@@ -15,6 +15,7 @@ using Waffler.Domain;
 using Waffler.Service.Infrastructure;
 using static Waffler.Common.Variable;
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
 namespace Waffler.Service.Background
 {
     public class BackgroundChartSyncService : BackgroundService
@@ -22,6 +23,7 @@ namespace Waffler.Service.Background
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundChartSyncService> _logger;
         private readonly IDatabaseSetupSignal _databaseSetupSignal;
+        private readonly ICandleStickSyncSignal _candleStickSyncSignal;
         private readonly TimeSpan SyncInterval = TimeSpan.FromMinutes(5);
         private readonly TimeSpan RequestSpanMinutes = TimeSpan.FromHours(6);
         private readonly string Period = Bitpanda.Period.MINUTES;
@@ -36,11 +38,13 @@ namespace Waffler.Service.Background
         public BackgroundChartSyncService(
             ILogger<BackgroundChartSyncService> logger,
             IServiceProvider serviceProvider,
-            IDatabaseSetupSignal databaseSetupSignal)
+            IDatabaseSetupSignal databaseSetupSignal,
+            ICandleStickSyncSignal candleStickSyncSignal)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
             _databaseSetupSignal = databaseSetupSignal;
+            _candleStickSyncSignal = candleStickSyncSignal;
             _logger.LogDebug("Instantiated");
         }
 
@@ -78,7 +82,6 @@ namespace Waffler.Service.Background
                     var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
                     var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _bitpandaService = scope.ServiceProvider.GetRequiredService<IBitpandaService>();
-                    var _candleStickSyncSignal = scope.ServiceProvider.GetRequiredService<ICandleStickSyncSignal>();
                     var _mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
                     _logger.LogInformation($"Setting initial parameters");

@@ -1,6 +1,9 @@
 ﻿import React, { useState, useEffect } from "react";
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import DatePicker from '@mui/lab/DatePicker';
 import LoadingBar from '../../components/utils/loadingbar';
 import ChangePasswordDialog from '../utils/dialog/changepassword.dialog'
 
@@ -9,6 +12,7 @@ import { faStepBackward } from "@fortawesome/free-solid-svg-icons";
 
 import ProfileService from '../../services/profile.service';
 import CandleStickService from '../../services/candlestick.service';
+import TradeOrderService from '../../services/tradeorder.service';
 
 import './profile.css';
 
@@ -19,9 +23,6 @@ const Profile = () => {
 
     useEffect(() => {
         ProfileService.getProfile().then((profile) => {
-            let date = new Date(profile.candleStickSyncFromDate);
-            date.setDate(date.getDate() + 1);
-            profile.candleStickSyncFromDate = date;
             setProfile(profile);
             setLoading(false);
         });
@@ -38,7 +39,10 @@ const Profile = () => {
         setLoading(true);
         ProfileService.updateProfile(profile).then((success) => {
             if (success) {
-                CandleStickService.resetCandleSticksSync().then(() => {
+                var resetCandleSticksSync = CandleStickService.resetCandleSticksSync();
+                var resetTradeOrderSync = TradeOrderService.resetTradeOrderSync();
+
+                Promise.all([resetCandleSticksSync, resetTradeOrderSync]).then(() => {
                     setLoading(false);
                 });
             }
@@ -61,17 +65,17 @@ const Profile = () => {
                         </div>
                     </div>
                     <div className="mt-3 mb-3 sync-control">
-                        <TextField
-                            id="candlestick-sync-fromDate"
-                            label="Sync data from"
-                            type="date"
-                            defaultValue={profile?.candleStickSyncFromDate?.toJSON()?.slice(0, 10)}
-                            sx={{ width: '25%' }}
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            onChange={e => setProfile({ ...profile, candleStickSyncFromDate: new Date(e.target.value) })}
-                        />
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <DatePicker
+                                id="candlestick-sync-fromDate"
+                                label="Sync data from"
+                                value={profile?.candleStickSyncFromDate}
+                                onChange={newDate => setProfile({ ...profile, candleStickSyncFromDate: newDate })}
+                                mask="____-__-__"
+                                inputFormat="yyyy-MM-dd"
+                                renderInput={(params) => <TextField {...params} />}
+                            />
+                        </LocalizationProvider>
                         <div className='stepback-center'>
                             <span className='fa-icon' onClick={resetSync}><FontAwesomeIcon icon={faStepBackward} className="mr-2" /></span>
                         </div>

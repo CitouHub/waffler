@@ -66,6 +66,7 @@ const TradeRules = () => {
                             }}
                             onError={err => console.log(err)}
                             accepts={[".json"]}
+                            multiple={false}
                             maxFileSize={10000}
                             minFileSize={0}
                             clickable
