@@ -71,6 +71,32 @@ namespace Waffler.Test.Service
             Assert.Equal(expectedOrders, tradeOrders.Count);
         }
 
+        [Fact]
+        public async Task GetTradeOrders_OrderByDesc_OrderDateTime()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrder1 = TradeOrderHelper.GetTradeOrder();
+            tradeOrder1.OrderDateTime = DateTime.UtcNow.AddMinutes(-5);
+            var tradeOrder2 = TradeOrderHelper.GetTradeOrder();
+            tradeOrder2.OrderDateTime = DateTime.UtcNow.AddMinutes(-2);
+            var tradeOrder3 = TradeOrderHelper.GetTradeOrder();
+            tradeOrder3.OrderDateTime = DateTime.UtcNow.AddMinutes(-3);
+            context.TradeOrders.Add(tradeOrder1);
+            context.TradeOrders.Add(tradeOrder2);
+            context.TradeOrders.Add(tradeOrder3);
+            context.SaveChanges();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+
+            //Act
+            var tradeOrders = await tradeOrderService.GetTradeOrdersAsync(tradeOrder1.OrderDateTime, DateTime.UtcNow);
+
+            //Assert
+            Assert.Equal(tradeOrder1.OrderId, tradeOrders[2].OrderId);
+            Assert.Equal(tradeOrder2.OrderId, tradeOrders[0].OrderId);
+            Assert.Equal(tradeOrder3.OrderId, tradeOrders[1].OrderId);
+        }
+
         [Theory]
         [InlineData(Variable.TradeOrderStatus.Open, false, false)]
         [InlineData(Variable.TradeOrderStatus.StopTriggered, false, false)]

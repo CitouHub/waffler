@@ -48,7 +48,8 @@ namespace Waffler.Service
                 .Include(_ => _.TradeRule)
                 .Include(_ => _.TradeAction)
                 .Include(_ => _.TradeOrderStatus)
-                .Where(_ => _.OrderDateTime >= from && _.OrderDateTime <= to).ToArrayAsync();
+                .Where(_ => _.OrderDateTime >= from && _.OrderDateTime <= to)
+                .OrderByDescending(_ => _.OrderDateTime).ToArrayAsync();
             return _mapper.Map<List<TradeOrderDTO>>(tradeOrders);
         }
 
