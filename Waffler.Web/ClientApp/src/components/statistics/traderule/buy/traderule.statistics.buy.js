@@ -43,8 +43,12 @@ const TradeRuleBuyStatistics = () => {
     useEffect(() => {
         if (loadingPeriod === false) {
             setLoading(true);
-            var getTradeRuleBuyStatistics = StatisticsService.getTradeRuleBuyStatistics(filter.fromDate, filter.toDate, filter.statisticsMode);
-            var getTrend = StatisticsService.getTrend(filter.fromDate, filter.toDate, 1, 240);
+
+            let toDate = new Date(filter.toDate);
+            toDate.setDate(toDate.getDate() + 1);
+
+            var getTradeRuleBuyStatistics = StatisticsService.getTradeRuleBuyStatistics(filter.fromDate, toDate, filter.statisticsMode);
+            var getTrend = StatisticsService.getTrend(filter.fromDate, toDate, 1, 240);
 
             Promise.all([getTradeRuleBuyStatistics, getTrend]).then((result) => {
                 setStatistics(result[0]);

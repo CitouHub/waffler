@@ -17,10 +17,12 @@ namespace Waffler.API.Controller
     public class StatisticsController : ControllerBase
     {
         private readonly IStatisticsService _statisticsService;
+        private readonly ICandleStickService _candleStickService;
 
-        public StatisticsController(IStatisticsService statisticsService)
+        public StatisticsController(IStatisticsService statisticsService, ICandleStickService candleStickService)
         {
             _statisticsService = statisticsService;
+            _candleStickService = candleStickService;
         }
 
         [HttpGet]
@@ -34,9 +36,11 @@ namespace Waffler.API.Controller
         [Route("trend/{fromPeriodDateTime}/{toPeriodDateTime}/{tradeTypeId}/{samplePeriodMinues}")]
         public async Task<TrendDTO> GetTrend(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.TradeType tradeTypeId, int samplePeriodMinues)
         {
+            var lastCandleStickAsync = await _candleStickService.GetLastCandleStickAsync(toPeriodDateTime);
+
             return await _statisticsService.GetPriceTrendAsync(tradeTypeId,
                 Variable.CandleStickValueType.OpenPrice, fromPeriodDateTime, fromPeriodDateTime.AddMinutes(samplePeriodMinues),
-                Variable.CandleStickValueType.ClosePrice, toPeriodDateTime.AddMinutes(-1*samplePeriodMinues), toPeriodDateTime);
+                Variable.CandleStickValueType.ClosePrice, lastCandleStickAsync.PeriodDateTime.AddMinutes(-1*samplePeriodMinues), lastCandleStickAsync.PeriodDateTime);
         }
     }
 }
