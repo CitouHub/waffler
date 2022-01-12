@@ -161,12 +161,26 @@ namespace Waffler.Service
             var tradeOrderSyncStatus = await _context.TradeOrderSyncStatuses.FirstOrDefaultAsync();
             if(tradeOrderSyncStatus != null)
             {
+                if(position > DateTime.UtcNow)
+                {
+                    position = DateTime.UtcNow;
+                }
+
                 tradeOrderSyncStatus.CurrentPosition = position;
                 tradeOrderSyncStatus.UpdateByUser = 1;
                 tradeOrderSyncStatus.UpdateDate = DateTime.UtcNow;
-
-                await _context.SaveChangesAsync();
+            } 
+            else
+            {
+                await _context.TradeOrderSyncStatuses.AddAsync(new TradeOrderSyncStatus()
+                {
+                    CurrentPosition = position,
+                    InsertByUser = 1,
+                    InsertDate = DateTime.UtcNow
+                });
             }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

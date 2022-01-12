@@ -33,6 +33,8 @@ namespace Waffler.Service.Background
         private bool FetchInProgress = false;
         private bool UpdateInProgress = false;
 
+        public readonly short FetchDaysInterval = 5;
+
         public BackgroundTradeOrderSyncService(
             ILogger<BackgroundTradeOrderSyncService> logger,
             IServiceProvider serviceProvider,
@@ -94,14 +96,13 @@ namespace Waffler.Service.Background
                     {
                         _logger.LogInformation($"Getting current trade order sync position");
                         var fromDate = await _tradeOrderService.GetTradeOrderSyncPositionAsync();
-                        var requestDays = 5;
 
                         if(fromDate != null)
                         {
                             var toDate = fromDate.Value;
                             while (fromDate <= DateTime.UtcNow && cancellationToken.IsCancellationRequested == false && _tradeOrderSyncSignal.IsAbortRequested() == false)
                             {
-                                toDate = toDate.AddDays(requestDays);
+                                toDate = toDate.AddDays(FetchDaysInterval);
                                 _logger.LogInformation($"Fetch order data history");
                                 var bp_orders = await _bitpandaService.GetOrdersAsync(
                                     Bitpanda.GetInstrumentCode(TradeType.BTC_EUR),
@@ -147,7 +148,7 @@ namespace Waffler.Service.Background
                                     _logger.LogInformation($"No new trade orders could be found");
                                 }
 
-                                fromDate = fromDate.Value.AddDays(requestDays);
+                                fromDate = fromDate.Value.AddDays(FetchDaysInterval);
                             }
 
                             await _tradeOrderService.SetTradeOrderSyncPositionAsync(fromDate.Value);

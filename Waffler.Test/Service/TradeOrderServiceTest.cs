@@ -443,5 +443,160 @@ namespace Waffler.Test.Service
             Assert.NotNull(context.TradeOrders.FirstOrDefault(_ => _.Id == liveOrder.Id));
             Assert.Null(context.TradeOrders.FirstOrDefault(_ => _.Id == testOrder.Id));
         }
+
+        [Fact]
+        public async Task TradeOrderExists_False_NoTradeOrders()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+
+            //Act
+            var exists = await tradeOrderService.TradeOrderExistsAsync(Guid.NewGuid());
+
+            //Assert
+            Assert.False(exists);
+        }
+
+        [Fact]
+        public async Task TradeOrderExists_False_OtherTradeOrder()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+            var tradeOrder = TradeOrderHelper.GetTradeOrder();
+            context.TradeOrders.Add(tradeOrder);
+            context.SaveChanges();
+
+            //Act
+            var exists = await tradeOrderService.TradeOrderExistsAsync(Guid.NewGuid());
+
+            //Assert
+            Assert.False(exists);
+        }
+
+        [Fact]
+        public async Task TradeOrderExists_True()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+            var tradeOrder = TradeOrderHelper.GetTradeOrder();
+            context.TradeOrders.Add(tradeOrder);
+            context.SaveChanges();
+
+            //Act
+            var exists = await tradeOrderService.TradeOrderExistsAsync(tradeOrder.OrderId);
+
+            //Assert
+            Assert.True(exists);
+        }
+
+        [Fact]
+        public async Task GetTradeOrderSyncPosition_NoEntry_Null()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+
+            //Act
+            var position = await tradeOrderService.GetTradeOrderSyncPositionAsync();
+
+            //Assert
+            Assert.Null(position);
+        }
+
+        [Fact]
+        public async Task GetTradeOrderSyncPosition_Null()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            context.TradeOrderSyncStatuses.Add(new TradeOrderSyncStatus());
+            context.SaveChanges();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+
+            //Act
+            var position = await tradeOrderService.GetTradeOrderSyncPositionAsync();
+
+            //Assert
+            Assert.Null(position);
+        }
+
+        [Fact]
+        public async Task GetTradeOrderSyncPosition()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderSyncStatus = new TradeOrderSyncStatus()
+            {
+                CurrentPosition = DateTime.UtcNow
+            };
+            context.TradeOrderSyncStatuses.Add(tradeOrderSyncStatus);
+            context.SaveChanges();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+
+            //Act
+            var position = await tradeOrderService.GetTradeOrderSyncPositionAsync();
+
+            //Assert
+            Assert.Equal(tradeOrderSyncStatus.CurrentPosition, position);
+        }
+
+        [Fact]
+        public async Task SetTradeOrderSyncPositionAsync_Created()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+
+            //Act
+            var position = DateTime.UtcNow;
+            await tradeOrderService.SetTradeOrderSyncPositionAsync(position);
+
+            //Assert
+            Assert.Equal(position, context.TradeOrderSyncStatuses.FirstOrDefault().CurrentPosition);
+        }
+
+        [Fact]
+        public async Task SetTradeOrderSyncPositionAsync_Updated()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+            var tradeOrderSyncStatus = new TradeOrderSyncStatus()
+            {
+                CurrentPosition = DateTime.UtcNow.AddDays(-1)
+            };
+            context.TradeOrderSyncStatuses.Add(tradeOrderSyncStatus);
+            context.SaveChanges();
+
+            //Act
+            var position = DateTime.UtcNow;
+            await tradeOrderService.SetTradeOrderSyncPositionAsync(position);
+
+            //Assert
+            Assert.Equal(position, context.TradeOrderSyncStatuses.FirstOrDefault().CurrentPosition);
+        }
+
+        [Fact]
+        public async Task SetTradeOrderSyncPositionAsync_Updated_Future()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeOrderService = new TradeOrderService(_logger, context, _mapper);
+            var tradeOrderSyncStatus = new TradeOrderSyncStatus()
+            {
+                CurrentPosition = DateTime.UtcNow.AddDays(-1)
+            };
+            context.TradeOrderSyncStatuses.Add(tradeOrderSyncStatus);
+            context.SaveChanges();
+
+            //Act
+            var position = DateTime.UtcNow.AddDays(1);
+            await tradeOrderService.SetTradeOrderSyncPositionAsync(position);
+
+            //Assert
+            Assert.Equal(DateTime.UtcNow.Date, context.TradeOrderSyncStatuses.FirstOrDefault().CurrentPosition?.Date);
+        }
     }
 }
