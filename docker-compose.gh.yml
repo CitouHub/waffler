@@ -37,7 +37,7 @@ services:
     volumes:
       - ./https:/https:ro
   db:
-    image: mcr.microsoft.com/azure-sql-edge:latest
+    image: mcr.microsoft.com/azure-sql-edge:1.0.4
     environment:
       ACCEPT_EULA: Y
       SA_PASSWORD: pAssword1234
