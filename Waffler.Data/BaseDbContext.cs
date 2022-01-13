@@ -53,10 +53,6 @@ namespace Waffler.Data
                 entity.HasIndex(e => e.PeriodDateTime, "IdxCandleStick_PeriodDateTime")
                     .IsUnique();
 
-                entity.Property(e => e.AvgHighLowPrice).HasColumnType("decimal(10, 2)");
-
-                entity.Property(e => e.AvgOpenClosePrice).HasColumnType("decimal(10, 2)");
-
                 entity.Property(e => e.ClosePrice).HasColumnType("decimal(10, 2)");
 
                 entity.Property(e => e.HighPrice).HasColumnType("decimal(10, 2)");
