@@ -53,7 +53,7 @@ namespace Waffler.Service.Background
             }
         }
 
-        public int GetNextTriggerTime(DateTime fromTime)
+        public long GetNextTriggerTime(DateTime fromTime)
         {
             var nextTrigger = fromTime.Date.Add(TriggerTime.TimeOfDay);
             if(fromTime >= nextTrigger)
