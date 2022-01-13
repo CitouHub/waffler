@@ -11,7 +11,7 @@ namespace Waffler.Domain
 
         public override string ToString()
         {
-            return $"Rule: {Id}:{Name}, result: {string.Join(", ", TradeRuleCondtionEvaluations.Select(_ => $"{_.Description}: {_.IsFullfilled}"))}";
+            return $"Rule: \"{Name}\", result: {string.Join(", ", TradeRuleCondtionEvaluations.Select(_ => $"{_.Description}: {_.IsFullfilled}"))}";
         }
     }
 }

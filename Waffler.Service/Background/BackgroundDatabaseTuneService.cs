@@ -61,6 +61,7 @@ namespace Waffler.Service.Background
                 nextTrigger = nextTrigger.AddDays(1);
             }
 
+            _logger.LogInformation($"Next trigger time {nextTrigger}");
             return (int)(nextTrigger - fromTime).TotalMilliseconds;
         }
 

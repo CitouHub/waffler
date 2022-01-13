@@ -41,7 +41,7 @@ namespace Waffler.Service
             _logger = logger;
             _context = context;
             _mapper = mapper;
-            _logger.LogDebug("TradeOrderService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
         public async Task<List<TradeOrderDTO>> GetTradeOrdersAsync(DateTime from, DateTime to)

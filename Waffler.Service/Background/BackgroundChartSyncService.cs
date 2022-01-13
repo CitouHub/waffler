@@ -30,6 +30,7 @@ namespace Waffler.Service.Background
         private readonly short PeriodMinutes = 1;
         private readonly int NearEndSaveLimit = 5;
         private readonly int RequestLimit = 180;
+        private readonly int RequestPeriodSeconds = 60;
         private readonly object StartUpLock = new object();
 
         private Timer _timer;
@@ -100,9 +101,10 @@ namespace Waffler.Service.Background
                             _logger.LogInformation($"Getting last candlestick");
                             var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow))?.PeriodDateTime ??
                                 profile.CandleStickSyncFromDate;
-                            period = period.AddMilliseconds(1);
+                            var fromDate = period.AddMilliseconds(1);
+                            var toDate = fromDate.AddMinutes(RequestSpanMinutes.TotalMinutes);
 
-                            _logger.LogInformation($"Fetch data from {period} onward");
+                            _logger.LogInformation($"Fetch data from {fromDate} to {toDate}");
                             var bp_candleSticksDTO = await _bitpandaService.GetCandleSticksAsync(
                                 Bitpanda.GetInstrumentCode(TradeType.BTC_EUR),
                                 Period, PeriodMinutes, period, period.AddMinutes(RequestSpanMinutes.TotalMinutes));
@@ -134,9 +136,12 @@ namespace Waffler.Service.Background
 
                             if (requestCount >= RequestLimit)
                             {
-                                var sleepTime = 60 * 1000 - (int)(DateTime.UtcNow - startTime).TotalMilliseconds;
-                                _logger.LogInformation($"Reached request limit, sleep {sleepTime} ms");
-                                Thread.Sleep(sleepTime <= 0 ? 0 : sleepTime);
+                                var sleepTime = RequestPeriodSeconds * 1000 - (int)(DateTime.UtcNow - startTime).TotalMilliseconds;
+                                if(sleepTime > 0)
+                                {
+                                    _logger.LogInformation($"Reached request limit, sleep {sleepTime} ms");
+                                    Thread.Sleep(sleepTime);
+                                }
                                 startTime = DateTime.UtcNow;
                                 requestCount = 0;
                             }
