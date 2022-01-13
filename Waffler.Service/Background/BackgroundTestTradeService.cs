@@ -71,11 +71,11 @@ namespace Waffler.Service.Background
 
             try
             {
-                _logger.LogInformation($"Setting up scoped services");
-                using (IServiceScope scope = _serviceProvider.CreateScope())
+                _logger.LogInformation($"Setting up outer scoped services");
+                using (IServiceScope outerScope = _serviceProvider.CreateScope())
                 {
-                    var _tradeRuleService = scope.ServiceProvider.GetRequiredService<ITradeRuleService>();
-                    var _tradeService = scope.ServiceProvider.GetRequiredService<ITradeService>();
+                    var _tradeRuleService = outerScope.ServiceProvider.GetRequiredService<ITradeRuleService>();
+                    var _tradeService = outerScope.ServiceProvider.GetRequiredService<ITradeService>();
 
                     _logger.LogInformation($"Preparing trade rule");
                     var originalTradeRule = await _tradeRuleService.GetTradeRuleAsync(tradeRuleTestRequest.TradeRuleId);
@@ -93,13 +93,18 @@ namespace Waffler.Service.Background
                             !_tradeRuleTestQueue.IsTestAborted(tradeRule.Id) &&
                             currentStatus.CurrentPositionDate < tradeRuleTestRequest.ToDate.AddMinutes(tradeRuleTestRequest.MinuteStep))
                         {
-                            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentStatus.CurrentPositionDate);
-                            if (result != null)
+                            _logger.LogInformation($"Setting up inner scoped services");
+                            using (IServiceScope innerScope = _serviceProvider.CreateScope())
                             {
-                                results.Add(result);
+                                _tradeService = innerScope.ServiceProvider.GetRequiredService<ITradeService>();
+                                var result = await _tradeService.HandleTradeRuleAsync(tradeRule, currentStatus.CurrentPositionDate);
+                                if (result != null)
+                                {
+                                    results.Add(result);
 
+                                }
+                                currentStatus.CurrentPositionDate = currentStatus.CurrentPositionDate.AddMinutes(tradeRuleTestRequest.MinuteStep);
                             }
-                            currentStatus.CurrentPositionDate = currentStatus.CurrentPositionDate.AddMinutes(tradeRuleTestRequest.MinuteStep);
                         }
 
                         _logger.LogInformation($"Trade rule test result: \"{tradeRule.Name}\"");
