@@ -61,8 +61,6 @@ CREATE TABLE [dbo].[CandleStick](
 	[LowPrice] [decimal](10,2) NOT NULL,
 	[OpenPrice] [decimal](10,2) NOT NULL,
 	[ClosePrice] [decimal](10,2) NOT NULL,
-	[AvgHighLowPrice] [decimal](10,2) NOT NULL,
-	[AvgOpenClosePrice] [decimal](10,2) NOT NULL,
 	[TotalAmount] [decimal](10,2) NOT NULL,
 	[Volume] [decimal](10,2) NOT NULL,
 	[PeriodDateTime] [datetime2](7) NOT NULL
