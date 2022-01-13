@@ -218,7 +218,7 @@ const TradeChart = () => {
             <div className='mt-3 mb-3'>
                 <h4>Chart</h4>
             </div>
-            {!syncStatus?.finished && <SyncBar currentDate={syncStatus?.lastPeriodDateTime?.toJSON()?.slice(0, 10)} progress={syncStatus.progress} />}
+            {!syncStatus?.finished && <SyncBar currentDate={syncStatus?.lastPeriodDateTime?.toJSON()?.slice(0, 10)} progress={syncStatus.progress} throttled={syncStatus.isThrottled}/>}
             {syncStatus?.finished && dimensions.width > 0 && dimensions.height > 0 &&
                 <div>
                     <TradeFilter

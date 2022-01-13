@@ -58,6 +58,7 @@ namespace Waffler.API.Controller
         {
             return new CandleStickSyncStatusDTO()
             {
+                IsThrottled = _candleStickSyncSignal.IsThrottled(),
                 FirstPeriodDateTime = (await _candleStickService.GetFirstCandleStickAsync(DateTime.MinValue))?.PeriodDateTime,
                 LastPeriodDateTime = (await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow))?.PeriodDateTime
             };
