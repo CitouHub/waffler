@@ -102,7 +102,7 @@ namespace Waffler.Service.Background
                             currentStatus.CurrentPositionDate = currentStatus.CurrentPositionDate.AddMinutes(tradeRuleTestRequest.MinuteStep);
                         }
 
-                        _logger.LogInformation($"Trade rule test result: {tradeRule.Id}:{tradeRule.Name}");
+                        _logger.LogInformation($"Trade rule test result: \"{tradeRule.Name}\"");
                         foreach (var tradeRuleCondition in results.SelectMany(_ => _.TradeRuleCondtionEvaluations).GroupBy(_ => new
                         {
                             _.Id,
@@ -112,7 +112,7 @@ namespace Waffler.Service.Background
                             var conditionName = $"{tradeRuleCondition.Key.Id}:{tradeRuleCondition.Key.Description}";
                             var conditions = tradeRuleCondition.Count();
                             var fullfilled = tradeRuleCondition.Count(_ => _.IsFullfilled == true);
-                            _logger.LogInformation($"Condition: {conditionName} = {fullfilled}/{conditions}");
+                            _logger.LogInformation($"Condition: \"{conditionName}\" = {fullfilled}/{conditions}");
                         }
 
                         var updated = await _tradeRuleService.UpdateTradeRuleAsync(originalTradeRule);

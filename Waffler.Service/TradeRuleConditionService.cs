@@ -38,7 +38,7 @@ namespace Waffler.Service
             _logger = logger;
             _context = context;
             _mapper = mapper;
-            _logger.LogDebug("TradeRuleConditionService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
         public async Task<TradeRuleConditionDTO> NewTradeRuleConditionAsync(int tradeRuleId)

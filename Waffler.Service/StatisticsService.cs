@@ -36,7 +36,7 @@ namespace Waffler.Service
             _context = context;
             _mapper = mapper;
             _candleStickService = candleStickService;
-            _logger.LogDebug("StatisticsService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
         public async Task<List<TradeRuleBuyStatisticsDTO>> GetTradeRuleBuyStatisticsAsync(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.StatisticsMode statisticsMode)

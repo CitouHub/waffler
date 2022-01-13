@@ -11,14 +11,15 @@ namespace Waffler.Service.Infrastructure
         bool IsAbortRequested();
         Task AwaitAbortAsync();
         void CloseSync();
-        bool IsThrottlePaused();
+        void Throttle(bool throttled);
+        bool IsThrottled();
     }
 
     public class CandleStickSyncSignal : ICandleStickSyncSignal
     {
         private readonly object SyncLock = new object();
         private bool Active = false;
-        private bool ThrottlePaused = false;
+        private bool Throttled = false;
         private bool AbortCurrentSync = false;
         private SemaphoreSlim SyncSignal = new SemaphoreSlim(0);
 
@@ -27,6 +28,7 @@ namespace Waffler.Service.Infrastructure
             lock(SyncLock)
             {
                 Active = true;
+                Throttled = false;
                 AbortCurrentSync = false;
                 SyncSignal = new SemaphoreSlim(0);
             }
@@ -44,12 +46,12 @@ namespace Waffler.Service.Infrastructure
 
         public void Throttle(bool throttle)
         {
-            ThrottlePaused = throttle;
+            Throttled = throttle;
         }
 
-        public bool IsThrottlePaused()
+        public bool IsThrottled()
         {
-            return ThrottlePaused;
+            return Throttled;
         }
 
         public bool IsAbortRequested()
@@ -67,6 +69,7 @@ namespace Waffler.Service.Infrastructure
             lock (SyncLock)
             {
                 Active = false;
+                Throttled = false;
                 AbortCurrentSync = false;
                 SyncSignal.Release();
             }

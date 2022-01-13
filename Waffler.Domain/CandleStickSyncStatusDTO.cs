@@ -6,7 +6,7 @@ namespace Waffler.Domain
     {
         public DateTime? FirstPeriodDateTime { get; set; }
         public DateTime? LastPeriodDateTime { get; set; }
-        public bool ThrottlePaused { get; set; }
+        public bool IsThrottled { get; set; }
 
         public bool Finished
         {

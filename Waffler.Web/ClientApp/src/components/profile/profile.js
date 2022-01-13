@@ -70,6 +70,7 @@ const Profile = () => {
                                 id="candlestick-sync-fromDate"
                                 label="Sync data from"
                                 value={profile?.candleStickSyncFromDate}
+                                maxDate={new Date()}
                                 onChange={newDate => setProfile({ ...profile, candleStickSyncFromDate: newDate })}
                                 mask="____-__-__"
                                 inputFormat="yyyy-MM-dd"

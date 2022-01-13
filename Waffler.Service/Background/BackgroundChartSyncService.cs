@@ -29,6 +29,7 @@ namespace Waffler.Service.Background
         private readonly short PeriodMinutes = 1;
         private readonly int NearEndSaveLimit = 5;
         private readonly int RequestLimit = 180;
+        private readonly int RequestPeriodSeconds = 60;
         private readonly object StartUpLock = new object();
 
         private Timer _timer;
@@ -67,7 +68,7 @@ namespace Waffler.Service.Background
                     _logger.LogWarning($"Syncing candlestick data already in progress");
                     return;
                 }
-               
+
                 InProgress = true;
             }
 
@@ -91,24 +92,25 @@ namespace Waffler.Service.Background
                     _logger.LogInformation($"Starting sync");
                     _candleStickSyncSignal.StartSync();
 
-                    if(profile != null)
+                    if (profile != null)
                     {
                         while (syncingData == true && cancellationToken.IsCancellationRequested == false && _candleStickSyncSignal.IsAbortRequested() == false)
                         {
                             _logger.LogInformation($"Setting up inner scoped services");
                             using (IServiceScope innerScope = _serviceProvider.CreateScope())
                             {
-                                var _candleStickService = innerScope.ServiceProvider.GetRequiredService<ICandleStickService>();
+                                var _candleStickService = outerScope.ServiceProvider.GetRequiredService<ICandleStickService>();
 
                                 _logger.LogInformation($"Getting last candlestick");
                                 var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow))?.PeriodDateTime ??
                                     profile.CandleStickSyncFromDate;
-                                period = period.AddMilliseconds(1);
+                                var fromDate = period.AddMilliseconds(1);
+                                var toDate = fromDate.AddMinutes(RequestSpanMinutes.TotalMinutes);
 
-                                _logger.LogInformation($"Fetch data from {period} onward");
+                                _logger.LogInformation($"Fetch data from {fromDate} to {toDate}");
                                 var bp_candleSticksDTO = await _bitpandaService.GetCandleSticksAsync(
                                     Bitpanda.GetInstrumentCode(Variable.TradeType.BTC_EUR),
-                                    Period, PeriodMinutes, period, period.AddMinutes(RequestSpanMinutes.TotalMinutes));
+                                    Period, PeriodMinutes, fromDate, toDate);
                                 requestCount++;
 
                                 if (bp_candleSticksDTO != null)
@@ -137,9 +139,14 @@ namespace Waffler.Service.Background
 
                                 if (requestCount >= RequestLimit)
                                 {
-                                    var sleepTime = 60 * 1000 - (int)(DateTime.UtcNow - startTime).TotalMilliseconds;
-                                    _logger.LogInformation($"Reached request limit, sleep {sleepTime} ms");
-                                    Thread.Sleep(sleepTime <= 0 ? 0 : sleepTime);
+                                    var sleepTime = RequestPeriodSeconds * 1000 - (int)(DateTime.UtcNow - startTime).TotalMilliseconds;
+                                    if (sleepTime > 0)
+                                    {
+                                        _logger.LogInformation($"Reached request limit, sleep {sleepTime} ms");
+                                        _candleStickSyncSignal.Throttle(true);
+                                        Thread.Sleep(sleepTime);
+                                        _candleStickSyncSignal.Throttle(false);
+                                    }
                                     startTime = DateTime.UtcNow;
                                     requestCount = 0;
                                 }
