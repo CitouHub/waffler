@@ -226,7 +226,7 @@ namespace Waffler.Service.Background
                             {
                                 var tradeOrderDTO = _mapper.Map<TradeOrderDTO>(bp_order);
                                 tradeOrderDTO.Id = order.Id;
-                                tradeOrderDTO.TradeRuleId = order.TradeRuleId;
+                                tradeOrderDTO.TradeRuleId = order.TradeRuleId == 0 ? null : order.TradeRuleId;
                                 await _tradeOrderService.UpdateTradeOrderAsync(tradeOrderDTO);
                                 _logger.LogInformation($"Trade order {tradeOrderDTO} updated");
                             }
