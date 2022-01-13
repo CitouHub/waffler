@@ -21,6 +21,7 @@ namespace Waffler.Test.Service.Infrastructure
             //Assert
             Assert.False(_candleStickSyncSignal.IsAbortRequested());
             Assert.True(_candleStickSyncSignal.IsActive());
+            Assert.False(_candleStickSyncSignal.IsThrottled());
         }
 
         [Fact]
@@ -38,6 +39,33 @@ namespace Waffler.Test.Service.Infrastructure
         }
 
         [Fact]
+        public void Throttle_True()
+        {
+            //Setup
+            _candleStickSyncSignal.StartSync();
+
+            //Act
+            _candleStickSyncSignal.Throttle(true);
+
+            //Assert
+            Assert.True(_candleStickSyncSignal.IsThrottled());
+        }
+
+        [Fact]
+        public void Throttle_False()
+        {
+            //Setup
+            _candleStickSyncSignal.StartSync();
+
+            //Act
+            _candleStickSyncSignal.Throttle(true);
+            _candleStickSyncSignal.Throttle(false);
+
+            //Assert
+            Assert.False(_candleStickSyncSignal.IsThrottled());
+        }
+
+        [Fact]
         public void CloseSync()
         {
             //Setup
@@ -49,6 +77,7 @@ namespace Waffler.Test.Service.Infrastructure
             //Assert
             Assert.False(_candleStickSyncSignal.IsAbortRequested());
             Assert.False(_candleStickSyncSignal.IsActive());
+            Assert.False(_candleStickSyncSignal.IsThrottled());
         }
 
         [Fact]
