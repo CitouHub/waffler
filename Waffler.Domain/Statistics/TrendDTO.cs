@@ -18,6 +18,11 @@ namespace Waffler.Domain.Statistics
 
                 return change;
             }
-        }       
+        }
+
+        public override string ToString()
+        {
+            return $"{FromPrice} to {ToPrice}, {Change}";
+        }
     }
 }

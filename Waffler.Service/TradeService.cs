@@ -46,7 +46,7 @@ namespace Waffler.Service
 
         public async Task<TradeRuleEvaluationDTO> HandleTradeRuleAsync(TradeRuleDTO tradeRule, DateTime currentPeriodDateTime)
         {
-            _logger.LogInformation($"Handling trade rule {tradeRule.Name}");
+            _logger.LogInformation($"Handling trade rule \"{tradeRule.Name}\"");
 
             if (CanHandleTradeRule(tradeRule, currentPeriodDateTime))
             {

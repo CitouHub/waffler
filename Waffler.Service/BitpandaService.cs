@@ -157,12 +157,12 @@ namespace Waffler.Service
                 }
                 else
                 {
-                    _logger.LogWarning($"Unable to place order for rule {tradeRule.Name}, insufficient balance, EUR: {buyBalance?.Available}, BTC: {sellBalance?.Available}");
+                    _logger.LogWarning($"Unable to place order for rule \"{tradeRule.Name}\", insufficient balance, EUR: {buyBalance?.Available}, BTC: {sellBalance?.Available}");
                 }
             }
             else
             {
-                _logger.LogWarning($"Unable to place order for rule {tradeRule.Name}, trade action is disabled of API-key is missing");
+                _logger.LogWarning($"Unable to place order for rule \"{tradeRule.Name}\", trade action is disabled of API-key is missing");
             }
 
             return null;

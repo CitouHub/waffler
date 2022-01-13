@@ -33,7 +33,7 @@ namespace Waffler.Service
             _logger = logger;
             _httpClient = httpClientFactory.CreateClient("Github");
             Owner = _configuration.GetValue<string>("Github:Owner");
-            _logger.LogDebug("GithubService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
         public async Task<string> GetLatestReleaseAsync()

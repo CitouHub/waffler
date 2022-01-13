@@ -87,14 +87,14 @@ namespace Waffler.Service.Background
 
                         foreach (var tradeRule in tradeRules.Where(_ => TestInProgress(_tradeRuleTestQueue, _.Id) == false))
                         {
-                            _logger.LogInformation($"Analysing trade rule {tradeRule.Name}");
+                            _logger.LogInformation($"Analysing trade rule \"{tradeRule.Name}\"");
                             if (cancellationToken.IsCancellationRequested == false)
                             {
                                 var result = await _tradeService.HandleTradeRuleAsync(tradeRule, lastCandleStick.PeriodDateTime);
                                 
                                 if(result != null)
                                 {
-                                    _logger.LogInformation($"Trade rule analyse result: {result.Id}:{result.Name}");
+                                    _logger.LogInformation($"Trade rule analyse result: \"{result.Name}\"");
                                     foreach (var tradeRuleCondition in result.TradeRuleCondtionEvaluations)
                                     {
                                         _logger.LogInformation($"Condition: {tradeRuleCondition.Id}: {tradeRuleCondition.Description} = {tradeRuleCondition.IsFullfilled}");

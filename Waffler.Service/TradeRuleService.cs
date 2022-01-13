@@ -49,7 +49,7 @@ namespace Waffler.Service
             _logger = logger;
             _context = context;
             _mapper = mapper;
-            _logger.LogDebug("TradeRuleService instantiated");
+            _logger.LogDebug("Instantiated");
         }
 
         public async Task<TradeRuleDTO> NewTradeRuleAsync()
