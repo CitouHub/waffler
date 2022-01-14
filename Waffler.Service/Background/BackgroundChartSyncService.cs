@@ -80,6 +80,7 @@ namespace Waffler.Service.Background
                 {
                     var _profileService = outerScope.ServiceProvider.GetRequiredService<IProfileService>();
                     var _bitpandaService = outerScope.ServiceProvider.GetRequiredService<IBitpandaService>();
+                    var _candleStickService = outerScope.ServiceProvider.GetRequiredService<ICandleStickService>();
                     var _mapper = outerScope.ServiceProvider.GetRequiredService<IMapper>();
 
                     _logger.LogInformation($"Setting initial parameters");
@@ -93,18 +94,18 @@ namespace Waffler.Service.Background
 
                     if (profile != null)
                     {
+                        _logger.LogInformation($"Getting last candlestick");
+                        var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.MaxValue))?.PeriodDateTime ??
+                            profile.CandleStickSyncFromDate;
+                        var fromDate = period.AddMilliseconds(1);
+                        var toDate = fromDate.AddMinutes(RequestSpanMinutes.TotalMinutes);
+
                         while (syncActive && cancellationToken.IsCancellationRequested == false && _candleStickSyncSignal.IsAbortRequested() == false)
                         {
                             _logger.LogDebug($"Setting up inner scoped services");
                             using (IServiceScope innerScope = _serviceProvider.CreateScope())
                             {
-                                var _candleStickService = innerScope.ServiceProvider.GetRequiredService<ICandleStickService>();
-
-                                _logger.LogInformation($"Getting last candlestick");
-                                var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.MaxValue))?.PeriodDateTime ??
-                                    profile.CandleStickSyncFromDate;
-                                var fromDate = period.AddMilliseconds(1);
-                                var toDate = fromDate.AddMinutes(RequestSpanMinutes.TotalMinutes);
+                                _candleStickService = innerScope.ServiceProvider.GetRequiredService<ICandleStickService>();
 
                                 _logger.LogInformation($"Fetch data from {fromDate} to {toDate}");
                                 var bp_candleSticksDTO = await _bitpandaService.GetCandleSticksAsync(
@@ -114,13 +115,15 @@ namespace Waffler.Service.Background
 
                                 if (bp_candleSticksDTO != null)
                                 {
-                                    var latestPeriod = bp_candleSticksDTO.OrderByDescending(_ => _.Time).FirstOrDefault();
-
                                     if (bp_candleSticksDTO.Any())
                                     {
                                         _logger.LogInformation($"Fetch successfull, {bp_candleSticksDTO.Count()} new candlesticks found");
                                         var cancleSticksDTO = _mapper.Map<List<CandleStickDTO>>(bp_candleSticksDTO);
                                         await _candleStickService.AddCandleSticksAsync(cancleSticksDTO);
+
+                                        fromDate = cancleSticksDTO.OrderByDescending(_ => _.PeriodDateTime).FirstOrDefault().PeriodDateTime.AddMilliseconds(1);
+                                        toDate = fromDate.AddMinutes(RequestSpanMinutes.TotalMinutes);
+
                                         _logger.LogDebug($"Data save successfull");
                                     }
                                     else
