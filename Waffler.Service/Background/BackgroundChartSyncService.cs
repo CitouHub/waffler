@@ -99,7 +99,7 @@ namespace Waffler.Service.Background
                             _logger.LogDebug($"Setting up inner scoped services");
                             using (IServiceScope innerScope = _serviceProvider.CreateScope())
                             {
-                                var _candleStickService = outerScope.ServiceProvider.GetRequiredService<ICandleStickService>();
+                                var _candleStickService = innerScope.ServiceProvider.GetRequiredService<ICandleStickService>();
 
                                 _logger.LogInformation($"Getting last candlestick");
                                 var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow))?.PeriodDateTime ??
