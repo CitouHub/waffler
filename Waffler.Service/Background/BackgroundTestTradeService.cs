@@ -71,7 +71,7 @@ namespace Waffler.Service.Background
 
             try
             {
-                _logger.LogInformation($"Setting up scoped services");
+                _logger.LogDebug($"Setting up scoped services");
                 using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
                     var _tradeRuleService = scope.ServiceProvider.GetRequiredService<ITradeRuleService>();
@@ -109,10 +109,9 @@ namespace Waffler.Service.Background
                             _.Description
                         }))
                         {
-                            var conditionName = $"{tradeRuleCondition.Key.Id}:{tradeRuleCondition.Key.Description}";
                             var conditions = tradeRuleCondition.Count();
                             var fullfilled = tradeRuleCondition.Count(_ => _.IsFullfilled == true);
-                            _logger.LogInformation($"Condition: \"{conditionName}\" = {fullfilled}/{conditions}");
+                            _logger.LogInformation($"Condition: \"{tradeRuleCondition.Key.Description}\" = {fullfilled}/{conditions}");
                         }
 
                         var updated = await _tradeRuleService.UpdateTradeRuleAsync(originalTradeRule);
