@@ -76,7 +76,12 @@ const TradeChart = () => {
 
         TradeOrderService.getTradeOrderStatuses().then((result) => {
             setTradeOrderStatuses(result);
-            setSelectedTradeOrderStatuses(result);
+            setSelectedTradeOrderStatuses(result.filter(tradeOrderStatus => {
+                //Remove status Closed and Test
+                if (tradeOrderStatus.id !== 8 && tradeOrderStatus.id !== 10) {
+                    return tradeOrderStatus;
+                }
+            }));
         });
 
         return () => {
