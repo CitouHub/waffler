@@ -52,41 +52,39 @@ const Profile = () => {
     return (
         <div>
             <LoadingBar active={loading} />
-            {!loading &&
-                <div className='mt-3 mb-3'>
-                    <h4>Profile</h4>
-                    <div className="mt-3 mb-3">
-                        <div>
-                            <TextField sx={{ width: '100%' }} id="api-key-textfield" label="Api key" variant="outlined" type="text" value={profile.apiKey} multiline rows={6}
-                                onChange={e => setProfile({ ...profile, apiKey: e.target.value })} />
-                        </div>
-                        <div className='get-api-key'>
-                            <a href="https://exchange.bitpanda.com/account/keys" target="_blank" rel="noopener noreferrer">Get you Api key here</a>
-                        </div>
-                    </div>
-                    <div className="mt-3 mb-3 sync-control">
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <DatePicker
-                                id="candlestick-sync-fromDate"
-                                label="Sync data from"
-                                value={profile?.candleStickSyncFromDate}
-                                maxDate={new Date()}
-                                onChange={newDate => setProfile({ ...profile, candleStickSyncFromDate: newDate })}
-                                mask="____-__-__"
-                                inputFormat="yyyy-MM-dd"
-                                renderInput={(params) => <TextField {...params} />}
-                            />
-                        </LocalizationProvider>
-                        <div className='stepback-center'>
-                            <span className='fa-icon' onClick={resetSync}><FontAwesomeIcon icon={faStepBackward} className="mr-2" /></span>
-                        </div>
-                    </div>
+            <div className='mt-3 mb-3'>
+                <h4>Profile</h4>
+                <div className="mt-3 mb-3">
                     <div>
-                        <Button className='mr-2' variant="contained" onClick={saveProfile} disabled={loading}>Save changes</Button>
-                        <Button className='mr-2' variant="contained" onClick={() => setDialogOpen(true)} disabled={loading}>Change password</Button>
+                        <TextField sx={{ width: '100%' }} id="api-key-textfield" label="Api key" variant="outlined" type="text" value={profile.apiKey} multiline rows={6}
+                            onChange={e => setProfile({ ...profile, apiKey: e.target.value })} />
+                    </div>
+                    <div className='get-api-key'>
+                        <a href="https://exchange.bitpanda.com/account/keys" target="_blank" rel="noopener noreferrer">Get you Api key here</a>
                     </div>
                 </div>
-            }
+                <div className="mt-3 mb-3 sync-control">
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            id="candlestick-sync-fromDate"
+                            label="Sync data from"
+                            value={profile?.candleStickSyncFromDate}
+                            maxDate={new Date()}
+                            onChange={newDate => setProfile({ ...profile, candleStickSyncFromDate: newDate })}
+                            mask="____-__-__"
+                            inputFormat="yyyy-MM-dd"
+                            renderInput={(params) => <TextField {...params} />}
+                        />
+                    </LocalizationProvider>
+                    <div className='stepback-center'>
+                        <span className='fa-icon' onClick={resetSync}><FontAwesomeIcon icon={faStepBackward} className="mr-2" /></span>
+                    </div>
+                </div>
+                <div>
+                    <Button className='mr-2' variant="contained" onClick={saveProfile} disabled={loading}>Save changes</Button>
+                    <Button className='mr-2' variant="contained" onClick={() => setDialogOpen(true)} disabled={loading}>Change password</Button>
+                </div>
+            </div>
             <ChangePasswordDialog dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} />
         </div>
     )
