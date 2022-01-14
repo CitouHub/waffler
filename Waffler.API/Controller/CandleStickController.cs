@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +48,7 @@ namespace Waffler.API.Controller
             if(_candleStickSyncSignal.IsActive())
             {
                 _candleStickSyncSignal.Abort();
-                await _candleStickSyncSignal.AwaitAbortAsync();
+                await _candleStickSyncSignal.AwaitAbortAsync(new CancellationToken());
             }
             await _candleStickService.ResetCandleStickDataAsync();
         }

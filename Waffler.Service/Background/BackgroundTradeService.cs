@@ -8,40 +8,34 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using Waffler.Service.Infrastructure;
-using Waffler.Service.Util;
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
 namespace Waffler.Service.Background
 {
     public class BackgroundTradeService : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BackgroundTradeService> _logger;
-        private readonly IDatabaseSetupSignal _databaseSetupSignal;
-        private readonly TimeSpan RequestPeriod = TimeSpan.FromMinutes(5);
-        private readonly TimeSpan RetryRequestPeriod = TimeSpan.FromMinutes(1);
-        private readonly object StartUpLock = new object();
-
-        private Timer _timer;
-        private bool InProgress = false;
+        private readonly ICandleStickSyncSignal _candleStickSyncSignal;
 
         public BackgroundTradeService(
             ILogger<BackgroundTradeService> logger,
             IServiceProvider serviceProvider,
-            IDatabaseSetupSignal databaseSetupSignal)
+            ICandleStickSyncSignal candleStickSyncSignal)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
-            _databaseSetupSignal = databaseSetupSignal;
+            _candleStickSyncSignal = candleStickSyncSignal;
             _logger.LogDebug("Instantiated");
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
-
-            if(!cancellationToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                _timer = new Timer(async _ => await HandleTradeRulesAsync(cancellationToken), null, TimeSpan.FromSeconds(0), RequestPeriod);
+                _logger.LogInformation($"Waiting for candle stick data to be fully synced...");
+                await _candleStickSyncSignal.AwaitSyncCompleteAsync(cancellationToken);
+                await HandleTradeRulesAsync(cancellationToken);
             }
         }
 
@@ -54,19 +48,6 @@ namespace Waffler.Service.Background
         public async Task HandleTradeRulesAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Analysing price trends for trade rules");
-            lock (StartUpLock)
-            {
-                if (InProgress)
-                {
-                    _logger.LogInformation($"Analysing price trends for trade rules already in progress");
-                    return;
-                }
-
-                InProgress = true;
-            }
-
-            _logger.LogInformation($"Waiting for database to be ready");
-            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
             try
             {
                 _logger.LogDebug($"Setting up scoped services");
@@ -80,48 +61,36 @@ namespace Waffler.Service.Background
                     _logger.LogInformation($"Preparing analyse");
                     var lastCandleStick = await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow);
 
-                    if (DataSyncHandler.IsDataSynced(lastCandleStick))
-                    {
-                        _logger.LogInformation($"Getting trade rules");
-                        var tradeRules = await _tradeRuleService.GetTradeRulesAsync();
+                    _logger.LogInformation($"Getting trade rules");
+                    var tradeRules = await _tradeRuleService.GetTradeRulesAsync();
 
-                        foreach (var tradeRule in tradeRules.Where(_ => TestInProgress(_tradeRuleTestQueue, _.Id) == false))
+                    foreach (var tradeRule in tradeRules.Where(_ => TestInProgress(_tradeRuleTestQueue, _.Id) == false))
+                    {
+                        _logger.LogInformation($"Analysing trade rule \"{tradeRule.Name}\"");
+                        if (cancellationToken.IsCancellationRequested == false)
                         {
-                            _logger.LogInformation($"Analysing trade rule \"{tradeRule.Name}\"");
-                            if (cancellationToken.IsCancellationRequested == false)
+                            var result = await _tradeService.HandleTradeRuleAsync(tradeRule, lastCandleStick.PeriodDateTime);
+
+                            if (result != null)
                             {
-                                var result = await _tradeService.HandleTradeRuleAsync(tradeRule, lastCandleStick.PeriodDateTime);
-                                
-                                if(result != null)
+                                _logger.LogInformation($"Trade rule analyse result: \"{result.Name}\"");
+                                foreach (var tradeRuleCondition in result.TradeRuleCondtionEvaluations)
                                 {
-                                    _logger.LogInformation($"Trade rule analyse result: \"{result.Name}\"");
-                                    foreach (var tradeRuleCondition in result.TradeRuleCondtionEvaluations)
-                                    {
-                                        _logger.LogInformation($"Condition: \"{tradeRuleCondition.Description}\" = {tradeRuleCondition.IsFullfilled}");
-                                    }
-                                } 
-                                else
-                                {
-                                    _logger.LogInformation($"Trade rule not applicable");
+                                    _logger.LogInformation($"Condition: \"{tradeRuleCondition.Description}\" = {tradeRuleCondition.IsFullfilled}");
                                 }
                             }
-
-                            _timer.Change(RequestPeriod, RequestPeriod);
+                            else
+                            {
+                                _logger.LogInformation($"Trade rule not applicable");
+                            }
                         }
                     }
-                    else
-                    {
-                        _logger.LogWarning($"Unable to do analasys, insufficient data");
-                        _timer.Change(RetryRequestPeriod, RequestPeriod);
-                    }
                 }
-            } 
-            catch(Exception e)
+            }
+            catch (Exception e)
             {
                 _logger.LogError(e, $"Unexpected exception");
             }
-
-            InProgress = false;
 
             _logger.LogInformation($"Analysing price trends for trade rules finished");
         }
