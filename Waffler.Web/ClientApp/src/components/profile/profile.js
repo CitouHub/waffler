@@ -70,7 +70,10 @@ const Profile = () => {
                             label="Sync data from"
                             value={profile?.candleStickSyncFromDate}
                             maxDate={new Date()}
-                            onChange={newDate => setProfile({ ...profile, candleStickSyncFromDate: newDate })}
+                            onChange={newDate => {
+                                newDate.setTime(newDate.getTime() + (2*60*60*1000)); //Utc compensation
+                                setProfile({ ...profile, candleStickSyncFromDate: newDate })
+                            }}
                             mask="____-__-__"
                             inputFormat="yyyy-MM-dd"
                             renderInput={(params) => <TextField {...params} />}
