@@ -13,7 +13,7 @@ namespace Waffler.Test.Domain
         [InlineData(100, 1, 100)]
         [InlineData(100, 0.333333, 33.33)]
         [InlineData(100, 0.666666, 66.67)]
-        public void TotalValuee(decimal price, decimal filledAmount, decimal expectedTotalValue)
+        public void TotalValue(decimal price, decimal filledAmount, decimal expectedTotalValue)
         {
             //Act
             var trend = new TradeOrderDTO()

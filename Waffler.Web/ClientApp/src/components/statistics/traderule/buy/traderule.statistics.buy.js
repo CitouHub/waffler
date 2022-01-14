@@ -86,6 +86,7 @@ const TradeRuleBuyStatistics = () => {
                             <th>Invested</th>
                             <th>Avg. price</th>
                             <th>Change</th>
+                            <th>Return</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -99,6 +100,7 @@ const TradeRuleBuyStatistics = () => {
                                     <td>{stat.totalInvested} €</td>
                                     <td>{stat.averagePrice} €</td>
                                     <td className={stat.valueIncrease < 0 ? 'trend-down' : 'trend-up'}>{stat.valueIncrease} %</td>
+                                    <td className={stat.return < 0 ? 'trend-down' : 'trend-up'}>{stat.return} €</td>
                                 </tr>
                             );
                         })}

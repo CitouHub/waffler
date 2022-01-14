@@ -1,4 +1,6 @@
-﻿namespace Waffler.Domain.Statistics
+﻿using System;
+
+namespace Waffler.Domain.Statistics
 {
     public class TradeRuleBuyStatisticsDTO
 	{
@@ -11,5 +13,13 @@
 		public decimal TotalInvested { get; set; }
 		public decimal AveragePrice { get; set; }
 		public decimal ValueIncrease { get; set; }
+		public decimal Return 
+		{ 
+			get
+            {
+				return Math.Round(ValueIncrease / 100 * TotalInvested, 2);
+
+			}
+		}
 	}
 }
