@@ -69,7 +69,7 @@ namespace Waffler.Service.Background
             await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
             try
             {
-                _logger.LogInformation($"Setting up scoped services");
+                _logger.LogDebug($"Setting up scoped services");
                 using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
                     var _candleStickService = scope.ServiceProvider.GetRequiredService<ICandleStickService>();
@@ -97,7 +97,7 @@ namespace Waffler.Service.Background
                                     _logger.LogInformation($"Trade rule analyse result: \"{result.Name}\"");
                                     foreach (var tradeRuleCondition in result.TradeRuleCondtionEvaluations)
                                     {
-                                        _logger.LogInformation($"Condition: {tradeRuleCondition.Id}: {tradeRuleCondition.Description} = {tradeRuleCondition.IsFullfilled}");
+                                        _logger.LogInformation($"Condition: \"{tradeRuleCondition.Description}\" = {tradeRuleCondition.IsFullfilled}");
                                     }
                                 } 
                                 else

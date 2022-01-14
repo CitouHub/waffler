@@ -77,7 +77,7 @@ namespace Waffler.Service.Background
             await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
             try
             {
-                _logger.LogInformation($"Setting up scoped services");
+                _logger.LogDebug($"Setting up scoped services");
                 using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
                     var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();
@@ -195,7 +195,7 @@ namespace Waffler.Service.Background
             await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
             try
             {
-                _logger.LogInformation($"Setting up scoped services");
+                _logger.LogDebug($"Setting up scoped services");
                 using (IServiceScope scope = _serviceProvider.CreateScope())
                 {
                     var _profileService = scope.ServiceProvider.GetRequiredService<IProfileService>();

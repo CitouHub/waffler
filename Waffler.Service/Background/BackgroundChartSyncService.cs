@@ -76,7 +76,7 @@ namespace Waffler.Service.Background
             await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
             try
             {
-                _logger.LogInformation($"Setting up outer scoped services");
+                _logger.LogDebug($"Setting up outer scoped services");
                 using (IServiceScope outerScope = _serviceProvider.CreateScope())
                 {
                     var _profileService = outerScope.ServiceProvider.GetRequiredService<IProfileService>();
@@ -96,7 +96,7 @@ namespace Waffler.Service.Background
                     {
                         while (syncingData == true && cancellationToken.IsCancellationRequested == false && _candleStickSyncSignal.IsAbortRequested() == false)
                         {
-                            _logger.LogInformation($"Setting up inner scoped services");
+                            _logger.LogDebug($"Setting up inner scoped services");
                             using (IServiceScope innerScope = _serviceProvider.CreateScope())
                             {
                                 var _candleStickService = innerScope.ServiceProvider.GetRequiredService<ICandleStickService>();
@@ -123,7 +123,7 @@ namespace Waffler.Service.Background
                                         _logger.LogInformation($"Fetch successfull, {bp_candleSticksDTO.Count()} new candlesticks found");
                                         var cancleSticksDTO = _mapper.Map<List<CandleStickDTO>>(bp_candleSticksDTO);
                                         await _candleStickService.AddCandleSticksAsync(cancleSticksDTO);
-                                        _logger.LogInformation($"Data save successfull");
+                                        _logger.LogDebug($"Data save successfull");
                                     }
                                     else
                                     {

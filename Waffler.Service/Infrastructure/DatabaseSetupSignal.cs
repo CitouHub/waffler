@@ -86,7 +86,7 @@ namespace Waffler.Service.Infrastructure
                 }
                 else
                 {
-                    _logger.LogInformation($"Database {connection.Database} online, proceeding with migration");
+                    _logger.LogDebug($"Database {connection.Database} online");
                     await connection.CloseAsync();
                     break;
                 }
