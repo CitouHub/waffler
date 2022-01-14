@@ -108,10 +108,7 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, setRunning
     }
 
     const startTradeRuleTest = (tradeRuleTest) => {
-        let toDate = new Date(tradeRuleTest.toDate);
-        toDate.setDate(toDate.getDate() + 1);
-
-        TradeRuleService.startTradeRuleTest({ ...tradeRuleTest, tradeRuleId: tradeRule.id, toDate: toDate }).then((result) => {
+        TradeRuleService.startTradeRuleTest({ ...tradeRuleTest, tradeRuleId: tradeRule.id}).then((result) => {
             setStartTestDialogOpen(false);
             setRunningTest(true);
         });
