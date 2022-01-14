@@ -35,6 +35,8 @@ namespace Waffler.Service.Infrastructure
 
         public void QueueTest(TradeRuleTestRequestDTO tradeRuleTestRequest)
         {
+            tradeRuleTestRequest.FromDate = tradeRuleTestRequest.FromDate.Date;
+            tradeRuleTestRequest.ToDate = tradeRuleTestRequest.ToDate.AddDays(1).Date.AddMinutes(-1);
             _tradeRuleTestRequests.Enqueue(tradeRuleTestRequest);
             _queueSignal.Release();
         }
