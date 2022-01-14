@@ -85,7 +85,7 @@ namespace Waffler.Test.Service.Background
 
             //Asert
             _ = _profileService.Received().GetProfileAsync();
-            _ = _candleStickService.DidNotReceive().GetLastCandleStickAsync(Arg.Any<DateTime>());
+            _ = _candleStickService.Received().GetLastCandleStickAsync(Arg.Any<DateTime>());
             _candleStickSyncSignal.Received().StartSync();
             _candleStickSyncSignal.Received().IsAbortRequested();
             _candleStickSyncSignal.Received().CloseSync();
@@ -153,8 +153,8 @@ namespace Waffler.Test.Service.Background
 
             _bitpandaService.GetCandleSticksAsync(
                 Arg.Is(Bitpanda.InstrumentCode.BTC_EUR), Arg.Is(Bitpanda.Period.MINUTES), 1,
-                Arg.Is<DateTime>(_ => _.Date == candleStick.PeriodDateTime.Date),
-                Arg.Is<DateTime>(_ => _ > candleStick.PeriodDateTime))
+                Arg.Any<DateTime>(),
+                Arg.Any<DateTime>())
                 .Returns(
                     _ => BitpandaHelper.GetCandleSticks(nbrOfCandleSticks), 
                     _ => BitpandaHelper.GetCandleSticks(0));
@@ -164,11 +164,11 @@ namespace Waffler.Test.Service.Background
 
             //Asert
             _ = _profileService.Received(1).GetProfileAsync();
-            _ = _candleStickService.Received(2).GetLastCandleStickAsync(Arg.Any<DateTime>());
+            _ = _candleStickService.Received(1).GetLastCandleStickAsync(Arg.Any<DateTime>());
             _ = _bitpandaService.Received(2).GetCandleSticksAsync(
                 Arg.Is(Bitpanda.InstrumentCode.BTC_EUR), Arg.Is(Bitpanda.Period.MINUTES), 1,
-                Arg.Is<DateTime>(_ => _.Date == candleStick.PeriodDateTime.Date),
-                Arg.Is<DateTime>(_ => _ > candleStick.PeriodDateTime));
+                Arg.Any<DateTime>(),
+                Arg.Any<DateTime>());
             _ = _candleStickService.Received(1).AddCandleSticksAsync(Arg.Is<List<CandleStickDTO>>(_ => _.Count == nbrOfCandleSticks));
             _candleStickSyncSignal.Received(1).StartSync();
             _candleStickSyncSignal.Received(2).IsAbortRequested();
