@@ -26,7 +26,7 @@ namespace Waffler.Test.Service.Background
         private readonly ITradeRuleService _tradeRuleService = Substitute.For<ITradeRuleService>();
         private readonly ITradeService _tradeService = Substitute.For<ITradeService>();
         private readonly ICandleStickService _candleStickService = Substitute.For<ICandleStickService>();
-        private readonly IDatabaseSetupSignal _databaseSetupSignal = Substitute.For<IDatabaseSetupSignal>();
+        private readonly ICandleStickSyncSignal _candleStickSyncSignal = Substitute.For<ICandleStickSyncSignal>();
         private readonly ITradeRuleTestQueue _tradeRuleTestQueue = Substitute.For<ITradeRuleTestQueue>();
         private readonly BackgroundTradeService _backgroundTradeService;
 
@@ -56,7 +56,7 @@ namespace Waffler.Test.Service.Background
             _serviceScope.ServiceProvider.GetRequiredService<ICandleStickService>().Returns(_candleStickService);
             _serviceScope.ServiceProvider.GetRequiredService<ITradeRuleTestQueue>().Returns(_tradeRuleTestQueue);
 
-            _backgroundTradeService = new BackgroundTradeService(logger, _serviceProvider, _databaseSetupSignal);
+            _backgroundTradeService = new BackgroundTradeService(logger, _serviceProvider, _candleStickSyncSignal);
         }
 
         [Fact]

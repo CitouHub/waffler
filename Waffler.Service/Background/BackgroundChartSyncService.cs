@@ -27,7 +27,6 @@ namespace Waffler.Service.Background
         private readonly TimeSpan RequestSpanMinutes = TimeSpan.FromHours(6);
         private readonly string Period = Bitpanda.Period.MINUTES;
         private readonly short PeriodMinutes = 1;
-        private readonly int NearEndSaveLimit = 5;
         private readonly int RequestLimit = 180;
         private readonly int RequestPeriodSeconds = 60;
         private readonly object StartUpLock = new object();
@@ -84,7 +83,7 @@ namespace Waffler.Service.Background
                     var _mapper = outerScope.ServiceProvider.GetRequiredService<IMapper>();
 
                     _logger.LogInformation($"Setting initial parameters");
-                    var syncingData = true;
+                    var syncActive = true;
                     var requestCount = 0;
                     var startTime = DateTime.UtcNow;
                     var profile = await _profileService.GetProfileAsync();
@@ -94,7 +93,7 @@ namespace Waffler.Service.Background
 
                     if (profile != null)
                     {
-                        while (syncingData == true && cancellationToken.IsCancellationRequested == false && _candleStickSyncSignal.IsAbortRequested() == false)
+                        while (syncActive && cancellationToken.IsCancellationRequested == false && _candleStickSyncSignal.IsAbortRequested() == false)
                         {
                             _logger.LogDebug($"Setting up inner scoped services");
                             using (IServiceScope innerScope = _serviceProvider.CreateScope())
@@ -102,7 +101,7 @@ namespace Waffler.Service.Background
                                 var _candleStickService = innerScope.ServiceProvider.GetRequiredService<ICandleStickService>();
 
                                 _logger.LogInformation($"Getting last candlestick");
-                                var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.UtcNow))?.PeriodDateTime ??
+                                var period = (await _candleStickService.GetLastCandleStickAsync(DateTime.MaxValue))?.PeriodDateTime ??
                                     profile.CandleStickSyncFromDate;
                                 var fromDate = period.AddMilliseconds(1);
                                 var toDate = fromDate.AddMinutes(RequestSpanMinutes.TotalMinutes);
@@ -116,9 +115,8 @@ namespace Waffler.Service.Background
                                 if (bp_candleSticksDTO != null)
                                 {
                                     var latestPeriod = bp_candleSticksDTO.OrderByDescending(_ => _.Time).FirstOrDefault();
-                                    var saveLimit = latestPeriod == null || (DateTime.UtcNow - latestPeriod.Time).TotalMinutes > 60 ? 0 : NearEndSaveLimit;
 
-                                    if (bp_candleSticksDTO.Count() > saveLimit)
+                                    if (bp_candleSticksDTO.Any())
                                     {
                                         _logger.LogInformation($"Fetch successfull, {bp_candleSticksDTO.Count()} new candlesticks found");
                                         var cancleSticksDTO = _mapper.Map<List<CandleStickDTO>>(bp_candleSticksDTO);
@@ -128,13 +126,14 @@ namespace Waffler.Service.Background
                                     else
                                     {
                                         _logger.LogInformation($"Fetch successfull, no new data found, stop sync");
-                                        syncingData = false;
+                                        _candleStickSyncSignal.SyncComplete();
+                                        syncActive = false;
                                     }
                                 }
                                 else
                                 {
                                     _logger.LogInformation($"Fetch failed, API unavailable");
-                                    syncingData = false;
+                                    syncActive = false;
                                 }
 
                                 if (requestCount >= RequestLimit)

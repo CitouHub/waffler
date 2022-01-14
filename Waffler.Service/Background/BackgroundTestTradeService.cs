@@ -12,6 +12,7 @@ using Waffler.Domain;
 using Waffler.Domain.Message;
 using Waffler.Service.Infrastructure;
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
 namespace Waffler.Service.Background
 {
     public class BackgroundTestTradeService : BackgroundService

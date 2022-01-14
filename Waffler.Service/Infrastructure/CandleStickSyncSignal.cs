@@ -7,21 +7,25 @@ namespace Waffler.Service.Infrastructure
     {
         void StartSync();
         void Abort();
+        void Throttle(bool throttled);
         bool IsActive();
         bool IsAbortRequested();
-        Task AwaitAbortAsync();
-        void CloseSync();
-        void Throttle(bool throttled);
         bool IsThrottled();
+        void SyncComplete();
+        void CloseSync();        
+        Task AwaitAbortAsync(CancellationToken cancellationToken);
+        Task AwaitSyncCompleteAsync(CancellationToken cancellationToken);
     }
 
     public class CandleStickSyncSignal : ICandleStickSyncSignal
     {
+        private readonly SemaphoreSlim AbortSignal = new SemaphoreSlim(0);
+        private readonly SemaphoreSlim SyncSignal = new SemaphoreSlim(0);
         private readonly object SyncLock = new object();
+
         private bool Active = false;
         private bool Throttled = false;
         private bool AbortCurrentSync = false;
-        private SemaphoreSlim SyncSignal = new SemaphoreSlim(0);
 
         public void StartSync()
         {
@@ -30,7 +34,6 @@ namespace Waffler.Service.Infrastructure
                 Active = true;
                 Throttled = false;
                 AbortCurrentSync = false;
-                SyncSignal = new SemaphoreSlim(0);
             }
         }
 
@@ -59,9 +62,9 @@ namespace Waffler.Service.Infrastructure
             return AbortCurrentSync;
         }
 
-        public async Task AwaitAbortAsync()
+        public void SyncComplete()
         {
-            await SyncSignal.WaitAsync();
+            SyncSignal.Release();
         }
 
         public void CloseSync()
@@ -71,8 +74,18 @@ namespace Waffler.Service.Infrastructure
                 Active = false;
                 Throttled = false;
                 AbortCurrentSync = false;
-                SyncSignal.Release();
+                AbortSignal.Release();
             }
+        }
+
+        public async Task AwaitAbortAsync(CancellationToken cancellationToken)
+        {
+            await AbortSignal.WaitAsync(cancellationToken);
+        }
+
+        public async Task AwaitSyncCompleteAsync(CancellationToken cancellationToken)
+        {
+            await SyncSignal.WaitAsync(cancellationToken);
         }
     }
 }
