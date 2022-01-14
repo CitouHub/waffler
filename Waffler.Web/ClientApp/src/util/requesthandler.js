@@ -7,6 +7,7 @@ axios.interceptors.response.use(response => {
 }, error => {
     if (error.response.status === 401) {
         Cache.set('isAuthenticated', false);
+        window.location.href = '/';
     }
 });
 
@@ -36,16 +37,10 @@ export default {
             if (response) {
                 if (response.status === 200) {
                     return response.data;
-                } else if (response.status === 401) {
-                    Cache.set('isAuthenticated', false);
-                    console.warn("Session expired");
-                }
-                else if (response.status !== 204) {
+                } else if (response.status !== 204) {
                     console.warn("Unexpected API result!");
                     console.warn(response);
                 }
-            } else {
-                console.warn("Unexpected NULL response from API");
             }
         } catch (error) {
             console.error(error);
