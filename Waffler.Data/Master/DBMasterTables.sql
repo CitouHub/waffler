@@ -149,7 +149,7 @@ CREATE TABLE [dbo].[TradeRule](
 	[TradeRuleStatusId] [smallint] DEFAULT(1) NOT NULL,
 	[CandleStickValueTypeId] [smallint] NOT NULL,
 	[Name] [nvarchar](50) NOT NULL,
-	[Amount] [decimal](10,8) NOT NULL,
+	[Amount] [decimal](10,2) NOT NULL,
 	[PriceDeltaPercent] [decimal](6,4) NOT NULL DEFAULT(0.0),
 	[TradeMinIntervalMinutes] [int] NOT NULL,
 	[TradeOrderExpirationMinutes] [int] NULL,
