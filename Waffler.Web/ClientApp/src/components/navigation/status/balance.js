@@ -25,7 +25,7 @@ const Balance = () => {
                 setBalance(value);
                 setLoading(false);
 
-                setTimeout(() => updateBalance(), 10000);
+                setTimeout(() => updateBalance(), 30000);
             }
         });
     }
