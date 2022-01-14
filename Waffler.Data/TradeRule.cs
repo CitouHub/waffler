@@ -24,7 +24,7 @@ namespace Waffler.Data
         public short TradeRuleStatusId { get; set; }
         public short CandleStickValueTypeId { get; set; }
         public string Name { get; set; }
-        public decimal Amount { get; set; }
+        public decimal? Amount { get; set; }
         public decimal PriceDeltaPercent { get; set; }
         public int TradeMinIntervalMinutes { get; set; }
         public int? TradeOrderExpirationMinutes { get; set; }
