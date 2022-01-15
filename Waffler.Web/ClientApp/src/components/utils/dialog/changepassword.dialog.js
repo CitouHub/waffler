@@ -10,7 +10,7 @@ import ProfileService from '../../../services/profile.service';
 
 import './dialog.css';
 
-const ChangePasswordDialog = ({ dialogOpen, setDialogOpen }) => {
+const ChangePasswordDialog = ({ dialogOpen, setDialogOpen, passwordUpdated }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState();
     const [password, setPassword] = useState({
@@ -24,6 +24,7 @@ const ChangePasswordDialog = ({ dialogOpen, setDialogOpen }) => {
             setLoading(true);
             ProfileService.updatePassword(password).then((result) => {
                 if (result === true) {
+                    passwordUpdated();
                     setDialogOpen(false);
                 } else {
                     setError('Incorrect password');

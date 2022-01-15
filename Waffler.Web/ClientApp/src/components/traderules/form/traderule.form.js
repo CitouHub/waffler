@@ -8,7 +8,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import TimeUnit from './timeunit';
 import TradeRuleActionMenu from './traderule.action.menu';
 import LoadingBar from '../../utils/loadingbar';
-import NotificationMessage from '../../utils/notification.message'
+import NotificationMessage from '../../utils/notification.message';
 import TradeRuleTestDialog from '../../utils/dialog/traderuletest.dialog';
 import ConfirmDialog from '../../utils/dialog/confirm.dialog';
 
