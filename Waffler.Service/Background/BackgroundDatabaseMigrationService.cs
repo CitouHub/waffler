@@ -103,16 +103,27 @@ namespace Waffler.Service.Background
 
         private async Task<bool> DatabaseExists(SqlConnection connection)
         {
-            try
+            var tries = 0;
+            var maxTries = 3;
+            while(tries < maxTries)
             {
-                _logger.LogInformation($"Checking database {connection.Database} status");
-                await connection.OpenAsync();
-                var databaseExists = connection.State == ConnectionState.Open;
-                await connection.CloseAsync();
+                try
+                {
+                    _logger.LogInformation($"Checking database {connection.Database} status");
+                    await connection.OpenAsync();
+                    var connectionOpen = connection.State == ConnectionState.Open;
+                    await connection.CloseAsync();
 
-                return databaseExists;
+                    if(connectionOpen)
+                    {
+                        return true;
+                    }
+                }
+                catch { }
+
+                tries++;
+                Thread.Sleep(2000);
             }
-            catch { }
 
             return false;
         }
