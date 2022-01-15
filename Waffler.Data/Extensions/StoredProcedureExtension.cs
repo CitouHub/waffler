@@ -29,12 +29,16 @@ namespace Waffler.Data.Extensions
         public static async Task<List<sp_getTradeRuleBuyStatistics_Result>> sp_getTradeRuleBuyStatistics(this WafflerDbContext context,
             DateTime fromPeriodDateTime,
             DateTime toPeriodDateTime,
-            short statisticsMode)
+            short tradeTypeId,
+            string tradeRules,
+            string tradeOrderStatuses)
         {
             var expr = $"exec sp_getTradeRuleBuyStatistics " +
                 $"'{fromPeriodDateTime:yyyy-MM-dd HH:mm:ss}', " +
                 $"'{toPeriodDateTime:yyyy-MM-dd HH:mm:ss}', " +
-                $"{statisticsMode}";
+                $"{tradeTypeId}, " +
+                $"'{tradeRules}', " +
+                $"'{tradeOrderStatuses}'";
 
             return await context.Set<sp_getTradeRuleBuyStatistics_Result>().FromSqlRaw(expr).ToListAsync();
         }

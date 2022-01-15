@@ -18,21 +18,17 @@ import TradeOrderService from '../../services/tradeorder.service';
 import TradeRuleService from '../../services/traderule.service';
 
 const TradeOrders = () => {
-    let fromDate = new Date();
-    let toDate = new Date();
-    fromDate.setDate(fromDate.getDate() - 90);
-
     const [loading, setLoading] = useState(true);
     const [tradeOrders, setTradeOrders] = useState([]);
     const [tradeOrdersDisplay, setTradeOrdersDisplay] = useState([]);
     const [tradeRules, setTradeRules] = useState([]);
-    const [selectedTradeRules, setSelectedTradeRules] = useState([]);
     const [tradeOrderStatuses, setTradeOrderStatuses] = useState([]);
-    const [selectedTradeOrderStatuses, setSelectedTradeOrderStatuses] = useState([]);
     const [selectedTradeOrder, setSelectedTradeOrder] = useState({});
     const [filter, setFilter] = useState({
-        fromDate: fromDate,
-        toDate: toDate
+        fromDate: null,
+        toDate: new Date(),
+        selectedTradeRules: [],
+        selectedTradeOrderStatuses: [],
     });
 
     useEffect(() => {
@@ -42,17 +38,10 @@ const TradeOrders = () => {
                 name: 'Manual'
             });
             setTradeRules(result);
-            setSelectedTradeRules(result);
         });
 
         TradeOrderService.getTradeOrderStatuses().then((result) => {
             setTradeOrderStatuses(result);
-            setSelectedTradeOrderStatuses(result.filter(tradeOrderStatus => {
-                //Remove status Closed and Test
-                if (tradeOrderStatus.id !== 8 && tradeOrderStatus.id !== 10) {
-                    return tradeOrderStatus;
-                }
-            }));
         });
     }, []);
 
@@ -61,20 +50,22 @@ const TradeOrders = () => {
     }, [filter]);
 
     const updateTradeOrders = () => {
-        setLoading(true);
-        let toDate = new Date(filter.toDate);
-        toDate.setDate(toDate.getDate() + 1);
+        if (filter.fromDate && filter.toDate) {
+            setLoading(true);
+            let toDate = new Date(filter.toDate);
+            toDate.setDate(toDate.getDate() + 1);
 
-        TradeOrderService.getTradeOrders(filter.fromDate, toDate).then((tradeOrdersResult) => {
-            if (tradeOrdersResult && tradeOrdersResult.length > 0) {
-                tradeOrdersResult.forEach((e) => {
-                    e.orderDateTime = new Date(e.orderDateTime);
-                });
-            }
+            TradeOrderService.getTradeOrders(filter.fromDate, toDate).then((tradeOrdersResult) => {
+                if (tradeOrdersResult && tradeOrdersResult.length > 0) {
+                    tradeOrdersResult.forEach((e) => {
+                        e.orderDateTime = new Date(e.orderDateTime);
+                    });
+                }
 
-            setTradeOrders(tradeOrdersResult);
-            setLoading(false);
-        });
+                setTradeOrders(tradeOrdersResult);
+                setLoading(false);
+            });
+        }
     }
 
     useEffect(() => {
@@ -82,15 +73,15 @@ const TradeOrders = () => {
             const tradeOrdersUpdate = [];
 
             tradeOrders.forEach((tradeOrder) => {
-                if (selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0 &&
-                    selectedTradeOrderStatuses.filter(s => s.id === tradeOrder.tradeOrderStatusId).length > 0) {
+                if (filter.selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0 &&
+                    filter.selectedTradeOrderStatuses.filter(s => s.id === tradeOrder.tradeOrderStatusId).length > 0) {
                     tradeOrdersUpdate.push(tradeOrder);
                 }
             });
 
             setTradeOrdersDisplay(tradeOrdersUpdate);
         }
-    }, [selectedTradeRules, selectedTradeOrderStatuses, tradeOrders]);
+    }, [filter.selectedTradeRules, filter.selectedTradeOrderStatuses, tradeOrders]);
 
     const setTradeRule = (tradeOrderId, tradeRuleId) => {
         setLoading(true);
@@ -135,11 +126,7 @@ const TradeOrders = () => {
                     filter={filter}
                     updateFilter={(filter) => setFilter(filter)}
                     tradeRules={tradeRules}
-                    selectedTradeRules={selectedTradeRules}
-                    updateSelectedTradeRules={(selectedTradeRules) => setSelectedTradeRules(selectedTradeRules)}
                     tradeOrderStatuses={tradeOrderStatuses}
-                    selectedTradeOrderStatuses={selectedTradeOrderStatuses}
-                    updateSelectedTradeStatuses={(selectedTradeOrderStatuses) => setSelectedTradeOrderStatuses(selectedTradeOrderStatuses)}
                 />
             </div>
             {loading === false && tradeOrders && tradeOrdersDisplay.length > 0 && <div className='mt-4'>
@@ -187,7 +174,7 @@ const TradeOrders = () => {
                     tradeRules={tradeRules}
                     setTradeRule={setTradeRule} />
             </div>}
-            {tradeOrders && tradeOrdersDisplay.length === 0 && <div className='mt-4'>
+            {loading === false && tradeOrders && tradeOrdersDisplay.length === 0 && <div className='mt-4'>
                 <h5 className="text-center">No orders found</h5>
             </div>}
         </div>
