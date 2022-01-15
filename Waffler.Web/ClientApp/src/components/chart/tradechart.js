@@ -31,9 +31,6 @@ import './chart.css';
 
 const TradeChart = () => {
     let syncActive = true;
-    let fromDate = new Date();
-    let toDate = new Date();
-    fromDate.setDate(fromDate.getDate() - 90);
 
     const [loading, setLoading] = useState(true);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -42,12 +39,12 @@ const TradeChart = () => {
     const [candleSticksChart, setCandleSticksChart] = useState([]);
     const [tradeOrders, setTradeOrders] = useState([]);
     const [tradeRules, setTradeRules] = useState([]);
-    const [selectedTradeRules, setSelectedTradeRules] = useState([]);
     const [tradeOrderStatuses, setTradeOrderStatuses] = useState([]);
-    const [selectedTradeOrderStatuses, setSelectedTradeOrderStatuses] = useState([]);
     const [filter, setFilter] = useState({
-        fromDate: fromDate,
-        toDate: toDate
+        fromDate: null,
+        toDate: new Date(),
+        selectedTradeRules: [],
+        selectedTradeOrderStatuses: [],
     });
 
     const canvasRef = useRef();
@@ -71,17 +68,10 @@ const TradeChart = () => {
                 name: 'Manual'
             });
             setTradeRules(result);
-            setSelectedTradeRules(result);
         });
 
         TradeOrderService.getTradeOrderStatuses().then((result) => {
             setTradeOrderStatuses(result);
-            setSelectedTradeOrderStatuses(result.filter(tradeOrderStatus => {
-                //Remove status Closed and Test
-                if (tradeOrderStatus.id !== 8 && tradeOrderStatus.id !== 10) {
-                    return tradeOrderStatus;
-                }
-            }));
         });
 
         return () => {
@@ -104,7 +94,7 @@ const TradeChart = () => {
         }
 
         updateCandleStickData();
-    }, [filter]);
+    }, [filter.fromDate, filter.toDate]);
 
     useEffect(() => {
         if (candleSticks.length === 0) {
@@ -129,8 +119,8 @@ const TradeChart = () => {
                         candleStick = candleSticksUpdate[candleSticksUpdate.length - 1];
                     }
 
-                    if (selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0 &&
-                        selectedTradeOrderStatuses.filter(s => s.id === tradeOrder.tradeOrderStatusId).length > 0) {
+                    if (filter.selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0 &&
+                        filter.selectedTradeOrderStatuses.filter(s => s.id === tradeOrder.tradeOrderStatusId).length > 0) {
                         candleStick.tradeOrder = tradeOrder;
                     }
                     else {
@@ -141,7 +131,7 @@ const TradeChart = () => {
 
             setCandleSticksChart(candleSticksUpdate);
         }
-    }, [selectedTradeRules, selectedTradeOrderStatuses, tradeOrders, candleSticks]);
+    }, [filter.selectedTradeRules, filter.selectedTradeOrderStatuses, tradeOrders, candleSticks]);
 
     const getCandleStickSyncStatus = () => {
         CandleStickService.getCandleSticksSyncStatus().then((syncStatus) => {
@@ -165,7 +155,7 @@ const TradeChart = () => {
     }
 
     const updateCandleStickData = () => {
-        if (syncStatus.finished) {
+        if (syncStatus.finished && filter.fromDate && filter.toDate) {
             setLoading(true);
             let toDate = new Date(filter.toDate);
             toDate.setDate(toDate.getDate() + 1);
@@ -230,11 +220,7 @@ const TradeChart = () => {
                         filter={filter}
                         updateFilter={(filter) => setFilter(filter)}
                         tradeRules={tradeRules}
-                        selectedTradeRules={selectedTradeRules}
-                        updateSelectedTradeRules={(selectedTradeRules) => setSelectedTradeRules(selectedTradeRules)}
                         tradeOrderStatuses={tradeOrderStatuses}
-                        selectedTradeOrderStatuses={selectedTradeOrderStatuses}
-                        updateSelectedTradeStatuses={(selectedTradeOrderStatuses) => setSelectedTradeOrderStatuses(selectedTradeOrderStatuses)}
                     />
                     {candleSticksChart && candleSticksChart.length > 0 && <ChartCanvas
                         height={dimensions.height - 150}

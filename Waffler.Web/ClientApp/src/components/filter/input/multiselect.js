@@ -19,7 +19,7 @@ const MenuProps = {
 const MultiSelect = ({ items, selectedItems, updateSelectedItems, label }) => {
     if (items !== undefined && items.length > 0) {
         return (
-            <div className="ml-4 mt-2 mb-2">
+            <div className="ml-2 mt-2 mb-2">
                 <FormControl sx={{ width: 300 }}>
                     <InputLabel id="multiselect-label">{label}</InputLabel>
                     <Select

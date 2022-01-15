@@ -1,9 +1,10 @@
 ﻿import React, { useState, useEffect } from "react";
-import StatisticsFilter from '../../../filter/statistics.filter';
+import TradeFilter from '../../../filter/trade.filter';
 import LoadingBar from '../../../utils/loadingbar';
 
-import CandleStickService from '../../../../services/candlestick.service';
 import StatisticsService from '../../../../services/statistics.service';
+import TradeRuleService from '../../../../services/traderule.service';
+import TradeOrderService from '../../../../services/tradeorder.service';
 
 import { ReactComponent as BTC } from '../../../../assets/images/svg/bitcoin.svg';
 import { ReactComponent as TrendUp } from '../../../../assets/images/svg/trend-up.svg';
@@ -12,51 +13,55 @@ import { ReactComponent as TrendDown } from '../../../../assets/images/svg/trend
 import '../../../statistics/statistics.css';
 
 const TradeRuleBuyStatistics = () => {
-    let toDate = new Date();
-
     const [loading, setLoading] = useState(true);
-    const [loadingPeriod, setloadingPeriod] = useState(true);
     const [statistics, setStatistics] = useState([]);
     const [trend, setTrend] = useState([]);
+    const [tradeRules, setTradeRules] = useState([]);
+    const [tradeOrderStatuses, setTradeOrderStatuses] = useState([]);
     const [filter, setFilter] = useState({
-        fromDate: toDate,
-        toDate: toDate,
-        statisticsMode: 1
+        fromDate: null,
+        toDate: new Date(),
+        selectedTradeRules: [],
+        selectedTradeOrderStatuses: [],
     });
 
     useEffect(() => {
-        setloadingPeriod(true);
-        CandleStickService.getFirstPeriod().then(result => {
-            let date = new Date();
-            date.setDate(date.getDate() - 90);
+        TradeRuleService.getTradeRules().then((result) => {
+            result.push({
+                id: 0,
+                name: 'Manual'
+            });
+            setTradeRules(result);
+        });
 
-            if (result) {
-                date = new Date(result);
-                date.setDate(date.getDate() + 1);
-            }
-            
-            setFilter({ ...filter, fromDate: date });
-            setloadingPeriod(false);
+        TradeOrderService.getTradeOrderStatuses().then((result) => {
+            setTradeOrderStatuses(result);
         });
     }, []);
 
     useEffect(() => {
-        if (loadingPeriod === false) {
+        if (filter.fromDate && filter.toDate) {
             setLoading(true);
 
             let toDate = new Date(filter.toDate);
             toDate.setDate(toDate.getDate() + 1);
 
-            var getTradeRuleBuyStatistics = StatisticsService.getTradeRuleBuyStatistics(filter.fromDate, toDate, filter.statisticsMode);
+            var tradeSelection = {
+                tradeRules: filter.selectedTradeRules.map(_ => _.id),
+                tradeOrderStatuses: filter.selectedTradeOrderStatuses.map(_ => _.id)
+            }
+
+            var getTradeRuleBuyStatistics = StatisticsService.getTradeRuleBuyStatistics(filter.fromDate, toDate, 1, tradeSelection);
             var getTrend = StatisticsService.getTrend(filter.fromDate, toDate, 1, 240);
 
             Promise.all([getTradeRuleBuyStatistics, getTrend]).then((result) => {
                 setStatistics(result[0]);
                 setTrend(result[1]);
+
                 setLoading(false);
             });
         }
-    }, [loadingPeriod, filter]);
+    }, [filter]);
 
     return (
         <div>
@@ -64,17 +69,22 @@ const TradeRuleBuyStatistics = () => {
             <div className='mt-3 mb-3'>
                 <h4>Statistics</h4>
             </div>
-            {loadingPeriod === false && <div className="stat-header">
+             <div className="stat-header">
                 <div>
-                    <StatisticsFilter filter={filter} updateFilter={(filter) => setFilter(filter)} />
+                    <TradeFilter
+                        filter={filter}
+                        updateFilter={(filter) => setFilter(filter)}
+                        tradeRules={tradeRules}
+                        tradeOrderStatuses={tradeOrderStatuses}
+                    />
                 </div>
-                {loading === false && trend && <div className="d-flex">
+                {loading === false && trend && <div className="d-flex ml-4">
                     {<BTC className="stat-icon btc-icon" />}
                     {trend.change >= 0 && <TrendUp className="stat-icon trend-up" />}
                     {trend.change <= 0 && <TrendDown className="stat-icon trend-down" />}
                     <span className={"trend-change " + (trend.change < 0 ? 'trend-down' : 'trend-up')}>{trend.change} %</span>
                 </div>}
-            </div>}
+            </div>
             {statistics && statistics.length > 0 && <div className='mt-4'>
                 <table className='stat-table'>
                     <thead>

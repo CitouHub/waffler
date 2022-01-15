@@ -25,11 +25,11 @@ namespace Waffler.API.Controller
             _candleStickService = candleStickService;
         }
 
-        [HttpGet]
-        [Route("buy/{fromPeriodDateTime}/{toPeriodDateTime}/{statisticsMode}")]
-        public async Task<List<TradeRuleBuyStatisticsDTO>> GetTradeRuleBuyStatistics(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.StatisticsMode statisticsMode)
+        [HttpPost]
+        [Route("buy/{fromPeriodDateTime}/{toPeriodDateTime}/{tradeTypeId}")]
+        public async Task<List<TradeRuleBuyStatisticsDTO>> GetTradeRuleBuyStatistics(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.TradeType tradeTypeId, [FromBody] TradeSelectionDTO tradeSelection)
         {
-            return await _statisticsService.GetTradeRuleBuyStatisticsAsync(fromPeriodDateTime, toPeriodDateTime, statisticsMode);
+            return await _statisticsService.GetTradeRuleBuyStatisticsAsync(fromPeriodDateTime, toPeriodDateTime, tradeTypeId, tradeSelection);
         }
 
         [HttpGet]

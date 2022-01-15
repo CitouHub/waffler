@@ -1,12 +1,13 @@
 ﻿import Request from "../util/requesthandler"
 
 export default {
-    getTradeRuleBuyStatistics: async (from, to, mode) => await Request.send({
+    getTradeRuleBuyStatistics: async (from, to, tradeTypeId, tradeSelection) => await Request.send({
         url: `/statistics/buy/
             ${from.toISOString().split('T')[0]}/
             ${to.toISOString().split('T')[0]}/
-            ${mode}`,
-        method: 'GET'
+            ${tradeTypeId}`,
+        data: tradeSelection,
+        method: 'POST'
     }).then((response) => {
         return Request.handleResponse(response)
     }),

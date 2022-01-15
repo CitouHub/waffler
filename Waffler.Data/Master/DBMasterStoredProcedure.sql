@@ -60,7 +60,9 @@ CREATE PROCEDURE [dbo].[sp_getTradeRuleBuyStatistics]
 -- =====================================================================
 	@FromPeriodDateTime DATETIME2(0),
 	@ToPeriodDateTime DATETIME2(0),
-	@StatisticsMode SMALLINT
+	@TradeTypeId SMALLINT,
+	@TradeRules NVARCHAR(50),
+	@TradeOrderStatuses NVARCHAR(50)
 AS
 BEGIN
 	SET NOCOUNT ON
@@ -68,18 +70,8 @@ BEGIN
 	DECLARE @CurrentPrice DECIMAL(10,2)
 	SET @CurrentPrice = (SELECT TOP 1 ClosePrice FROM CandleStick ORDER BY PeriodDateTime DESC)
 
-	DECLARE @IncludedStatuses TABLE(TradeOrderStatusId SMALLINT NOT NULL)
-
-	IF(@StatisticsMode = 1 OR @StatisticsMode = 3) 
-	BEGIN
-		INSERT INTO @IncludedStatuses SELECT Id FROM TradeOrderStatus
-		WHERE Id <= 6
-	END
-
-	IF(@StatisticsMode = 2 OR @StatisticsMode = 3) 
-	BEGIN
-		INSERT INTO @IncludedStatuses VALUES(10)
-	END
+	DECLARE @TradeRuleIds TABLE(Id SMALLINT NOT NULL) INSERT INTO @TradeRuleIds SELECT Id FROM dbo.tf_getIds(@TradeRules)
+	DECLARE @TradeOrderStatuseIds TABLE(Id SMALLINT NOT NULL) INSERT INTO @TradeOrderStatuseIds SELECT Id FROM dbo.tf_getIds(@TradeOrderStatuses)
 
 	SELECT TradeRuleId AS TradeRuleId,
 		TradeRule.Name AS TradeRuleName,
@@ -91,10 +83,11 @@ BEGIN
 		CAST(ROUND(SUM(FilledAmount * Price), 2) AS DECIMAL(10, 2)) AS TotalInvested,
 		CAST(ROUND(SUM(FilledAmount * Price) / (CASE WHEN SUM(FilledAmount) > 0 THEN SUM(FilledAmount) ELSE CAST(COUNT(*) AS DECIMAL(10,2)) END) , 2) AS DECIMAL(10,2)) AS AveragePrice,
 		CASE WHEN SUM(FilledAmount) > 0 THEN CAST(ROUND((@CurrentPrice / (SUM(FilledAmount * Price) / SUM(FilledAmount)) - 1) * 100, 2) AS DECIMAL(5,2)) ELSE 0 END AS ValueIncrease
-	FROM TradeOrder 
+	FROM TradeOrder
 		LEFT JOIN TradeRule ON TradeOrder.TradeRuleId = TradeRule.Id
-		INNER JOIN @IncludedStatuses AS IncludedStatus ON TradeOrder.TradeOrderStatusId = IncludedStatus.TradeOrderStatusId
-	WHERE TradeOrder.TradeActionId = 1
+		INNER JOIN @TradeRuleIds AS IncludedTradeRule ON ISNULL(TradeOrder.TradeRuleId, 0) = IncludedTradeRule.Id
+		INNER JOIN @TradeOrderStatuseIds AS IncludedTradeOrderStatuse ON TradeOrder.TradeOrderStatusId = IncludedTradeOrderStatuse.Id
+	WHERE TradeOrder.TradeActionId = @TradeTypeId
 		AND TradeOrder.OrderDateTime >= @FromPeriodDateTime
 		AND TradeOrder.OrderDateTime <= @ToPeriodDateTime 
 	GROUP BY TradeRuleId,
@@ -131,5 +124,44 @@ BEGIN
 		INNER JOIN sys.indexes I ON I.object_id = DDIPS.object_id
 		AND DDIPS.index_id = I.index_id
 	WHERE DDIPS.database_id = DB_ID()
+END
+GO
+
+IF OBJECTPROPERTY(object_id('dbo.tf_getIds'), N'IsTableFunction') = 1 DROP FUNCTION [dbo].[tf_getIds]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =====================================================================
+-- Author:			Rikard Gustafsson
+-- Create date:		2022-01-15
+-- Description:		Takes a ";"-seperated list of Ids and returns
+--					a table with all the Ids separated.
+-- =====================================================================
+CREATE FUNCTION [dbo].[tf_getIds](
+	@IdString NVARCHAR(MAX))
+RETURNS @Ids TABLE (Id INT NOT NULL) 
+AS
+BEGIN
+	WHILE LEN(@IdString) > 0
+	BEGIN
+		DECLARE @Id NVARCHAR(50)
+
+		IF (PATINDEX('%;%', @IdString) > 0)
+		BEGIN
+			SET @Id = SUBSTRING(@IdString, 0, PATINDEX('%;%', @IdString))
+			SET @IdString = SUBSTRING(@IdString, LEN(@Id + ';') + 1, LEN(@IdString))
+		END
+		ELSE
+		BEGIN
+			SET @Id = @IdString
+			SET @IdString = NULL
+		END
+
+		INSERT INTO @Ids SELECT CONVERT(BIGINT, @Id)
+	END
+
+	RETURN
 END
 GO

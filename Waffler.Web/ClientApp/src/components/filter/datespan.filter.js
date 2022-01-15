@@ -9,7 +9,7 @@ const DateSpanFilter = ({ updateFilter, filter }) => {
     return (
         <React.Fragment>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <div className="mr-4 mt-2 mb-2">
+                <div className="mr-2 mt-2 mb-2">
                     <DatePicker
                         id="datespan-filter-fromDate"
                         label="From"
@@ -21,7 +21,7 @@ const DateSpanFilter = ({ updateFilter, filter }) => {
                         renderInput={(params) => <TextField {...params} />}
                     />
                 </div>
-                <div className="mt-2 mb-2">
+                <div className="mr-2 mt-2 mb-2">
                     <DatePicker
                         id="datespan-filter-toDate"
                         label="To"

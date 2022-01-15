@@ -16,7 +16,7 @@ namespace Waffler.Service
 {
     public interface IStatisticsService
     {
-        Task<List<TradeRuleBuyStatisticsDTO>> GetTradeRuleBuyStatisticsAsync(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.StatisticsMode statisticsMode);
+        Task<List<TradeRuleBuyStatisticsDTO>> GetTradeRuleBuyStatisticsAsync(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.TradeType tradeTypeId, TradeSelectionDTO tradeSelection);
         Task<TrendDTO> GetPriceTrendAsync(DateTime currentPeriodDateTime, Variable.TradeType tradeType, TradeRuleConditionDTO tradeRuleCondition);
         Task<TrendDTO> GetPriceTrendAsync(Variable.TradeType tradeType,
             Variable.CandleStickValueType fromCandleStickValueTypeId, DateTime fromFromDate, DateTime toFromDate,
@@ -39,9 +39,11 @@ namespace Waffler.Service
             _logger.LogDebug("Instantiated");
         }
 
-        public async Task<List<TradeRuleBuyStatisticsDTO>> GetTradeRuleBuyStatisticsAsync(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.StatisticsMode statisticsMode)
+        public async Task<List<TradeRuleBuyStatisticsDTO>> GetTradeRuleBuyStatisticsAsync(DateTime fromPeriodDateTime, DateTime toPeriodDateTime, Variable.TradeType tradeTypeId, TradeSelectionDTO tradeSelection)
         {
-            var statistics = await _context.sp_getTradeRuleBuyStatistics(fromPeriodDateTime, toPeriodDateTime, (short)statisticsMode);
+            var statistics = await _context.sp_getTradeRuleBuyStatistics(fromPeriodDateTime, toPeriodDateTime, (short)tradeTypeId, 
+                String.Join(";", tradeSelection.TradeRules.ToArray()),
+                String.Join(";", tradeSelection.TradeOrderStatuses.ToArray()));
             return _mapper.Map<List<TradeRuleBuyStatisticsDTO>>(statistics);
         }
 
