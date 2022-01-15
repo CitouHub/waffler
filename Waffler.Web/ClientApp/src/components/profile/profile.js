@@ -5,7 +5,8 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DatePicker from '@mui/lab/DatePicker';
 import LoadingBar from '../../components/utils/loadingbar';
-import ChangePasswordDialog from '../utils/dialog/changepassword.dialog'
+import ChangePasswordDialog from '../utils/dialog/changepassword.dialog';
+import NotificationMessage from '../utils/notification.message';
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStepBackward } from "@fortawesome/free-solid-svg-icons";
@@ -20,6 +21,7 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [profile, setProfile] = useState({});
+    const [statusMessage, setStatusMessage] = useState({ open: false, text: '', severity: '' });
 
     useEffect(() => {
         ProfileService.getProfile().then((profile) => {
@@ -31,6 +33,11 @@ const Profile = () => {
     const saveProfile = () => {
         setLoading(true);
         ProfileService.updateProfile(profile).then(() => {
+            setStatusMessage({
+                open: true,
+                text: 'Profile updated!',
+                severity: 'success'
+            });
             setLoading(false);
         });
     };
@@ -43,11 +50,24 @@ const Profile = () => {
                 var resetTradeOrderSync = TradeOrderService.resetTradeOrderSync();
 
                 Promise.all([resetCandleSticksSync, resetTradeOrderSync]).then(() => {
+                    setStatusMessage({
+                        open: true,
+                        text: 'Data sync reset!',
+                        severity: 'success'
+                    });
                     setLoading(false);
                 });
             }
         });
     }
+
+    const passwordUpdated = () => {
+        setStatusMessage({
+            open: true,
+            text: 'Password updated!',
+            severity: 'success'
+        });
+    };
 
     return (
         <div>
@@ -71,7 +91,7 @@ const Profile = () => {
                             value={profile?.candleStickSyncFromDate}
                             maxDate={new Date()}
                             onChange={newDate => {
-                                newDate.setTime(newDate.getTime() + (2*60*60*1000)); //Utc compensation
+                                newDate.setTime(newDate.getTime() + (2 * 60 * 60 * 1000)); //Utc compensation
                                 setProfile({ ...profile, candleStickSyncFromDate: newDate })
                             }}
                             mask="____-__-__"
@@ -88,7 +108,12 @@ const Profile = () => {
                     <Button className='mr-2' variant="contained" onClick={() => setDialogOpen(true)} disabled={loading}>Change password</Button>
                 </div>
             </div>
-            <ChangePasswordDialog dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} />
+            <ChangePasswordDialog dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} passwordUpdated={passwordUpdated} />
+            <NotificationMessage
+                open={statusMessage.open}
+                setOpen={open => setStatusMessage({ ...statusMessage, open: open })}
+                text={statusMessage.text}
+                severity={statusMessage.severity} />
         </div>
     )
 };
