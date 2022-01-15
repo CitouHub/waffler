@@ -100,6 +100,13 @@ namespace Waffler.Service
                             var amount = Math.Round(tradeRule.Amount / price, Bitpanda.AmountDecimalPrecision);
                             if (tradeRule.TradeRuleStatusId == (short)TradeRuleStatus.Active)
                             {
+                                var balance = await _bitpandaService.GetAccountAsync();
+                                var available = balance.Balances.FirstOrDefault(_ => _.Currency_code == Bitpanda.CurrencyCode.EUR).Available;
+                                if (tradeRule.Amount >= available)
+                                {
+                                    amount = Math.Round(available * (decimal)0.9 / price, Bitpanda.AmountDecimalPrecision);
+                                    _logger.LogWarning($"Not enough balance for full order, amount recalculated to {amount}");
+                                }
                                 var order = await _bitpandaService.TryPlaceOrderAsync(tradeRule, amount, price);
                                 orderId = order != null ? new Guid(order.Order_id) : (Guid?)null;
                                 orderDate = order != null ? order.Time : currentPeriodDateTime;
