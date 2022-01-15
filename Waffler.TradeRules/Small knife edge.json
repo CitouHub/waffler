@@ -1,0 +1,29 @@
+{
+  "tradeActionId": 1,
+  "tradeTypeId": 1,
+  "tradeConditionOperatorId": 1,
+  "tradeRuleStatusId": 2,
+  "candleStickValueTypeId": 4,
+  "name": "Small knife edge",
+  "amount": 100,
+  "priceDeltaPercent": -0.5,
+  "tradeMinIntervalMinutes": 1440,
+  "tradeOrderExpirationMinutes": 60,
+  "tradeRuleConditions": [
+    {
+      "tradeRuleId": 4,
+      "tradeRuleConditionComparatorId": 1,
+      "fromCandleStickValueTypeId": 3,
+      "fromTradeRuleConditionPeriodDirectionId": 3,
+      "fromMinutes": -15,
+      "fromPeriodMinutes": 15,
+      "toCandleStickValueTypeId": 4,
+      "toTradeRuleConditionPeriodDirectionId": 3,
+      "toMinutes": -15,
+      "toPeriodMinutes": 15,
+      "deltaPercent": -1.5,
+      "description": "Sharp drop",
+      "isOn": true
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "tradeActionId": 1,
+  "tradeTypeId": 1,
+  "tradeConditionOperatorId": 1,
+  "tradeRuleStatusId": 2,
+  "candleStickValueTypeId": 4,
+  "name": "Big knife edge",
+  "amount": 300,
+  "priceDeltaPercent": -12,
+  "tradeMinIntervalMinutes": 1440,
+  "tradeOrderExpirationMinutes": 60,
+  "tradeRuleConditions": [
+    {
+      "tradeRuleId": 5,
+      "tradeRuleConditionComparatorId": 1,
+      "fromCandleStickValueTypeId": 3,
+      "fromTradeRuleConditionPeriodDirectionId": 3,
+      "fromMinutes": -30,
+      "fromPeriodMinutes": 30,
+      "toCandleStickValueTypeId": 4,
+      "toTradeRuleConditionPeriodDirectionId": 3,
+      "toMinutes": -30,
+      "toPeriodMinutes": 30,
+      "deltaPercent": -4,
+      "description": "Sharp drop",
+      "isOn": true
+    }
+  ]
+}
