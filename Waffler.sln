@@ -19,9 +19,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waffler.Test", "Waffler.Tes
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Waffler.TradeRules", "Waffler.TradeRules", "{7CE82509-7C95-4D15-99E6-D71D67BEA38B}"
 	ProjectSection(SolutionItems) = preProject
+		Waffler.TradeRules\Big knife edge.json = Waffler.TradeRules\Big knife edge.json
 		Waffler.TradeRules\Buy big dip.json = Waffler.TradeRules\Buy big dip.json
 		Waffler.TradeRules\Buy small dip.json = Waffler.TradeRules\Buy small dip.json
 		Waffler.TradeRules\Buy weekly.json = Waffler.TradeRules\Buy weekly.json
+		Waffler.TradeRules\Small knife edge.json = Waffler.TradeRules\Small knife edge.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Waffler.Docker", "Waffler.Docker", "{115DA70C-946C-4434-8BDD-F71B09AB6DF5}"
