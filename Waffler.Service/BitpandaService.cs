@@ -138,9 +138,11 @@ namespace Waffler.Service
                 var balance = await GetAccountAsync();
                 var buyBalance = balance?.Balances?.FirstOrDefault(_ => _.Currency_code == Bitpanda.CurrencyCode.EUR);
                 var sellBalance = balance?.Balances?.FirstOrDefault(_ => _.Currency_code == Bitpanda.CurrencyCode.BTC);
+                var minimumBuyBalance = _configuration.GetValue<decimal>("Bitpanda:OrderFeature:MinimumBuyBalance");
+                var minimumSellBalance = _configuration.GetValue<decimal>("Bitpanda:OrderFeature:MinimumSellBalance");
 
-                if ((buyBalance?.Available >= amount * price && tradeRule.TradeActionId == (short)Variable.TradeAction.Buy) ||
-                    (sellBalance?.Available >= amount * price && tradeRule.TradeActionId == (short)Variable.TradeAction.Sell))
+                if ((buyBalance?.Available >= amount * price && buyBalance?.Available >= minimumBuyBalance && tradeRule.TradeActionId == (short)Variable.TradeAction.Buy)||
+                    (sellBalance?.Available >= amount * price && sellBalance?.Available >= minimumSellBalance && tradeRule.TradeActionId == (short)Variable.TradeAction.Sell))
                 {
                     var order = new CreateOrderDTO()
                     {

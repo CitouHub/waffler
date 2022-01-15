@@ -298,7 +298,7 @@ namespace Waffler.Test.Service
             context.SaveChanges();
             var settings = new Dictionary<string, string> {
                 {"Bitpanda:OrderFeature:Buy", "true" },
-                {"Bitpanda:OrderFeature:Sell", "true" },
+                {"Bitpanda:OrderFeature:Sell", "true" }
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
             _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
@@ -307,6 +307,44 @@ namespace Waffler.Test.Service
 
             //Act
             var result = await _bitpandaService.TryPlaceOrderAsync(tradeRule, amount, price);
+
+            //Assert
+            Assert.Null(result);
+            Assert.Single(httpMessageHandler.Requests);
+            Assert.Equal($"{ApiBaseUri}/account/balances", httpMessageHandler.Requests[0].RequestUri.ToString());
+        }
+
+        [Theory]
+        [InlineData((short)Variable.TradeAction.Buy, 10, 10, 9, 11)]
+        [InlineData((short)Variable.TradeAction.Sell, 10, 10, 11, 9)]
+        public async Task PlaceOrder_NoOrder_InsufficientBalance_BellowMinimum(short tradeActionId, decimal btc, decimal euro, decimal minimumBtc, decimal minimumEuro)
+        {
+            //Setup
+            var account = BitpandaHelper.GetAccount();
+            var euroBalance = account.Balances.FirstOrDefault(_ => _.Currency_code == Bitpanda.CurrencyCode.EUR);
+            euroBalance.Available = euro;
+            var btcBalance = account.Balances.FirstOrDefault(_ => _.Currency_code == Bitpanda.CurrencyCode.BTC);
+            btcBalance.Available = btc;
+            var httpMessageHandler = new MockHttpMessageHandler(JsonConvert.SerializeObject(account), HttpStatusCode.OK);
+            var httpClient = new HttpClient(httpMessageHandler);
+            httpClient.BaseAddress = new Uri(ApiBaseUri);
+            _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
+            using var context = DatabaseHelper.GetContext();
+            context.WafflerProfiles.Add(ProfileHelper.GetProfile());
+            context.SaveChanges();
+            var settings = new Dictionary<string, string> {
+                {"Bitpanda:OrderFeature:Buy", "true" },
+                {"Bitpanda:OrderFeature:Sell", "true" },
+                {"Bitpanda:OrderFeature:MinimumBuyBalance", minimumEuro.ToString() },
+                {"Bitpanda:OrderFeature:MinimumSellBalance", minimumBtc.ToString() }
+            };
+            var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
+            _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
+            tradeRule.TradeActionId = tradeActionId;
+
+            //Act
+            var result = await _bitpandaService.TryPlaceOrderAsync(tradeRule, 0, 0);
 
             //Assert
             Assert.Null(result);

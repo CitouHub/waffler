@@ -42,6 +42,8 @@ services:
       - Bitpanda__BaseUri=https://api.exchange.bitpanda.com/public/v1/
       - Bitpanda__OrderFeature__Buy=true
       - Bitpanda__OrderFeature__Sell=false
+      - Bitpanda__OrderFeature__MinimumBuyBalance=20
+      - Bitpanda__OrderFeature__MinimumSellBalance=0.0005
       - Github__BaseUri=https://api.github.com/
       - Github__Owner=CitouHub
     volumes:
