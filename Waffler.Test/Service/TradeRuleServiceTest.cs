@@ -11,6 +11,7 @@ using Waffler.Common;
 using Waffler.Domain;
 using Waffler.Service;
 using Waffler.Test.Helper;
+using Waffler.Service.CustomException;
 
 namespace Waffler.Test.Service
 {
@@ -41,6 +42,19 @@ namespace Waffler.Test.Service
             //Assert
             Assert.NotNull(tradeRule);
             Assert.NotNull(context.TradeRules.FirstOrDefault(_ => _.Id == tradeRule.Id));
+        }
+
+        [Fact]
+        public async Task AddTradeRule_InvalidVolumePriceReferenceException()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeRuleService = new TradeRuleService(_logger, context, _mapper);
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
+            tradeRule.CandleStickValueTypeId = (short)Variable.CandleStickValueType.Volume;
+
+            //Act & Assert
+            _ = await Assert.ThrowsAsync<InvalidVolumePriceReferenceException>(() => tradeRuleService.AddTradeRuleAsync(tradeRule));
         }
 
         [Fact]
@@ -334,6 +348,19 @@ namespace Waffler.Test.Service
             Assert.True(success);
             Assert.Equal(DateTime.MinValue, tradeRule.LastTrigger);
             Assert.Equal((short)Variable.TradeRuleStatus.Test, tradeRule.TradeRuleStatusId);
+        }
+
+        [Fact]
+        public async Task UpdateTradeRule_InvalidVolumePriceReferenceException()
+        {
+            //Setup
+            var context = DatabaseHelper.GetContext();
+            var tradeRuleService = new TradeRuleService(_logger, context, _mapper);
+            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
+            tradeRule.CandleStickValueTypeId = (short)Variable.CandleStickValueType.Volume;
+
+            //Act & Assert
+            _ = await Assert.ThrowsAsync<InvalidVolumePriceReferenceException>(() => tradeRuleService.UpdateTradeRuleAsync(tradeRule));
         }
 
         [Fact]

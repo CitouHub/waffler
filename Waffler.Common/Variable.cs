@@ -8,6 +8,7 @@
             LowPrice = 2,
             OpenPrice = 3,
             ClosePrice = 4,
+            Volume = 5
         }
 
         public enum TradeRuleConditionComparator

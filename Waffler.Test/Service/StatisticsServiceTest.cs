@@ -73,6 +73,20 @@ namespace Waffler.Test.Service
             Assert.Equal(expectedPrice, price);
         }
 
+        [Fact]
+        public void GetPrice_Volume()
+        {
+            //Setup
+            var candleStick = CandleStickHelper.GetCandleStickDTO();
+            candleStick.Volume = 100;
+
+            //Act
+            var price = _statisticsService.GetPrice(Variable.CandleStickValueType.Volume, candleStick);
+
+            //Assert
+            Assert.Null(price);
+        }
+
         [Theory]
         [InlineData(Variable.TradeRuleConditionPeriodDirection.Centered, 100, Variable.TradeRuleConditionPeriodDirection.Centered, 110, 10.0)]
         [InlineData(Variable.TradeRuleConditionPeriodDirection.Centered, 100, Variable.TradeRuleConditionPeriodDirection.Centered, 90, -10.0)]

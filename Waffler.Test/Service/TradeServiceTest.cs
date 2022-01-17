@@ -596,6 +596,8 @@ namespace Waffler.Test
         [InlineData((short)Variable.CandleStickValueType.OpenPrice, 1000, 900, -9.0, true)]
         [InlineData((short)Variable.CandleStickValueType.ClosePrice, 1000, 900, -11.0, false)]
         [InlineData((short)Variable.CandleStickValueType.ClosePrice, 1000, 900, -9.0, true)]
+        [InlineData((short)Variable.CandleStickValueType.Volume, 1000, 900, -11.0, false)]
+        [InlineData((short)Variable.CandleStickValueType.Volume, 1000, 900, -9.0, true)]
         public async Task HandleTradeRule_TestTrade_FilledAmount(short candleStickValueTypeId, int orderPrice, int futurePrice, decimal deltaPricePercent, bool fullyFilled)
         {
             //Setup
@@ -613,6 +615,7 @@ namespace Waffler.Test
             candleStick.LowPrice = candleStickValueTypeId == (short)Variable.CandleStickValueType.LowPrice ? orderPrice : 0;
             candleStick.OpenPrice = candleStickValueTypeId == (short)Variable.CandleStickValueType.OpenPrice ? orderPrice : 0;
             candleStick.ClosePrice = candleStickValueTypeId == (short)Variable.CandleStickValueType.ClosePrice ? orderPrice : 0;
+            candleStick.Volume = candleStickValueTypeId == (short)Variable.CandleStickValueType.Volume ? orderPrice : 0;
             candleStick.PeriodDateTime = currentPeriodDateTime;
             var futureCandleStick = CandleStickHelper.GetCandleStickDTO();
             futureCandleStick.LowPrice = futurePrice;
