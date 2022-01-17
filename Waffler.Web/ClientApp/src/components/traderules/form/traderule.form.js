@@ -177,12 +177,14 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, setRunning
                                     endAdornment: <InputAdornment position="end">€</InputAdornment>,
                                 }} />
                             <FormControl sx={{ width: '20%' }}>
-                                <InputLabel id="tr-action-label">Price reference</InputLabel>
-                                <Select labelId="tr-action-label" id="tr-action-select" value={tradeRule.candleStickValueTypeId} label="Price reference"
+                                <InputLabel id="tr-price-reference-label">Price reference</InputLabel>
+                                <Select labelId="tr-price-reference-label" id="tr-price-reference-select" value={tradeRule.candleStickValueTypeId} label="Price reference"
                                     onChange={e => setTradeRule({ ...tradeRule, candleStickValueTypeId: e.target.value })} >
-                                    {tradeRuleAttributes.CandleStickValueType.map((candleStickValueType) => (
-                                        <MenuItem key={candleStickValueType.id} value={candleStickValueType.id}> {candleStickValueType.name} </MenuItem>
-                                    ))}
+                                    {tradeRuleAttributes.CandleStickValueType.map((candleStickValueType) => {
+                                        if (candleStickValueType.id !== 5) { //Volume can not be a price reference
+                                            return (<MenuItem key={candleStickValueType.id} value={candleStickValueType.id}> {candleStickValueType.name} </MenuItem>)
+                                        }
+                                    })}
                                 </Select>
                             </FormControl>
                             <TextField sx={{ width: '20%' }} id="tr-priceDeltaPercent" label="Price offset" variant="outlined" type="number" value={tradeRule.priceDeltaPercent}

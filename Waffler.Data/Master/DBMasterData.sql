@@ -40,6 +40,7 @@ INSERT INTO CandleStickValueType (ID, Name) VALUES (1, 'High price')
 INSERT INTO CandleStickValueType (ID, Name) VALUES (2, 'Low price')
 INSERT INTO CandleStickValueType (ID, Name) VALUES (3, 'Open price')
 INSERT INTO CandleStickValueType (ID, Name) VALUES (4, 'Close price')
+INSERT INTO CandleStickValueType (ID, Name) VALUES (5, 'Volume')
 SET IDENTITY_INSERT CandleStickValueType OFF
 GO
 

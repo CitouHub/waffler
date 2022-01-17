@@ -12,6 +12,7 @@ using Waffler.Domain;
 using Waffler.Data;
 using Waffler.Common;
 using Waffler.Domain.Export;
+using Waffler.Service.CustomException;
 
 namespace Waffler.Service
 {
@@ -75,6 +76,11 @@ namespace Waffler.Service
 
         public async Task<bool> AddTradeRuleAsync(TradeRuleDTO tradeRule)
         {
+            if(tradeRule.CandleStickValueTypeId == (short)Variable.CandleStickValueType.Volume)
+            {
+                throw new InvalidVolumePriceReferenceException();
+            }
+
             var newTradeRule = _mapper.Map<TradeRule>(tradeRule);
             newTradeRule.Id = 0;
             newTradeRule.InsertDate = DateTime.UtcNow;
@@ -212,6 +218,11 @@ namespace Waffler.Service
 
         public async Task<bool> UpdateTradeRuleAsync(TradeRuleDTO tradeRuleDTO)
         {
+            if (tradeRuleDTO.CandleStickValueTypeId == (short)Variable.CandleStickValueType.Volume)
+            {
+                throw new InvalidVolumePriceReferenceException();
+            }
+
             var tradeRule = await _context.TradeRules.FindAsync(tradeRuleDTO.Id);
             if (tradeRule != null)
             {

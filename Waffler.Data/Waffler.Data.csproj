@@ -29,6 +29,9 @@
     <None Update="Migration\20220111_TradeOrderSyncStatusTable.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Migration\20220117_NewCandleStickValueTypeVolume.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Migration\20220114_TradeRuleAmount.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
