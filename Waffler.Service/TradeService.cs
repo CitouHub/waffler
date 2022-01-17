@@ -173,6 +173,7 @@ namespace Waffler.Service
         {
             return tradeRule.LastTrigger < currentPeriodDateTime.AddMinutes(-1 * tradeRule.TradeMinIntervalMinutes) &&
                 tradeRule.TradeRuleStatusId != (short)TradeRuleStatus.Inactive &&
+                tradeRule.CandleStickValueTypeId != (short)CandleStickValueType.Volume &&
                 tradeRule.TradeRuleConditions != null &&
                 tradeRule.TradeRuleConditions.Any();
         }
