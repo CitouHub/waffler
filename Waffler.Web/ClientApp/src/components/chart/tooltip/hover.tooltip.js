@@ -25,6 +25,10 @@ export default {
                     label: "low",
                     value: currentItem.low && numberFormat(currentItem.low),
                 },
+                {
+                    label: "volume",
+                    value: currentItem.low && numberFormat(currentItem.volume),
+                },
             ]
         }
 
