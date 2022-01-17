@@ -11,6 +11,10 @@
 		localStorage.removeItem('selectedTradeOrderStatuses');
 		localStorage.setItem('selectedTradeOrderStatuses', JSON.stringify(selectedTradeOrderStatuses));
 	},
+	setTradeOrderStatusMode: (tradeOrderStatusMode) => {
+		localStorage.removeItem('tradeOrderStatusMode');
+		localStorage.setItem('tradeOrderStatusMode', tradeOrderStatusMode);
+	},
 	getFromDate: () => {
 		const itemStr = localStorage.getItem('fromDate');
 		if (!itemStr || itemStr === null) {
@@ -31,5 +35,12 @@
 			return [];
 		}
 		return JSON.parse(itemStr);
+	},
+	getTradeOrderStatusMode: () => {
+		const itemStr = localStorage.getItem('tradeOrderStatusMode');
+		if (!itemStr) {
+			return 1;
+		}
+		return itemStr;
 	},
 }

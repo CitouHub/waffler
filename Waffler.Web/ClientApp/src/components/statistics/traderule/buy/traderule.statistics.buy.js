@@ -76,6 +76,7 @@ const TradeRuleBuyStatistics = () => {
                         updateFilter={(filter) => setFilter(filter)}
                         tradeRules={tradeRules}
                         tradeOrderStatuses={tradeOrderStatuses}
+                        simplified
                     />
                 </div>
                 {loading === false && trend && <div className="d-flex ml-4">

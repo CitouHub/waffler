@@ -184,6 +184,9 @@ const TradeRuleForm = ({ data, tradeRuleAttributes, updateTradeRules, setRunning
                                         if (candleStickValueType.id !== 5) { //Volume can not be a price reference
                                             return (<MenuItem key={candleStickValueType.id} value={candleStickValueType.id}> {candleStickValueType.name} </MenuItem>)
                                         }
+                                        else {
+                                            return null;
+                                        }
                                     })}
                                 </Select>
                             </FormControl>

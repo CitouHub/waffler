@@ -1,20 +1,25 @@
-﻿import React, { useEffect } from 'react';
+﻿import React, { useEffect, useState } from 'react';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 import DateSpanFilter from './datespan.filter'
 import MultiSelect from './input/multiselect'
 
 import FilterCache from '../../util/filter.cache'
 
-const TradeFilter = ({ updateFilter, filter, tradeRules, tradeOrderStatuses }) => {
+const TradeFilter = ({ updateFilter, filter, tradeRules, tradeOrderStatuses, simplified }) => {
+    const [tradeOrderStatusMode, setTradeOrderStatusMode] = useState(FilterCache.getTradeOrderStatusMode());
 
     useEffect(() => {
-        if (filter.selectedTradeRules && filter.selectedTradeRules.length === 0 && tradeRules.length > 0) {
+        if (tradeRules && tradeRules.length > 0) {
             var cache = FilterCache.getSelectedTradeRules();
             updateFilter({ ...filter, selectedTradeRules: getSelection(tradeRules, cache) });
         }
     }, [tradeRules]);
 
     useEffect(() => {
-        if (filter.selectedTradeOrderStatuses && filter.selectedTradeOrderStatuses.length === 0 && tradeOrderStatuses.length > 0) {
+        if (tradeOrderStatuses && tradeOrderStatuses.length > 0) {
             var cache = FilterCache.getSelectedTradeOrderStatuses();
             updateFilter({ ...filter, selectedTradeOrderStatuses: getSelection(tradeOrderStatuses, cache) });
         }
@@ -55,18 +60,44 @@ const TradeFilter = ({ updateFilter, filter, tradeRules, tradeOrderStatuses }) =
         updateFilter({ ...filter, selectedTradeOrderStatuses: selectedTradeOrderStatuses });
     }
 
+    const updateTradeOrderStatusMode = (tradeOrderStatusMode) => {
+        var simplifiedSelectedTradeOrderStatuses = [];
+        if (tradeOrderStatusMode === 1 || tradeOrderStatusMode === 3) {
+            tradeOrderStatuses.filter(_ => _.id <= 6).map(_ => simplifiedSelectedTradeOrderStatuses.push(_));
+        }
+
+        if (tradeOrderStatusMode === 2 || tradeOrderStatusMode === 3) {
+            tradeOrderStatuses.filter(_ => _.id === 10).map(_ => simplifiedSelectedTradeOrderStatuses.push(_));
+        }
+
+        updateFilter({ ...filter, selectedTradeOrderStatuses: simplifiedSelectedTradeOrderStatuses });
+        FilterCache.setTradeOrderStatusMode(tradeOrderStatusMode);
+        setTradeOrderStatusMode(tradeOrderStatusMode);
+    }
+
     return (
         <div className="d-flex">
             <DateSpanFilter filter={filter} updateFilter={updateFilter} />
-            {tradeRules && tradeRules.length > 0 && <MultiSelect
+            <MultiSelect
                 label="Trade rules"
                 items={tradeRules}
                 selectedItems={filter.selectedTradeRules}
-                updateSelectedItems={updateSelectedTradeRules} />}
-            {tradeOrderStatuses && tradeOrderStatuses.length > 0 && <MultiSelect label="Trade order statuses"
+                updateSelectedItems={updateSelectedTradeRules} />
+            {!simplified && <MultiSelect label="Trade order statuses"
                 items={tradeOrderStatuses}
                 selectedItems={filter.selectedTradeOrderStatuses}
                 updateSelectedItems={updateSelectedTradeStatuses} />}
+            {simplified && <div className="ml-2 mt-2 mb-2">
+                <FormControl>
+                    <InputLabel id="filter-trade-order-simplified-label">Include</InputLabel>
+                    <Select sx={{ width: 300 }} labelId="filter-trade-order-simplified-label" id="filter-trade-order-simplified-select" value={tradeOrderStatusMode} label="Include"
+                        onChange={e => { updateTradeOrderStatusMode(e.target.value) }} >
+                        <MenuItem value={1}>Live orders</MenuItem>
+                        <MenuItem value={2}>Test orders</MenuItem>
+                        <MenuItem value={3}>Both</MenuItem>
+                    </Select>
+                </FormControl>
+            </div>}
         </div>
     )
 };
