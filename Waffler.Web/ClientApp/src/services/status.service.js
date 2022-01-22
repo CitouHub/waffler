@@ -7,4 +7,10 @@ export default {
     }).then((response) => {
         return Request.handleResponse(response)
     }),
+    isDatabaseOnline: async () => await Request.send({
+        url: `/status/database/online`,
+        method: 'GET'
+    }).then((response) => {
+        return Request.handleResponse(response)
+    }),
 }

@@ -5,6 +5,7 @@ import { NavItem, NavLink, Nav } from "reactstrap";
 import { Link } from "react-router-dom";
 
 import Balance from "../../navigation/status/balance";
+import SystemStatus from "../../navigation/status/system.status";
 
 import './sidebar.css';
 
@@ -18,6 +19,7 @@ const SideBar = () => {
         <div className="sidebar is-open">
             <div className="sidebar-header">
                 <Balance />
+                <SystemStatus />
             </div>
             <div className="side-menu">
                 <Nav vertical className="list-unstyled pb-3">

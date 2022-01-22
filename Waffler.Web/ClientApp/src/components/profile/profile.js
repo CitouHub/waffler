@@ -76,7 +76,9 @@ const Profile = () => {
                 <h4>Profile</h4>
                 <div className="mt-3 mb-3">
                     <div>
-                        <TextField sx={{ width: '100%' }} id="api-key-textfield" label="Api key" variant="outlined" type="text" value={profile.apiKey} multiline rows={6}
+                        <TextField sx={{ width: '100%' }}
+                            id="api-key-textfield" label="Api key" variant="outlined"
+                            type="text" value={profile.apiKey} InputLabelProps={{ shrink: true }} multiline rows={6}
                             onChange={e => setProfile({ ...profile, apiKey: e.target.value })} />
                     </div>
                     <div className='get-api-key'>
@@ -96,7 +98,7 @@ const Profile = () => {
                             }}
                             mask="____-__-__"
                             inputFormat="yyyy-MM-dd"
-                            renderInput={(params) => <TextField {...params} />}
+                            renderInput={(params) => <TextField {...params} InputLabelProps={{ shrink: true }} />}
                         />
                     </LocalizationProvider>
                     <div className='stepback-center'>
