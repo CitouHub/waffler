@@ -24,15 +24,25 @@ namespace Waffler.API.Controller
 
         [HttpGet]
         [Route("database/await/online")]
-        public async Task IsDatabaseOnlineAsync()
+        public async Task AwaitDatabaseOnlineAsync()
+        {
+            await _databaseSetupSignal.AwaitDatabaseOnlineAsync(new CancellationToken(), GetConnection());
+        }
+
+        [HttpGet]
+        [Route("database/online")]
+        public async Task<bool> IsDatabaseOnlineAsync()
+        {
+            return await _databaseSetupSignal.IsDatabaseOnlineAsync(GetConnection());
+        }
+
+        private SqlConnection GetConnection()
         {
             var server = _configuration.GetValue<string>("Database:Server");
             var database = _configuration.GetValue<string>("Database:Catalog");
             var credentials = _configuration.GetValue<string>("Database:Credentials");
 
-            var connectionString = $"Server={server};Initial Catalog={database};{credentials}";
-
-            await _databaseSetupSignal.AwaitDatabaseOnlineAsync(new CancellationToken(), new SqlConnection(connectionString));
+            return new SqlConnection($"Server={server};Initial Catalog={database};{credentials}");
         }
     }
 }

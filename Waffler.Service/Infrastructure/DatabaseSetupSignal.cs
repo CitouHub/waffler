@@ -13,7 +13,8 @@ namespace Waffler.Service.Infrastructure
         Task AwaitDatabaseReadyAsync(CancellationToken cancellationToken);
         void SetDatabaseReady();
         void SetDatabaseBusy();
-        Task AwaitDatabaseOnlineAsync(CancellationToken cancellationToken, SqlConnection connection);
+        Task AwaitDatabaseOnlineAsync(CancellationToken cancellationToken, SqlConnection sqlConnection);
+        Task<bool> IsDatabaseOnlineAsync(SqlConnection sqlConnection);
     }
 
     public class DatabaseSetupSignal : IDatabaseSetupSignal
@@ -66,31 +67,46 @@ namespace Waffler.Service.Infrastructure
             }
         }
 
-        public async Task AwaitDatabaseOnlineAsync(CancellationToken cancellationToken, SqlConnection connection)
+        public async Task AwaitDatabaseOnlineAsync(CancellationToken cancellationToken, SqlConnection sqlConnection)
         {
             while (cancellationToken.IsCancellationRequested == false)
             {
                 try
                 {
-                    await connection.OpenAsync();
+                    await sqlConnection.OpenAsync();
                 }
                 catch (Exception e)
                 {
                     _logger.LogDebug($"{e.Message} - {e.InnerException?.Message}");
                 }
 
-                if (connection.State != ConnectionState.Open)
+                if (sqlConnection.State != ConnectionState.Open)
                 {
-                    _logger.LogDebug($"Database {connection.Database} not online, waiting...");
+                    _logger.LogDebug($"Database {sqlConnection.Database} not online, waiting...");
                     Thread.Sleep(2000);
                 }
                 else
                 {
-                    _logger.LogDebug($"Database {connection.Database} online");
-                    await connection.CloseAsync();
+                    _logger.LogDebug($"Database {sqlConnection.Database} online");
+                    await sqlConnection.CloseAsync();
                     break;
                 }
             }
+        }
+
+        public async Task<bool> IsDatabaseOnlineAsync(SqlConnection sqlConnection)
+        {
+            try
+            {
+                await sqlConnection.OpenAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogDebug($"{e.Message} - {e.InnerException?.Message}");
+                return false;
+            }
+
+            return sqlConnection.State == ConnectionState.Open;
         }
     }
 }
