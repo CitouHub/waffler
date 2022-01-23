@@ -84,7 +84,6 @@ namespace Waffler.Service.Background
                     var _mapper = outerScope.ServiceProvider.GetRequiredService<IMapper>();
 
                     _logger.LogInformation($"Setting initial parameters");
-                    var syncActive = true;
                     var requestCount = 0;
                     var startTime = DateTime.UtcNow;
                     var profile = await _profileService.GetProfileAsync();
@@ -100,7 +99,7 @@ namespace Waffler.Service.Background
                         var fromDate = period.AddMilliseconds(1);
                         var toDate = fromDate.AddMinutes(RequestSpanMinutes.TotalMinutes);
 
-                        while (syncActive && cancellationToken.IsCancellationRequested == false && _candleStickSyncSignal.IsAbortRequested() == false)
+                        while (cancellationToken.IsCancellationRequested == false && _candleStickSyncSignal.IsAbortRequested() == false)
                         {
                             _logger.LogDebug($"Setting up inner scoped services");
                             using (IServiceScope innerScope = _serviceProvider.CreateScope())
@@ -126,17 +125,22 @@ namespace Waffler.Service.Background
 
                                         _logger.LogDebug($"Data save successfull");
                                     }
+                                    else if(toDate < DateTime.UtcNow)
+                                    {
+                                        _logger.LogWarning($"Fetch successfull, no new data found, extending search period");
+                                        toDate = toDate.AddMinutes(RequestSpanMinutes.TotalMinutes);
+                                    } 
                                     else
                                     {
                                         _logger.LogInformation($"Fetch successfull, no new data found, stop sync");
                                         _candleStickSyncSignal.SyncComplete();
-                                        syncActive = false;
+                                        break;
                                     }
                                 }
                                 else
                                 {
-                                    _logger.LogInformation($"Fetch failed, API unavailable");
-                                    syncActive = false;
+                                    _logger.LogWarning($"Fetch failed, API unavailable");
+                                    break;
                                 }
 
                                 if (requestCount >= RequestLimit)

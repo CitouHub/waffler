@@ -148,7 +148,7 @@ namespace Waffler.Test.Service.Background
             var profile = ProfileHelper.GetProfileDTO();
             _profileService.GetProfileAsync().Returns(profile);
             var candleStick = CandleStickHelper.GetCandleStickDTO();
-            candleStick.PeriodDateTime = DateTime.UtcNow.AddDays(-10);
+            candleStick.PeriodDateTime = DateTime.UtcNow;
             _candleStickService.GetLastCandleStickAsync(Arg.Any<DateTime>()).Returns(_ => candleStick);
 
             _bitpandaService.GetCandleSticksAsync(
