@@ -104,7 +104,7 @@ namespace Waffler.Service.Background
         private async Task<bool> DatabaseExists(SqlConnection connection)
         {
             var tries = 0;
-            var maxTries = 3;
+            var maxTries = 5;
             while(tries < maxTries)
             {
                 try
