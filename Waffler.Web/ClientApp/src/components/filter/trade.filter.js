@@ -11,14 +11,14 @@ const TradeFilter = ({ updateFilter, filter, tradeRules, tradeOrderStatuses }) =
             var cache = FilterCache.getSelectedTradeRules();
             updateFilter({ ...filter, selectedTradeRules: getSelection(tradeRules, cache) });
         }
-    }, [tradeRules]);
+    }, [tradeRules, filter.selectedTradeRules]);
 
     useEffect(() => {
         if (filter.selectedTradeOrderStatuses && filter.selectedTradeOrderStatuses.length === 0 && tradeOrderStatuses.length > 0) {
             var cache = FilterCache.getSelectedTradeOrderStatuses();
             updateFilter({ ...filter, selectedTradeOrderStatuses: getSelection(tradeOrderStatuses, cache) });
         }
-    }, [tradeOrderStatuses]);
+    }, [tradeOrderStatuses, filter.selectedTradeOrderStatuses]);
 
     useEffect(() => {
         if (!filter.fromDate) {
