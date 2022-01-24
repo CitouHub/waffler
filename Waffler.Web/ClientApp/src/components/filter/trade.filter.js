@@ -16,14 +16,14 @@ const TradeFilter = ({ updateFilter, filter, tradeRules, tradeOrderStatuses, sim
             var cache = FilterCache.getSelectedTradeRules();
             updateFilter({ ...filter, selectedTradeRules: getSelection(tradeRules, cache) });
         }
-    }, [tradeRules]);
+    }, [tradeRules, filter.selectedTradeRules]);
 
     useEffect(() => {
         if (tradeOrderStatuses && tradeOrderStatuses.length > 0) {
             var cache = FilterCache.getSelectedTradeOrderStatuses();
             updateFilter({ ...filter, selectedTradeOrderStatuses: getSelection(tradeOrderStatuses, cache) });
         }
-    }, [tradeOrderStatuses]);
+    }, [tradeOrderStatuses, filter.selectedTradeOrderStatuses]);
 
     useEffect(() => {
         if (!filter.fromDate) {
