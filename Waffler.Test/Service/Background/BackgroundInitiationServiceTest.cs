@@ -20,6 +20,7 @@ namespace Waffler.Test.Service.Background
         private readonly IServiceProvider _serviceProvider = Substitute.For<IServiceProvider>();
         private readonly IServiceScopeFactory _serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
         private readonly IServiceScope _serviceScope = Substitute.For<IServiceScope>();
+        private readonly IDatabaseSetupSignal _databaseSetupSignal = Substitute.For<IDatabaseSetupSignal>();
         private readonly IConfigCache _configCache = Substitute.For<IConfigCache>();
         private readonly IProfileService _profileService = Substitute.For<IProfileService>();
         private readonly BackgroundInitiationService _backgroundInitiationService;
@@ -44,7 +45,7 @@ namespace Waffler.Test.Service.Background
             _serviceScope.ServiceProvider.GetService<IProfileService>().Returns(_profileService);
             _serviceScope.ServiceProvider.GetRequiredService<IProfileService>().Returns(_profileService);
 
-            _backgroundInitiationService = new BackgroundInitiationService(logger, _serviceProvider, _configCache);
+            _backgroundInitiationService = new BackgroundInitiationService(logger, _serviceProvider, _databaseSetupSignal, _configCache);
         }
 
         [Fact]
