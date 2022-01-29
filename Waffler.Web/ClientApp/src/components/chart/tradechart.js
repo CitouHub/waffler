@@ -35,7 +35,7 @@ const TradeChart = () => {
     const [syncStatus, setSyncStatus] = useState({});
     const [candleSticks, setCandleSticks] = useState([]);
     const [candleSticksChart, setCandleSticksChart] = useState([]);
-    const [tradeOrders, setTradeOrders] = useState([]);   
+    const [tradeOrders, setTradeOrders] = useState([]);
 
     const canvasRef = useRef();
     const windowSize = useWindowSize();
@@ -64,28 +64,26 @@ const TradeChart = () => {
     }, [loading]);
 
     useEffect(() => {
-        updateCandleSticksChart();
-    }, [tradeOrders, candleSticks]);
-
-    const datesChanged = (filter) => {
         if (canvasRef.current) {
             setDimensions({
                 width: canvasRef.current.offsetWidth,
                 height: canvasRef.current.offsetHeight
             });
         }
+    }, [candleSticksChart]);
 
-        updateCandleStickData(filter.fromDate, filter.toDate);
+    const datesChanged = (filter) => {
+        updateCandleStickData(filter);
     }
 
-    const updateCandleStickData = (fromDate, toDate) => {
-        if (syncStatus.finished && fromDate && toDate) {
+    const updateCandleStickData = (filter) => {
+        if (syncStatus.finished && filter.fromDate && filter.toDate) {
             setLoading(true);
-            let toDateExtra = new Date(toDate);
+            let toDateExtra = new Date(filter.toDate);
             toDateExtra.setDate(toDateExtra.getDate() + 1);
 
-            var getCandleSticks = CandleStickService.getCandleSticks(fromDate, toDateExtra, 1, 30);
-            var getTradeOrders = TradeOrderService.getTradeOrders(fromDate, toDateExtra);
+            var getCandleSticks = CandleStickService.getCandleSticks(filter.fromDate, toDateExtra, 1, 30);
+            var getTradeOrders = TradeOrderService.getTradeOrders(filter.fromDate, toDateExtra);
 
             Promise.all([getCandleSticks, getTradeOrders]).then((result) => {
                 if (result[0] && result[0].length > 0) {
@@ -102,6 +100,7 @@ const TradeChart = () => {
 
                 setCandleSticks(result[0]);
                 setTradeOrders(result[1]);
+                updateCandleSticksChart(result[0], result[1], filter.selectedTradeRules, filter.selectedTradeOrderStatuses);
 
                 setLoading(false);
             });
@@ -109,35 +108,35 @@ const TradeChart = () => {
     }
 
     const selectionsChanged = (filter) => {
-        updateCandleSticksChart(filter.selectedTradeRules, filter.selectedTradeOrderStatuses)
+        updateCandleSticksChart(candleSticks, tradeOrders, filter.selectedTradeRules, filter.selectedTradeOrderStatuses)
     }
 
-    const updateCandleSticksChart = (selectedTradeRules, selectedTradeOrderStatuses) => {
-        if (candleSticks && tradeOrders && selectedTradeRules && selectedTradeOrderStatuses) {
-            const candleSticksUpdate = [...candleSticks];
-            if (candleSticksUpdate.length > 0 && tradeOrders.length > 0) {
-                tradeOrders.forEach((tradeOrder) => {
-                    let candleStick = candleSticksUpdate.find((candleStick) => {
-                        if (candleStick.date >= tradeOrder.orderDateTime) {
-                            return candleStick;
-                        }
+    const updateCandleSticksChart = (candleSticksData, tradeOrderData, selectedTradeRules, selectedTradeOrderStatuses) => {
+        if (candleSticksData && tradeOrderData && selectedTradeRules && selectedTradeOrderStatuses &&
+            candleSticksData.length > 0 && tradeOrderData.length > 0) {
 
-                        return null;
-                    });
-
-                    if (candleStick === undefined) {
-                        candleStick = candleSticksUpdate[candleSticksUpdate.length - 1];
+            const candleSticksUpdate = [...candleSticksData];
+            tradeOrderData.forEach((tradeOrder) => {
+                let candleStick = candleSticksUpdate.find((candleStick) => {
+                    if (candleStick.date >= tradeOrder.orderDateTime) {
+                        return candleStick;
                     }
 
-                    if (selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0 &&
-                        selectedTradeOrderStatuses.filter(s => s.id === tradeOrder.tradeOrderStatusId).length > 0) {
-                        candleStick.tradeOrder = tradeOrder;
-                    }
-                    else {
-                        candleStick.tradeOrder = undefined;
-                    }
+                    return null;
                 });
-            }
+
+                if (candleStick === undefined) {
+                    candleStick = candleSticksUpdate[candleSticksUpdate.length - 1];
+                }
+
+                if (selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0 &&
+                    selectedTradeOrderStatuses.filter(s => s.id === tradeOrder.tradeOrderStatusId).length > 0) {
+                    candleStick.tradeOrder = tradeOrder;
+                }
+                else {
+                    candleStick.tradeOrder = undefined;
+                }
+            });
 
             setCandleSticksChart(candleSticksUpdate);
         }
@@ -194,7 +193,7 @@ const TradeChart = () => {
             <div className='mt-3 mb-3'>
                 <h4>Chart</h4>
             </div>
-            {!syncStatus?.finished && <SyncBar currentDate={syncStatus?.lastPeriodDateTime?.toJSON()?.slice(0, 10)} progress={syncStatus.progress} throttled={syncStatus.isThrottled}/>}
+            {!syncStatus?.finished && <SyncBar currentDate={syncStatus?.lastPeriodDateTime?.toJSON()?.slice(0, 10)} progress={syncStatus.progress} throttled={syncStatus.isThrottled} />}
             {syncStatus?.finished && dimensions.width > 0 && dimensions.height > 0 &&
                 <div>
                     <TradeFilter

@@ -10,7 +10,7 @@ import TradeRuleService from '../../services/traderule.service';
 import TradeOrderService from '../../services/tradeorder.service';
 import FilterCache from '../../util/filter.cache';
 
-const TradeFilter = ({ simplified, datesChanged, selectionsChanged }) => {
+const TradeFilter = ({ simplified, filterChanged, datesChanged, selectionsChanged }) => {
     const [loading, setLoading] = useState(true);
     const [tradeRules, setTradeRules] = useState([]);
     const [tradeOrderStatuses, setTradeOrderStatuses] = useState([]);
@@ -47,37 +47,40 @@ const TradeFilter = ({ simplified, datesChanged, selectionsChanged }) => {
             setFilter({
                 fromDate: cachedFromDate,
                 toDate: new Date(),
-                selectedTradeRules: getSelection(tradeRules, cacheSelectedTradeRules),
-                selectedTradeOrderStatuses: getSelection(tradeOrderStatuses, cacheSelectedTradeOrderStatuses),
+                selectedTradeRules: getSelection(result[0], cacheSelectedTradeRules),
+                selectedTradeOrderStatuses: getSelection(result[1], cacheSelectedTradeOrderStatuses),
             });
 
             setLoading(false);
-            datesChanged(filter);
-            selectionsChanged(filter);
         });
     }, []);
 
     useEffect(() => {
-        if (loading === false) {
-            FilterCache.setFromDate(filter.fromDate);
+        if (datesChanged) {
             datesChanged(filter);
         }
-    }, [filter.fromDate, filter.fromDate]);
+    }, [filter.fromDate, filter.toDate]);
 
     useEffect(() => {
-        if (loading === false) {
-            FilterCache.setSelectedTradeRules(filter.selectedTradeRules);
-            FilterCache.setSelectedTradeOrderStatuses(filter.selectedTradeOrderStatuses);
+        if (selectionsChanged) {
             selectionsChanged(filter);
         }
     }, [filter.selectedTradeRules, filter.selectedTradeOrderStatuses]);
 
+    useEffect(() => {
+        if (filterChanged) {
+            filterChanged(filter);
+        }
+    }, [filter]);
+
     const getSelection = (items, cache) => {
-        return items.filter((item) => {
+        var selection = items.filter((item) => {
             if (cache.filter((cached) => cached.id === item.id).length > 0) {
                 return item;
             }
         });
+
+        return selection;
     }
 
     const updateTradeOrderStatusMode = (tradeOrderStatusMode) => {
@@ -90,8 +93,8 @@ const TradeFilter = ({ simplified, datesChanged, selectionsChanged }) => {
             tradeOrderStatuses.filter(_ => _.id === 10).map(_ => simplifiedSelectedTradeOrderStatuses.push(_));
         }
 
-        setFilter({ ...filter, selectedTradeOrderStatuses: simplifiedSelectedTradeOrderStatuses });
         FilterCache.setTradeOrderStatusMode(tradeOrderStatusMode);
+        setFilter({ ...filter, selectedTradeOrderStatuses: simplifiedSelectedTradeOrderStatuses });
         setTradeOrderStatusMode(tradeOrderStatusMode);
     }
 
@@ -101,17 +104,28 @@ const TradeFilter = ({ simplified, datesChanged, selectionsChanged }) => {
                 <DateSpanFilter
                     fromDate={filter.fromDate}
                     toDate={filter.toDate}
-                    updateFromDate={newDate => { setFilter({ ...filter, fromDate: newDate }) }}
-                    updateToDate={newDate => { setFilter({ ...filter, toDate: newDate }) }} />
+                    updateFromDate={newDate => {
+                        FilterCache.setFromDate(newDate);
+                        setFilter({ ...filter, fromDate: newDate });
+                    }}
+                    updateToDate={newDate => {
+                        setFilter({ ...filter, toDate: newDate });
+                    }} />
                 <MultiSelect
                     label="Trade rules"
                     items={tradeRules}
                     selectedItems={filter.selectedTradeRules}
-                    updateSelectedItems={newSelection => { setFilter({ ...filter, selectedTradeRules: newSelection }) }} />
+                    updateSelectedItems={newSelection => {
+                        FilterCache.setSelectedTradeRules(newSelection);
+                        setFilter({ ...filter, selectedTradeRules: newSelection });
+                    }} />
                 {!simplified && <MultiSelect label="Trade order statuses"
                     items={tradeOrderStatuses}
                     selectedItems={filter.selectedTradeOrderStatuses}
-                    updateSelectedItems={newSelection => { setFilter({ ...filter, selectedTradeOrderStatuses: newSelection }) }} />}
+                    updateSelectedItems={newSelection => {
+                        FilterCache.setSelectedTradeOrderStatuses(newSelection);
+                        setFilter({ ...filter, selectedTradeOrderStatuses: newSelection });
+                    }} />}
                 {simplified && <div className="ml-2 mt-2 mb-2">
                     <FormControl>
                         <InputLabel id="filter-trade-order-simplified-label">Include</InputLabel>
