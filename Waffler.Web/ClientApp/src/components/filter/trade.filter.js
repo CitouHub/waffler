@@ -56,22 +56,22 @@ const TradeFilter = ({ simplified, filterChanged, datesChanged, selectionsChange
     }, []);
 
     useEffect(() => {
-        if (datesChanged) {
+        if (datesChanged && loading === false) {
             datesChanged(filter);
         }
-    }, [filter.fromDate, filter.toDate]);
+    }, [loading, filter.fromDate, filter.toDate]);
 
     useEffect(() => {
-        if (selectionsChanged) {
+        if (selectionsChanged && loading === false) {
             selectionsChanged(filter);
         }
-    }, [filter.selectedTradeRules, filter.selectedTradeOrderStatuses]);
+    }, [loading, filter.selectedTradeRules, filter.selectedTradeOrderStatuses]);
 
     useEffect(() => {
-        if (filterChanged) {
+        if (filterChanged && loading === false) {
             filterChanged(filter);
         }
-    }, [filter]);
+    }, [loading, filter]);
 
     const getSelection = (items, cache) => {
         var selection = items.filter((item) => {
