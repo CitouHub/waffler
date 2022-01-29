@@ -32,6 +32,7 @@ namespace Waffler.Service.Infrastructure
             _logger = logger;
             DatabaseReady = false;
             Waiting = 0;
+            _logger.LogDebug($"Instantiated");
         }
 
         public async Task AwaitDatabaseReadyAsync(CancellationToken cancellationToken)

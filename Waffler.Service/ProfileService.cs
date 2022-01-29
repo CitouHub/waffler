@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 using Waffler.Data;
 using Waffler.Domain;
+using Waffler.Service.Infrastructure;
 
 namespace Waffler.Service
 {
@@ -38,14 +39,22 @@ namespace Waffler.Service
         private readonly WafflerDbContext _context;
         private readonly IMapper _mapper;
         private readonly IBitpandaService _bitpandaService;
+        private readonly IConfigCache _configCache;
 
-        public ProfileService(IConfiguration configuration, ILogger<ProfileService> logger, WafflerDbContext context, IMapper mapper, IBitpandaService bitpandaService)
+        public ProfileService(
+            IConfiguration configuration, 
+            ILogger<ProfileService> logger, 
+            WafflerDbContext context, 
+            IMapper mapper, 
+            IBitpandaService bitpandaService,
+            IConfigCache configCache)
         {
             _configuration = configuration;
             _logger = logger;
             _context = context;
             _mapper = mapper;
             _bitpandaService = bitpandaService;
+            _configCache = configCache;
             _logger.LogDebug("Instantiated");
         }
 
@@ -139,6 +148,10 @@ namespace Waffler.Service
                 {
                     //Keep api key if placeholder is provided
                     profileDto.ApiKey = profile.ApiKey;
+                } 
+                else
+                {
+                    _configCache.SetApiKey(profileDto.ApiKey);
                 }
 
                 _mapper.Map(profileDto, profile);

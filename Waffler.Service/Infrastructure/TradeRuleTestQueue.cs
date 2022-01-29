@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Waffler.Domain;
 using Waffler.Domain.Message;
 
@@ -22,15 +24,18 @@ namespace Waffler.Service.Infrastructure
 
     public class TradeRuleTestQueue : ITradeRuleTestQueue
     {
+        private readonly ILogger<TradeRuleTestQueue> _logger;
         private readonly ConcurrentQueue<TradeRuleTestRequestDTO> _tradeRuleTestRequests;
         private readonly SemaphoreSlim _queueSignal;
         private readonly Dictionary<int, TradeRuleTestRunDTO> _tradeRuleTestRun;
 
-        public TradeRuleTestQueue()
+        public TradeRuleTestQueue(ILogger<TradeRuleTestQueue> logger)
         {
+            _logger = logger;
             _tradeRuleTestRequests = new ConcurrentQueue<TradeRuleTestRequestDTO>();
             _queueSignal = new SemaphoreSlim(0);
             _tradeRuleTestRun = new Dictionary<int, TradeRuleTestRunDTO>();
+            _logger.LogDebug($"Instantiated");
         }
 
         public void QueueTest(TradeRuleTestRequestDTO tradeRuleTestRequest)

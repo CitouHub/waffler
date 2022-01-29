@@ -13,6 +13,7 @@ using Waffler.Test.Helper;
 using Waffler.Domain.Bitpanda.Private.Balance;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
+using Waffler.Service.Infrastructure;
 
 namespace Waffler.Test.Service
 {
@@ -21,6 +22,7 @@ namespace Waffler.Test.Service
         private readonly IConfiguration _configuration = Substitute.For<IConfiguration>();
         private readonly ILogger<ProfileService> _logger = Substitute.For<ILogger<ProfileService>>();
         private readonly IBitpandaService _bitpandaService = Substitute.For<IBitpandaService>();
+        private readonly IConfigCache _configCache = Substitute.For<IConfigCache>();
         private readonly IMapper _mapper; 
 
         public ProfileServiceTest()
@@ -37,7 +39,7 @@ namespace Waffler.Test.Service
         {
             //Setup
             var context = DatabaseHelper.GetContext();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var hasProfile = await profileService.HasProfileAsync();
@@ -53,7 +55,7 @@ namespace Waffler.Test.Service
             var context = DatabaseHelper.GetContext();
             context.WafflerProfiles.Add(ProfileHelper.GetProfile());
             context.SaveChanges();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var hasProfile = await profileService.HasProfileAsync();
@@ -69,7 +71,7 @@ namespace Waffler.Test.Service
             var context = DatabaseHelper.GetContext();
             context.WafflerProfiles.Add(ProfileHelper.GetProfile());
             context.SaveChanges();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var success = await profileService.CreateProfileAsync(ProfileHelper.GetProfileDTO());
@@ -89,7 +91,7 @@ namespace Waffler.Test.Service
                 {"Profile:DefaultCandleStickSyncOffsetDays", $"{syncOffset}"}
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
-            var profileService = new ProfileService(configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var newProfile = ProfileHelper.GetProfileDTO();
@@ -111,7 +113,7 @@ namespace Waffler.Test.Service
         {
             //Setup
             var context = DatabaseHelper.GetContext();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var profile = await profileService.GetProfileAsync();
@@ -127,7 +129,7 @@ namespace Waffler.Test.Service
             var context = DatabaseHelper.GetContext();
             context.WafflerProfiles.Add(ProfileHelper.GetProfile());
             context.SaveChanges();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var profile = await profileService.GetProfileAsync();
@@ -149,7 +151,7 @@ namespace Waffler.Test.Service
         {
             //Setup
             var context = DatabaseHelper.GetContext();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
             var profile = ProfileHelper.GetProfile();
             profile.Password = profileService.GetHashedPassword(password);
             context.WafflerProfiles.Add(profile);
@@ -168,7 +170,7 @@ namespace Waffler.Test.Service
         {
             //Setup
             var context = DatabaseHelper.GetContext();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
             var profile = ProfileHelper.GetProfile();
             profile.Password = profileService.GetHashedPassword(password);
             context.WafflerProfiles.Add(profile);
@@ -186,7 +188,7 @@ namespace Waffler.Test.Service
         {
             //Setup
             var context = DatabaseHelper.GetContext();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var newPassword = "TEST123";
@@ -205,7 +207,7 @@ namespace Waffler.Test.Service
             var context = DatabaseHelper.GetContext();
             context.WafflerProfiles.Add(ProfileHelper.GetProfile());
             context.SaveChanges();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var newPassword = "TEST123";
@@ -222,7 +224,7 @@ namespace Waffler.Test.Service
         {
             //Setup
             var context = DatabaseHelper.GetContext();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var success = await profileService.UpdateProfileAsync(ProfileHelper.GetProfileDTO());
@@ -237,7 +239,7 @@ namespace Waffler.Test.Service
         {
             //Setup
             var context = DatabaseHelper.GetContext();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var apiKey = await profileService.GetBitpandaApiKeyAsync();
@@ -254,7 +256,7 @@ namespace Waffler.Test.Service
             var profile = ProfileHelper.GetProfile();
             context.WafflerProfiles.Add(profile);
             context.SaveChanges();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var profileDTO = _mapper.Map<ProfileDTO>(profile);
@@ -265,6 +267,7 @@ namespace Waffler.Test.Service
             Assert.True(success);
             Assert.Single(context.WafflerProfiles);
             Assert.Equal(profileDTO.ApiKey, context.WafflerProfiles.FirstOrDefault().ApiKey);
+            _configCache.Received().SetApiKey(Arg.Is<string>(_ => _ == profileDTO.ApiKey));
         }
 
         [Fact]
@@ -276,7 +279,7 @@ namespace Waffler.Test.Service
             profile.Password = "Test password";
             context.WafflerProfiles.Add(profile);
             context.SaveChanges();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var profileDTO = _mapper.Map<ProfileDTO>(profile);
@@ -286,6 +289,7 @@ namespace Waffler.Test.Service
             Assert.True(success);
             Assert.Single(context.WafflerProfiles);
             Assert.Equal(profile.Password, context.WafflerProfiles.FirstOrDefault().Password);
+            _configCache.DidNotReceive().SetApiKey(Arg.Any<string>());
         }
 
         [Fact]
@@ -297,7 +301,7 @@ namespace Waffler.Test.Service
             profile.ApiKey = Guid.NewGuid().ToString();
             context.WafflerProfiles.Add(profile);
             context.SaveChanges();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var profileDTO = _mapper.Map<ProfileDTO>(profile);
@@ -308,6 +312,7 @@ namespace Waffler.Test.Service
             Assert.True(success);
             Assert.Single(context.WafflerProfiles);
             Assert.Equal(profile.ApiKey, context.WafflerProfiles.FirstOrDefault().ApiKey);
+            _configCache.DidNotReceive().SetApiKey(Arg.Any<string>());
         }
 
         [Fact]
@@ -318,7 +323,7 @@ namespace Waffler.Test.Service
             var profile = ProfileHelper.GetProfile();
             context.WafflerProfiles.Add(profile);
             context.SaveChanges();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
 
             //Act
             var apiKey = await profileService.GetBitpandaApiKeyAsync();
@@ -332,7 +337,7 @@ namespace Waffler.Test.Service
         {
             //Setup
             var context = DatabaseHelper.GetContext();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
             _bitpandaService.GetAccountAsync().Returns((AccountDTO)null);
 
             //Act
@@ -347,7 +352,7 @@ namespace Waffler.Test.Service
         {
             //Setup
             var context = DatabaseHelper.GetContext();
-            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService);
+            var profileService = new ProfileService(_configuration, _logger, context, _mapper, _bitpandaService, _configCache);
             _bitpandaService.GetAccountAsync().Returns(new AccountDTO());
 
             //Act

@@ -3,6 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Xunit;
+using NSubstitute;
+using Microsoft.Extensions.Logging;
 
 using Waffler.Service.Infrastructure;
 using Waffler.Test.Helper;
@@ -11,11 +13,18 @@ namespace Waffler.Test.Service.Infrastructure
 {
     public class TradeRuleTestQueueTest
     {
+        private readonly ILogger<TradeRuleTestQueue> _logger;
+
+        public TradeRuleTestQueueTest()
+        {
+            _logger = Substitute.For<ILogger<TradeRuleTestQueue>>();
+        }
+
         [Fact]
         public async Task DequeueRequest()
         {
             //Setup
-            var queue = new TradeRuleTestQueue();
+            var queue = new TradeRuleTestQueue(_logger);
             var request = TradeRuleTestQueueHelper.GetTradeRuleTestRequestDTO();
 
             //Act
@@ -30,7 +39,7 @@ namespace Waffler.Test.Service.Infrastructure
         public void GetTradeRuleTestStatus_NoTest()
         {
             //Setup
-            var queue = new TradeRuleTestQueue();
+            var queue = new TradeRuleTestQueue(_logger);
 
             //Act
             var status = queue.GetTradeRuleTestStatus(-1);
@@ -43,7 +52,7 @@ namespace Waffler.Test.Service.Infrastructure
         public void GetTradeRuleTestStatus_NewTest_NoPreviousTests()
         {
             //Setup
-            var queue = new TradeRuleTestQueue();
+            var queue = new TradeRuleTestQueue(_logger);
             var request = TradeRuleTestQueueHelper.GetTradeRuleTestRequestDTO();
             queue.InitTradeRuleTestRun(request);
 
@@ -63,7 +72,7 @@ namespace Waffler.Test.Service.Infrastructure
         {
             //Setup
             var testTradeRuleId = 1;
-            var queue = new TradeRuleTestQueue();
+            var queue = new TradeRuleTestQueue(_logger);
             var request1 = TradeRuleTestQueueHelper.GetTradeRuleTestRequestDTO();
             request1.TradeRuleId = testTradeRuleId;
             request1.FromDate = DateTime.UtcNow.AddMinutes(-10);
@@ -90,7 +99,7 @@ namespace Waffler.Test.Service.Infrastructure
         public void AbortTest_False()
         {
             //Setup
-            var queue = new TradeRuleTestQueue();
+            var queue = new TradeRuleTestQueue(_logger);
             var request = TradeRuleTestQueueHelper.GetTradeRuleTestRequestDTO();
             queue.InitTradeRuleTestRun(request);
 
@@ -105,7 +114,7 @@ namespace Waffler.Test.Service.Infrastructure
         public void AbortTest_True()
         {
             //Setup
-            var queue = new TradeRuleTestQueue();
+            var queue = new TradeRuleTestQueue(_logger);
             var request = TradeRuleTestQueueHelper.GetTradeRuleTestRequestDTO();
             queue.InitTradeRuleTestRun(request);
 
@@ -120,7 +129,7 @@ namespace Waffler.Test.Service.Infrastructure
         public void IsTestAborted_False()
         {
             //Setup
-            var queue = new TradeRuleTestQueue();
+            var queue = new TradeRuleTestQueue(_logger);
             var request = TradeRuleTestQueueHelper.GetTradeRuleTestRequestDTO();
             queue.InitTradeRuleTestRun(request);
 
@@ -135,7 +144,7 @@ namespace Waffler.Test.Service.Infrastructure
         public void IsTestAborted_True()
         {
             //Setup
-            var queue = new TradeRuleTestQueue();
+            var queue = new TradeRuleTestQueue(_logger);
             var request = TradeRuleTestQueueHelper.GetTradeRuleTestRequestDTO();
             queue.InitTradeRuleTestRun(request);
             queue.AbortTest(request.TradeRuleId);
@@ -151,7 +160,7 @@ namespace Waffler.Test.Service.Infrastructure
         public void IsTestAborted_MultiTests()
         {
             //Setup
-            var queue = new TradeRuleTestQueue();
+            var queue = new TradeRuleTestQueue(_logger);
             var request1 = TradeRuleTestQueueHelper.GetTradeRuleTestRequestDTO();
             request1.TradeRuleId = 1;
             var request2 = TradeRuleTestQueueHelper.GetTradeRuleTestRequestDTO();
@@ -173,7 +182,7 @@ namespace Waffler.Test.Service.Infrastructure
         public void CloseTest_NotAborted()
         {
             //Setup
-            var queue = new TradeRuleTestQueue();
+            var queue = new TradeRuleTestQueue(_logger);
             var request = TradeRuleTestQueueHelper.GetTradeRuleTestRequestDTO();
             queue.InitTradeRuleTestRun(request);
 
@@ -189,7 +198,7 @@ namespace Waffler.Test.Service.Infrastructure
         public void CloseTest_Aborted()
         {
             //Setup
-            var queue = new TradeRuleTestQueue();
+            var queue = new TradeRuleTestQueue(_logger);
             var request = TradeRuleTestQueueHelper.GetTradeRuleTestRequestDTO();
             queue.InitTradeRuleTestRun(request);
 

@@ -12,11 +12,11 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 using Waffler.Common;
-using Waffler.Data;
 using Waffler.Domain;
 using Waffler.Domain.Bitpanda.Private.Balance;
 using Waffler.Domain.Bitpanda.Private.Order;
 using Waffler.Domain.Converter;
+using Waffler.Service.Infrastructure;
 
 namespace Waffler.Service
 {
@@ -34,15 +34,15 @@ namespace Waffler.Service
         private readonly IConfiguration _configuration;
         private readonly ILogger<BitpandaService> _logger;
         private readonly HttpClient _httpClient;
-        private readonly string _apiKey;
+        private readonly IConfigCache _configCache;
 
         private HttpClient PrivateHttpClient
         {
             get
             {
-                if (string.IsNullOrEmpty(_apiKey) == false)
+                if (string.IsNullOrEmpty(_configCache.GetApiKey()) == false)
                 {
-                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configCache.GetApiKey());
                     return _httpClient;
                 }
                 return null;
@@ -61,13 +61,13 @@ namespace Waffler.Service
         public BitpandaService(
             IConfiguration configuration,
             ILogger<BitpandaService> logger,
-            WafflerDbContext context,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            IConfigCache configCache)
         {
             _configuration = configuration;
             _logger = logger;
             _httpClient = httpClientFactory.CreateClient("Bitpanda");
-            _apiKey = context.WafflerProfiles.OrderBy(_ => _.Id)?.FirstOrDefault()?.ApiKey;
+            _configCache = configCache;
             _logger.LogDebug("Instantiated");
         }
 

@@ -16,7 +16,6 @@ using Waffler.Service;
 using Waffler.Service.Background;
 using Waffler.Service.Infrastructure;
 using Waffler.Test.Helper;
-using Waffler.Service.Util;
 
 namespace Waffler.Test.Service.Background
 {
