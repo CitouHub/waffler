@@ -70,6 +70,7 @@ namespace Waffler.API
             services.AddHostedService<BackgroundTradeService>();
             services.AddHostedService<BackgroundTestTradeService>();
             services.AddHostedService<BackgroundTradeOrderSyncService>();
+            services.AddHostedService<BackgroundInitiationService>();
 
             var mapperConfig = new MapperConfiguration(mc =>
             {
@@ -81,6 +82,7 @@ namespace Waffler.API
             services.AddSingleton<IDatabaseSetupSignal, DatabaseSetupSignal>();
             services.AddSingleton<ICandleStickSyncSignal, CandleStickSyncSignal>();
             services.AddSingleton<ITradeOrderSyncSignal, TradeOrderSyncSignal>();
+            services.AddSingleton<IConfigCache, ConfigCache>();
 
             var sessionExpirationMinutes = _configuration.GetValue<int>("Profile:SessionExpirationMinutes");
             UserSession.SessionValidSeconds = sessionExpirationMinutes * 60;

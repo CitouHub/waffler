@@ -16,6 +16,7 @@ using Waffler.Domain.Bitpanda.Private.Balance;
 using Waffler.Service;
 using Waffler.Test.Helper;
 using Waffler.Test.Mock;
+using Waffler.Service.Infrastructure;
 
 #pragma warning disable IDE0017 // Simplify object initialization
 namespace Waffler.Test.Service
@@ -24,27 +25,10 @@ namespace Waffler.Test.Service
     {
         private readonly ILogger<BitpandaService> _logger = Substitute.For<ILogger<BitpandaService>>();
         private readonly IHttpClientFactory _httpClientFactory = Substitute.For<IHttpClientFactory>();
+        private readonly IConfigCache _configCache = Substitute.For<IConfigCache>();
         private readonly string ApiBaseUri = "https://test.api.com";
 
         private BitpandaService _bitpandaService;
-
-        [Fact]
-        public async Task GetAccount_NoProfile()
-        {
-            //Setup
-            var httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
-            var httpClient = new HttpClient(httpMessageHandler);
-            _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
-
-            //Act
-            var result = await _bitpandaService.GetAccountAsync();
-
-            //Assert
-            Assert.Null(result);
-            Assert.Empty(httpMessageHandler.Requests);
-        }
 
         [Fact]
         public async Task GetAccount_NoApiKey()
@@ -53,12 +37,8 @@ namespace Waffler.Test.Service
             var httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
             var httpClient = new HttpClient(httpMessageHandler);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            var profile = ProfileHelper.GetProfile();
-            profile.ApiKey = null;
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(profile);
-            context.SaveChanges();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns((string)null);
+            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, _httpClientFactory, _configCache);
 
             //Act
             var result = await _bitpandaService.GetAccountAsync();
@@ -77,10 +57,8 @@ namespace Waffler.Test.Service
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(ProfileHelper.GetProfile());
-            context.SaveChanges();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, _httpClientFactory, _configCache);
 
             //Act
             var result = await _bitpandaService.GetAccountAsync();
@@ -100,10 +78,8 @@ namespace Waffler.Test.Service
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(ProfileHelper.GetProfile());
-            context.SaveChanges();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, _httpClientFactory, _configCache);
 
             //Act
             var result = await _bitpandaService.GetAccountAsync();
@@ -124,8 +100,8 @@ namespace Waffler.Test.Service
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, _httpClientFactory, _configCache);
 
             //Act
             var result = await _bitpandaService.GetCandleSticksAsync(instrumentCode, unit, period, from, to);
@@ -148,8 +124,8 @@ namespace Waffler.Test.Service
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, _httpClientFactory, _configCache);
 
             //Act
             var result = await _bitpandaService.GetCandleSticksAsync(instrumentCode, unit, period, from, to);
@@ -162,48 +138,19 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task PlaceOrder_NoOrder_NoProfile()
-        {
-            //Setup
-            var  httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
-            var httpClient = new HttpClient(httpMessageHandler);
-            _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            var settings = new Dictionary<string, string> {
-                {"Bitpanda:OrderFeature:Buy", "true"},
-                {"Bitpanda:OrderFeature:Sell", "true"},
-            };
-            var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
-            _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
-            var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
-
-            //Act
-            var result = await _bitpandaService.TryPlaceOrderAsync(tradeRule, 10, 10);
-
-            //Assert
-            Assert.Null(result);
-            Assert.Empty(httpMessageHandler.Requests);
-        }
-
-        [Fact]
         public async Task PlaceOrder_NoOrder_NoApiKey()
         {
             //Setup
             var httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
             var httpClient = new HttpClient(httpMessageHandler);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            var profile = ProfileHelper.GetProfile();
-            profile.ApiKey = null;
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(profile);
-            context.SaveChanges();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
             var settings = new Dictionary<string, string> {
                 {"Bitpanda:OrderFeature:Buy", "true"},
                 {"Bitpanda:OrderFeature:Sell", "true"},
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
-            _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns((string)null);
+            _bitpandaService = new BitpandaService(configuration, _logger, _httpClientFactory, _configCache);
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
 
             //Act
@@ -225,15 +172,13 @@ namespace Waffler.Test.Service
             var httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
             var httpClient = new HttpClient(httpMessageHandler);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(ProfileHelper.GetProfile());
-            context.SaveChanges();
             var settings = new Dictionary<string, string> {
                 {"Bitpanda:OrderFeature:Buy", buy ? "true" : "false"},
                 {"Bitpanda:OrderFeature:Sell", sell ? "true" : "false"},
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
-            _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(configuration, _logger, _httpClientFactory, _configCache);
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeActionId = tradeActionId;
 
@@ -257,15 +202,13 @@ namespace Waffler.Test.Service
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(ProfileHelper.GetProfile());
-            context.SaveChanges();
             var settings = new Dictionary<string, string> {
                 {"Bitpanda:OrderFeature:Buy", "true" },
                 {"Bitpanda:OrderFeature:Sell", "true" },
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
-            _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(configuration, _logger, _httpClientFactory, _configCache);
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeActionId = tradeActionId;
 
@@ -293,15 +236,13 @@ namespace Waffler.Test.Service
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(ProfileHelper.GetProfile());
-            context.SaveChanges();
             var settings = new Dictionary<string, string> {
                 {"Bitpanda:OrderFeature:Buy", "true" },
                 {"Bitpanda:OrderFeature:Sell", "true" }
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
-            _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(configuration, _logger, _httpClientFactory, _configCache);
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeActionId = tradeActionId;
 
@@ -329,9 +270,6 @@ namespace Waffler.Test.Service
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(ProfileHelper.GetProfile());
-            context.SaveChanges();
             var settings = new Dictionary<string, string> {
                 {"Bitpanda:OrderFeature:Buy", "true" },
                 {"Bitpanda:OrderFeature:Sell", "true" },
@@ -339,7 +277,8 @@ namespace Waffler.Test.Service
                 {"Bitpanda:OrderFeature:MinimumSellBalance", minimumBtc.ToString() }
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
-            _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(configuration, _logger, _httpClientFactory, _configCache);
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeActionId = tradeActionId;
 
@@ -366,15 +305,13 @@ namespace Waffler.Test.Service
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(ProfileHelper.GetProfile());
-            context.SaveChanges();
             var settings = new Dictionary<string, string> {
                 {"Bitpanda:OrderFeature:Buy", "true" },
                 {"Bitpanda:OrderFeature:Sell", "true" },
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
-            _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(configuration, _logger, _httpClientFactory, _configCache);
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeActionId = tradeActionId;
 
@@ -404,15 +341,13 @@ namespace Waffler.Test.Service
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(ProfileHelper.GetProfile());
-            context.SaveChanges();
             var settings = new Dictionary<string, string> {
                 {"Bitpanda:OrderFeature:Buy", "true" },
                 {"Bitpanda:OrderFeature:Sell", "true" },
             };
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
-            _bitpandaService = new BitpandaService(configuration, _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(configuration, _logger, _httpClientFactory, _configCache);
             var tradeRule = TradeRuleHelper.GetTradeRuleDTO();
             tradeRule.TradeActionId = tradeActionId;
 
@@ -428,37 +363,14 @@ namespace Waffler.Test.Service
 
         [Theory]
         [InlineData(Bitpanda.InstrumentCode.BTC_EUR, "2020-01-01 12:00", "2020-01-01 18:00")]
-        public async Task GetOrders_NoProfile(string instrumentCode, DateTime from, DateTime to)
-        {
-            //Setup
-            var httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
-            var httpClient = new HttpClient(httpMessageHandler);
-            _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
-
-            //Act
-            var result = await _bitpandaService.GetOrdersAsync(instrumentCode, from, to);
-
-            //Assert
-            Assert.Null(result);
-            Assert.Empty(httpMessageHandler.Requests);
-        }
-
-        [Theory]
-        [InlineData(Bitpanda.InstrumentCode.BTC_EUR, "2020-01-01 12:00", "2020-01-01 18:00")]
         public async Task GetOrders_NoApiKey(string instrumentCode, DateTime from, DateTime to)
         {
             //Setup
             var httpMessageHandler = new MockHttpMessageHandler(null, HttpStatusCode.OK);
             var httpClient = new HttpClient(httpMessageHandler);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            var profile = ProfileHelper.GetProfile();
-            profile.ApiKey = null;
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(profile);
-            context.SaveChanges();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns((string)null);
+            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, _httpClientFactory, _configCache);
 
             //Act
             var result = await _bitpandaService.GetOrdersAsync(instrumentCode, from, to);
@@ -478,10 +390,8 @@ namespace Waffler.Test.Service
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(ProfileHelper.GetProfile());
-            context.SaveChanges();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, _httpClientFactory, _configCache);
 
             //Act
             var result = await _bitpandaService.GetOrdersAsync(instrumentCode, from, to);
@@ -503,10 +413,8 @@ namespace Waffler.Test.Service
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(ProfileHelper.GetProfile());
-            context.SaveChanges();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, _httpClientFactory, _configCache);
 
             //Act
             var result = await _bitpandaService.GetOrdersAsync(instrumentCode, from, to);
@@ -519,25 +427,6 @@ namespace Waffler.Test.Service
         }
 
         [Fact]
-        public async Task GetOrder_NoProfile()
-        {
-            //Setup
-            var order = BitpandaHelper.GetOrderHistoryEntity();
-            var httpMessageHandler = new MockHttpMessageHandler(JsonConvert.SerializeObject(order), HttpStatusCode.OK);
-            var httpClient = new HttpClient(httpMessageHandler);
-            _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
-
-            //Act
-            var result = await _bitpandaService.GetOrderAsync(new Guid(order.Order.Order_id));
-
-            //Assert
-            Assert.Null(result);
-            Assert.Empty(httpMessageHandler.Requests);
-        }
-
-        [Fact]
         public async Task GetOrder_NoApiKey()
         {
             //Setup
@@ -545,12 +434,8 @@ namespace Waffler.Test.Service
             var httpMessageHandler = new MockHttpMessageHandler(JsonConvert.SerializeObject(order), HttpStatusCode.OK);
             var httpClient = new HttpClient(httpMessageHandler);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            var profile = ProfileHelper.GetProfile();
-            profile.ApiKey = null;
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(profile);
-            context.SaveChanges();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns((string)null);
+            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, _httpClientFactory, _configCache);
 
             //Act
             var result = await _bitpandaService.GetOrderAsync(new Guid(order.Order.Order_id));
@@ -569,10 +454,8 @@ namespace Waffler.Test.Service
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(ProfileHelper.GetProfile());
-            context.SaveChanges();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, _httpClientFactory, _configCache);
 
             //Act
             var result = await _bitpandaService.GetOrderAsync(new Guid(order.Order.Order_id));
@@ -592,10 +475,8 @@ namespace Waffler.Test.Service
             var httpClient = new HttpClient(httpMessageHandler);
             httpClient.BaseAddress = new Uri(ApiBaseUri);
             _httpClientFactory.CreateClient(Arg.Is("Bitpanda")).Returns(httpClient);
-            using var context = DatabaseHelper.GetContext();
-            context.WafflerProfiles.Add(ProfileHelper.GetProfile());
-            context.SaveChanges();
-            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, context, _httpClientFactory);
+            _configCache.GetApiKey().Returns("TestKey");
+            _bitpandaService = new BitpandaService(Substitute.For<IConfiguration>(), _logger, _httpClientFactory, _configCache);
 
             //Act
             var result = await _bitpandaService.GetOrderAsync(new Guid(order.Order.Order_id));
