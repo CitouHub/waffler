@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+﻿import React, { useState } from "react";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
@@ -15,47 +15,24 @@ import TradeFilter from '../filter/trade.filter';
 import TradeRuleDialog from "../utils/dialog/traderule.dialog";
 
 import TradeOrderService from '../../services/tradeorder.service';
-import TradeRuleService from '../../services/traderule.service';
 
 const TradeOrders = () => {
     const [loading, setLoading] = useState(true);
     const [tradeOrders, setTradeOrders] = useState([]);
     const [tradeOrdersDisplay, setTradeOrdersDisplay] = useState([]);
-    const [tradeRules, setTradeRules] = useState([]);
-    const [tradeOrderStatuses, setTradeOrderStatuses] = useState([]);
     const [selectedTradeOrder, setSelectedTradeOrder] = useState({});
-    const [filter, setFilter] = useState({
-        fromDate: null,
-        toDate: new Date(),
-        selectedTradeRules: [],
-        selectedTradeOrderStatuses: [],
-    });
 
-    useEffect(() => {
-        TradeRuleService.getTradeRules().then((result) => {
-            result.push({
-                id: 0,
-                name: 'Manual'
-            });
-            setTradeRules(result);
-        });
+    const datesChanged = (filter) => {
+        updateTradeOrders(filter);
+    }
 
-        TradeOrderService.getTradeOrderStatuses().then((result) => {
-            setTradeOrderStatuses(result);
-        });
-    }, []);
-
-    useEffect(() => {
-        updateTradeOrders();
-    }, [filter]);
-
-    const updateTradeOrders = () => {
+    const updateTradeOrders = (filter) => {
         if (filter.fromDate && filter.toDate) {
             setLoading(true);
-            let toDate = new Date(filter.toDate);
-            toDate.setDate(toDate.getDate() + 1);
+            let toDateExtra = new Date(filter.toDate);
+            toDateExtra.setDate(toDateExtra.getDate() + 1);
 
-            TradeOrderService.getTradeOrders(filter.fromDate, toDate).then((tradeOrdersResult) => {
+            TradeOrderService.getTradeOrders(filter.fromDate, toDateExtra).then((tradeOrdersResult) => {
                 if (tradeOrdersResult && tradeOrdersResult.length > 0) {
                     tradeOrdersResult.forEach((e) => {
                         e.orderDateTime = new Date(e.orderDateTime);
@@ -63,33 +40,47 @@ const TradeOrders = () => {
                 }
 
                 setTradeOrders(tradeOrdersResult);
+                updateTradeOrdersDisplay(tradeOrdersResult, filter.selectedTradeRules, filter.selectedTradeOrderStatuses);
+
                 setLoading(false);
             });
         }
     }
 
-    useEffect(() => {
-        if (tradeOrders && tradeOrders.length > 0) {
+    const selectionsChanged = (filter) => {
+        updateTradeOrdersDisplay(tradeOrders, filter.selectedTradeRules, filter.selectedTradeOrderStatuses)
+    }
+
+    const updateTradeOrdersDisplay = (tradeOrdersData, selectedTradeRules, selectedTradeOrderStatuses) => {
+        if (tradeOrdersData && tradeOrdersData.length > 0) {
             const tradeOrdersUpdate = [];
 
-            tradeOrders.forEach((tradeOrder) => {
-                if (filter.selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0 &&
-                    filter.selectedTradeOrderStatuses.filter(s => s.id === tradeOrder.tradeOrderStatusId).length > 0) {
+            tradeOrdersData.forEach((tradeOrder) => {
+                if (selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0 &&
+                    selectedTradeOrderStatuses.filter(s => s.id === tradeOrder.tradeOrderStatusId).length > 0) {
                     tradeOrdersUpdate.push(tradeOrder);
                 }
             });
-
             setTradeOrdersDisplay(tradeOrdersUpdate);
         }
-    }, [filter.selectedTradeRules, filter.selectedTradeOrderStatuses, tradeOrders]);
+    }
 
-    const setTradeRule = (tradeOrderId, tradeRuleId) => {
-        setLoading(true);
-        TradeOrderService.setTradeRule(tradeOrderId, tradeRuleId).then((success) => {
+    const setTradeRule = (tradeOrderId, tradeRule) => {
+        TradeOrderService.setTradeRule(tradeOrderId, tradeRule.id).then((success) => {
             if (success === true) {
-                updateTradeOrders();
+                var tradeOrdersUpdate = [...tradeOrders];
+                var tradeOrderIndex = tradeOrdersUpdate.findIndex(_ => _.id === tradeOrderId);
+                tradeOrdersUpdate[tradeOrderIndex].tradeRuleId = tradeRule.id;
+                tradeOrdersUpdate[tradeOrderIndex].tradeRuleName = tradeRule.name;
+
+                var tradeOrdersDisplayUpdate = [...tradeOrdersDisplay];
+                var tradeOrderDisplayIndex = tradeOrdersDisplayUpdate.findIndex(_ => _.id === tradeOrderId);
+                tradeOrdersDisplayUpdate[tradeOrderDisplayIndex].tradeRuleId = tradeRule.id;
+                tradeOrdersDisplayUpdate[tradeOrderDisplayIndex].tradeRuleName = tradeRule.name;
+
+                setTradeOrders(tradeOrdersUpdate);
+                setTradeOrdersDisplay(tradeOrdersDisplayUpdate);
             }
-            setLoading(false);
         });
     }
 
@@ -123,10 +114,8 @@ const TradeOrders = () => {
             </div>
             <div>
                 <TradeFilter
-                    filter={filter}
-                    updateFilter={(filter) => setFilter(filter)}
-                    tradeRules={tradeRules}
-                    tradeOrderStatuses={tradeOrderStatuses}
+                    datesChanged={datesChanged}
+                    selectionsChanged={selectionsChanged}
                 />
             </div>
             {loading === false && tradeOrders && tradeOrdersDisplay.length > 0 && <div className='mt-4'>
@@ -155,7 +144,7 @@ const TradeOrders = () => {
                                     </StyledTableCell>
                                     <StyledTableCell>
                                         {tradeOrder.tradeRuleName}
-                                        {tradeOrder.tradeRuleId == 0 && <HelpOutlineIcon sx={{ height: '16px', cursor: 'pointer' }} onClick={() => setSelectedTradeOrder(tradeOrder)} />}
+                                        {tradeOrder.tradeRuleId === 0 && <HelpOutlineIcon sx={{ height: '16px', cursor: 'pointer' }} onClick={() => setSelectedTradeOrder(tradeOrder)} />}
                                     </StyledTableCell>
                                     <StyledTableCell>{tradeOrder.tradeActionName}</StyledTableCell>
                                     <StyledTableCell>{tradeOrder.tradeOrderStatusName}</StyledTableCell>
@@ -171,7 +160,6 @@ const TradeOrders = () => {
                 <TradeRuleDialog
                     tradeOrder={selectedTradeOrder}
                     closeDialog={() => setSelectedTradeOrder({})}
-                    tradeRules={tradeRules}
                     setTradeRule={setTradeRule} />
             </div>}
             {loading === false && tradeOrders && tradeOrdersDisplay.length === 0 && <div className='mt-4'>

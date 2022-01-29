@@ -22,7 +22,6 @@ import SellCompleteAnnotate from './annotate/sell.complete.annotate'
 import SellTestAnnotate from './annotate/sell.test.annotate'
 import CandleStickService from '../../services/candlestick.service'
 import TradeOrderService from '../../services/tradeorder.service'
-import TradeRuleService from '../../services/traderule.service'
 import ToolTipHelper from './tooltip/hover.tooltip'
 import TradeFilter from '../filter/trade.filter'
 import SyncBar from './syncbar'
@@ -31,21 +30,12 @@ import './chart.css';
 
 const TradeChart = () => {
     let syncActive = true;
-
     const [loading, setLoading] = useState(true);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [syncStatus, setSyncStatus] = useState({});
     const [candleSticks, setCandleSticks] = useState([]);
     const [candleSticksChart, setCandleSticksChart] = useState([]);
     const [tradeOrders, setTradeOrders] = useState([]);
-    const [tradeRules, setTradeRules] = useState([]);
-    const [tradeOrderStatuses, setTradeOrderStatuses] = useState([]);
-    const [filter, setFilter] = useState({
-        fromDate: null,
-        toDate: new Date(),
-        selectedTradeRules: [],
-        selectedTradeOrderStatuses: [],
-    });
 
     const canvasRef = useRef();
     const windowSize = useWindowSize();
@@ -61,18 +51,6 @@ const TradeChart = () => {
 
     useEffect(() => {
         getCandleStickSyncStatus();
-
-        TradeRuleService.getTradeRules().then((result) => {
-            result.push({
-                id: 0,
-                name: 'Manual'
-            });
-            setTradeRules(result);
-        });
-
-        TradeOrderService.getTradeOrderStatuses().then((result) => {
-            setTradeOrderStatuses(result);
-        });
 
         return () => {
             syncActive = false;
@@ -92,46 +70,77 @@ const TradeChart = () => {
                 height: canvasRef.current.offsetHeight
             });
         }
+    }, [candleSticksChart]);
 
-        updateCandleStickData();
-    }, [filter.fromDate, filter.toDate]);
+    const datesChanged = (filter) => {
+        updateCandleStickData(filter);
+    }
 
-    useEffect(() => {
-        if (candleSticks.length === 0) {
-            updateCandleStickData();
-        }
-    }, [syncStatus]);
+    const updateCandleStickData = (filter) => {
+        if (syncStatus.finished && filter.fromDate && filter.toDate) {
+            setLoading(true);
+            let toDateExtra = new Date(filter.toDate);
+            toDateExtra.setDate(toDateExtra.getDate() + 1);
 
-    useEffect(() => {
-        if (candleSticks && tradeOrders) {
-            const candleSticksUpdate = [...candleSticks];
-            if (candleSticksUpdate.length > 0 && tradeOrders.length > 0) {
-                tradeOrders.forEach((tradeOrder) => {
-                    let candleStick = candleSticksUpdate.find((candleStick) => {
-                        if (candleStick.date >= tradeOrder.orderDateTime) {
-                            return candleStick;
-                        }
+            var getCandleSticks = CandleStickService.getCandleSticks(filter.fromDate, toDateExtra, 1, 30);
+            var getTradeOrders = TradeOrderService.getTradeOrders(filter.fromDate, toDateExtra);
 
-                        return null;
+            Promise.all([getCandleSticks, getTradeOrders]).then((result) => {
+                if (result[0] && result[0].length > 0) {
+                    result[0].forEach((e) => {
+                        e.date = new Date(e.date);
                     });
+                }
 
-                    if (candleStick === undefined) {
-                        candleStick = candleSticksUpdate[candleSticksUpdate.length - 1];
+                if (result[0] && result[0].length > 0) {
+                    result[1].forEach((tradeOrder) => {
+                        tradeOrder.orderDateTime = new Date(tradeOrder.orderDateTime);
+                    });
+                }
+
+                setCandleSticks(result[0]);
+                setTradeOrders(result[1]);
+                updateCandleSticksChart(result[0], result[1], filter.selectedTradeRules, filter.selectedTradeOrderStatuses);
+
+                setLoading(false);
+            });
+        }
+    }
+
+    const selectionsChanged = (filter) => {
+        updateCandleSticksChart(candleSticks, tradeOrders, filter.selectedTradeRules, filter.selectedTradeOrderStatuses)
+    }
+
+    const updateCandleSticksChart = (candleSticksData, tradeOrderData, selectedTradeRules, selectedTradeOrderStatuses) => {
+        if (candleSticksData && tradeOrderData && selectedTradeRules && selectedTradeOrderStatuses &&
+            candleSticksData.length > 0 && tradeOrderData.length > 0) {
+
+            const candleSticksUpdate = [...candleSticksData];
+            tradeOrderData.forEach((tradeOrder) => {
+                let candleStick = candleSticksUpdate.find((candleStick) => {
+                    if (candleStick.date >= tradeOrder.orderDateTime) {
+                        return candleStick;
                     }
 
-                    if (filter.selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0 &&
-                        filter.selectedTradeOrderStatuses.filter(s => s.id === tradeOrder.tradeOrderStatusId).length > 0) {
-                        candleStick.tradeOrder = tradeOrder;
-                    }
-                    else {
-                        candleStick.tradeOrder = undefined;
-                    }
+                    return null;
                 });
-            }
+
+                if (candleStick === undefined) {
+                    candleStick = candleSticksUpdate[candleSticksUpdate.length - 1];
+                }
+
+                if (selectedTradeRules.filter(t => t.id === tradeOrder.tradeRuleId).length > 0 &&
+                    selectedTradeOrderStatuses.filter(s => s.id === tradeOrder.tradeOrderStatusId).length > 0) {
+                    candleStick.tradeOrder = tradeOrder;
+                }
+                else {
+                    candleStick.tradeOrder = undefined;
+                }
+            });
 
             setCandleSticksChart(candleSticksUpdate);
         }
-    }, [filter.selectedTradeRules, filter.selectedTradeOrderStatuses, tradeOrders, candleSticks]);
+    }
 
     const getCandleStickSyncStatus = () => {
         CandleStickService.getCandleSticksSyncStatus().then((syncStatus) => {
@@ -152,35 +161,6 @@ const TradeChart = () => {
                 setTimeout(() => getCandleStickSyncStatus(), 1500);
             }
         });
-    }
-
-    const updateCandleStickData = () => {
-        if (syncStatus.finished && filter.fromDate && filter.toDate) {
-            setLoading(true);
-            let toDate = new Date(filter.toDate);
-            toDate.setDate(toDate.getDate() + 1);
-
-            CandleStickService.getCandleSticks(filter.fromDate, toDate, 1, 30).then((candleSticksResult) => {
-                if (candleSticksResult && candleSticksResult.length > 0) {
-                    candleSticksResult.forEach((e) => {
-                        e.date = new Date(e.date);
-                    });
-                }
-
-                TradeOrderService.getTradeOrders(filter.fromDate, toDate).then((tradeOrdersResult) => {
-                    if (candleSticksResult && candleSticksResult.length > 0) {
-                        tradeOrdersResult.forEach((tradeOrder) => {
-                            tradeOrder.orderDateTime = new Date(tradeOrder.orderDateTime);
-                        });
-                    }
-
-                    setTradeOrders(tradeOrdersResult);
-                    setCandleSticks(candleSticksResult);
-
-                    setLoading(false);
-                });
-            });
-        }
     }
 
     const margin = { left: 0, right: 48, top: 24, bottom: 24 };
@@ -213,14 +193,12 @@ const TradeChart = () => {
             <div className='mt-3 mb-3'>
                 <h4>Chart</h4>
             </div>
-            {!syncStatus?.finished && <SyncBar currentDate={syncStatus?.lastPeriodDateTime?.toJSON()?.slice(0, 10)} progress={syncStatus.progress} throttled={syncStatus.isThrottled}/>}
+            {!syncStatus?.finished && <SyncBar currentDate={syncStatus?.lastPeriodDateTime?.toJSON()?.slice(0, 10)} progress={syncStatus.progress} throttled={syncStatus.isThrottled} />}
             {syncStatus?.finished && dimensions.width > 0 && dimensions.height > 0 &&
                 <div>
                     <TradeFilter
-                        filter={filter}
-                        updateFilter={(filter) => setFilter(filter)}
-                        tradeRules={tradeRules}
-                        tradeOrderStatuses={tradeOrderStatuses}
+                        datesChanged={datesChanged}
+                        selectionsChanged={selectionsChanged}
                     />
                     {candleSticksChart && candleSticksChart.length > 0 && <ChartCanvas
                         height={dimensions.height - 150}

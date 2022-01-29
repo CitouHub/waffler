@@ -4,7 +4,7 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import TextField from '@mui/material/TextField';
 import DatePicker from '@mui/lab/DatePicker';
 
-const DateSpanFilter = ({ updateFilter, filter }) => {
+const DateSpanFilter = ({ fromDate, toDate, updateFromDate, updateToDate }) => {
 
     return (
         <React.Fragment>
@@ -13,9 +13,9 @@ const DateSpanFilter = ({ updateFilter, filter }) => {
                     <DatePicker
                         id="datespan-filter-fromDate"
                         label="From"
-                        value={filter?.fromDate}
-                        maxDate={filter?.toDate}
-                        onChange={newDate => updateFilter({ ...filter, fromDate: newDate })}
+                        value={fromDate}
+                        maxDate={toDate}
+                        onChange={newDate => updateFromDate(newDate)}
                         mask="____-__-__"
                         inputFormat="yyyy-MM-dd"
                         renderInput={(params) => <TextField {...params} />}
@@ -25,10 +25,10 @@ const DateSpanFilter = ({ updateFilter, filter }) => {
                     <DatePicker
                         id="datespan-filter-toDate"
                         label="To"
-                        value={filter?.toDate}
-                        minDate={filter?.fromDate}
+                        value={toDate}
+                        minDate={fromDate}
                         maxDate={new Date()}
-                        onChange={newDate => updateFilter({ ...filter, toDate: newDate })}
+                        onChange={newDate => updateToDate(newDate)}
                         mask="____-__-__"
                         inputFormat="yyyy-MM-dd"
                         renderInput={(params) => <TextField {...params} />}

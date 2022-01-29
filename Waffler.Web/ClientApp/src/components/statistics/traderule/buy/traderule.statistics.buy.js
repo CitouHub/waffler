@@ -1,10 +1,8 @@
-﻿import React, { useState, useEffect } from "react";
+﻿import React, { useState } from "react";
 import TradeFilter from '../../../filter/trade.filter';
 import LoadingBar from '../../../utils/loadingbar';
 
 import StatisticsService from '../../../../services/statistics.service';
-import TradeRuleService from '../../../../services/traderule.service';
-import TradeOrderService from '../../../../services/tradeorder.service';
 
 import { ReactComponent as BTC } from '../../../../assets/images/svg/bitcoin.svg';
 import { ReactComponent as TrendUp } from '../../../../assets/images/svg/trend-up.svg';
@@ -16,30 +14,8 @@ const TradeRuleBuyStatistics = () => {
     const [loading, setLoading] = useState(true);
     const [statistics, setStatistics] = useState([]);
     const [trend, setTrend] = useState([]);
-    const [tradeRules, setTradeRules] = useState([]);
-    const [tradeOrderStatuses, setTradeOrderStatuses] = useState([]);
-    const [filter, setFilter] = useState({
-        fromDate: null,
-        toDate: new Date(),
-        selectedTradeRules: [],
-        selectedTradeOrderStatuses: [],
-    });
 
-    useEffect(() => {
-        TradeRuleService.getTradeRules().then((result) => {
-            result.push({
-                id: 0,
-                name: 'Manual'
-            });
-            setTradeRules(result);
-        });
-
-        TradeOrderService.getTradeOrderStatuses().then((result) => {
-            setTradeOrderStatuses(result);
-        });
-    }, []);
-
-    useEffect(() => {
+    const filterChanged = (filter) => {
         if (filter.fromDate && filter.toDate) {
             setLoading(true);
 
@@ -61,7 +37,7 @@ const TradeRuleBuyStatistics = () => {
                 setLoading(false);
             });
         }
-    }, [filter]);
+    }
 
     return (
         <div>
@@ -72,10 +48,7 @@ const TradeRuleBuyStatistics = () => {
              <div className="stat-header">
                 <div>
                     <TradeFilter
-                        filter={filter}
-                        updateFilter={(filter) => setFilter(filter)}
-                        tradeRules={tradeRules}
-                        tradeOrderStatuses={tradeOrderStatuses}
+                        filterChanged={filterChanged}
                         simplified
                     />
                 </div>
