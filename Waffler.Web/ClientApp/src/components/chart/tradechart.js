@@ -113,7 +113,7 @@ const TradeChart = () => {
 
     const updateCandleSticksChart = (candleSticksData, tradeOrderData, selectedTradeRules, selectedTradeOrderStatuses) => {
         if (candleSticksData && tradeOrderData && selectedTradeRules && selectedTradeOrderStatuses &&
-            candleSticksData.length > 0 && tradeOrderData.length > 0) {
+            candleSticksData.length > 0) {
 
             const candleSticksUpdate = [...candleSticksData];
             tradeOrderData.forEach((tradeOrder) => {
