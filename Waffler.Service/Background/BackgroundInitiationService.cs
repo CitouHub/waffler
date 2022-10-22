@@ -15,22 +15,30 @@ namespace Waffler.Service.Background
     {
         private readonly ILogger<BackgroundInitiationService> _logger;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IDatabaseSetupSignal _databaseSetupSignal;
         private readonly IConfigCache _configCache;
 
         public BackgroundInitiationService(
             ILogger<BackgroundInitiationService> logger,
             IServiceProvider serviceProvider,
+            IDatabaseSetupSignal databaseSetupSignal,
             IConfigCache configCache)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
+            _databaseSetupSignal = databaseSetupSignal;
             _configCache = configCache;
             _logger.LogDebug("Instantiated");
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await SetupConfigCache();
+            await _databaseSetupSignal.AwaitDatabaseReadyAsync(cancellationToken);
+
+            if(cancellationToken.IsCancellationRequested == false)
+            {
+                await SetupConfigCache();
+            }
         }
 
         public async Task SetupConfigCache()
